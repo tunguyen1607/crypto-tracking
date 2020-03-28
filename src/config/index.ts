@@ -61,5 +61,8 @@ export default {
   emails: {
     apiKey: 'API key from mailgun',
     domain: 'Domain Name from mailgun'
+  },
+  rabbitmq: {
+    url: process.env.CLOUDAMQP_URL,
   }
 };

@@ -4,7 +4,8 @@ import { IUser } from '../interfaces/IUser';
 @Service()
 export default class MailerService {
   constructor(
-    @Inject('emailClient') private emailClient
+    @Inject('emailClient') private emailClient,
+    @Inject('logger') private logger
   ) { }
 
   public async SendWelcomeEmail(email) {
@@ -12,6 +13,7 @@ export default class MailerService {
      * @TODO Call Mailchimp/Sendgrid or whatever
      */
     // Added example for sending mail from mailgun
+    this.logger.silly('Sending welcome email');
     const data = {
       from: 'Excited User <me@samples.mailgun.org>',
       to: email, //your email address
