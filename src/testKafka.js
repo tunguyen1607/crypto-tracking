@@ -10,18 +10,18 @@ var consumerOptions = {
 };
 
 var topics = ['log-trackings'];
-function onError (error) {
+function onError(error) {
   console.error(error);
   console.error(error.stack);
 }
 
-function onMessage (message) {
+function onMessage(message) {
   console.log(
     '%s read msg Topic="%s" Partition=%s Offset=%d',
     this.client.clientId,
     message.topic,
     message.partition,
-    message.offset
+    message.offset,
   );
 }
 var consumerGroup = new ConsumerGroup(Object.assign({ id: 'consumer1' }, consumerOptions), topics);
@@ -31,9 +31,9 @@ consumerGroup.on('message', onMessage);
 var consumerGroup2 = new ConsumerGroup(Object.assign({ id: 'consumer2' }, consumerOptions), topics);
 consumerGroup2.on('error', onError);
 consumerGroup2.on('message', onMessage);
-consumerGroup2.on('connect', function () {
-  setTimeout(function () {
-    consumerGroup2.close(true, function (error) {
+consumerGroup2.on('connect', function() {
+  setTimeout(function() {
+    consumerGroup2.close(true, function(error) {
       console.log('consumer2 closed', error);
     });
   }, 25000);

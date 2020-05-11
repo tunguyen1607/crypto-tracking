@@ -64,5 +64,12 @@ export default {
   },
   rabbitmq: {
     url: process.env.CLOUDAMQP_URL,
-  }
+  },
+  sequelize: {
+    database: 'notification_base',
+    host: 'localhost',
+    port: 3306,
+    user: 'root',
+    password: 'tuantu123',
+  },
 };

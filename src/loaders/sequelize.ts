@@ -1,10 +1,11 @@
 import Sequelize from 'sequelize';
+import configuration from '../config';
 
-export default async () => {
-  return new Promise(function (resolve, reject) {
+const createConnection = config => {
+  return new Promise(function(resolve, reject) {
     // @ts-ignore
-    const connection = new Sequelize('notification_base', 'root', 'tuantu123', {
-      host: 'localhost',
+    const connection = new Sequelize(config.database, config.user, config.password, {
+      host: config.host,
       dialect: 'mysql' /* one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' */,
       pool: {
         max: 5,
@@ -23,5 +24,16 @@ export default async () => {
         console.error('Unable to connect to the database:', err);
         reject(err);
       });
+  });
+}
+
+export default async () => {
+  return new Promise(function() {
+    let connection = {};
+    if (configuration.sequelize instanceof Array) {
+      configuration.sequelize.forEach(async function(config) {
+        connection[config.database] = await createConnection(config);
+      });
+    }
   });
 };
