@@ -1,16 +1,15 @@
 import expressLoader from './express';
 import dependencyInjectorLoader from './dependencyInjector';
 import mongooseLoader from './mongoose';
+import sequelizeLoader from './sequelize';
 import jobsLoader from './jobs';
-import rabbitMQLoader from './rabbitmq';
-import publisherLoader from './publisher';
-import workers from './workers';
 import Logger from './logger';
 //We have to import at least all the events once so they can be triggered
 import './events';
 
 export default async ({ expressApp }) => {
   const mongoConnection = await mongooseLoader();
+  const sequelizeConnection = await sequelizeLoader();
   Logger.info('✌️ DB loaded and connected!');
 
   /**
@@ -21,31 +20,30 @@ export default async ({ expressApp }) => {
    * of writing unit tests, just go and check how beautiful they are!
    */
 
-  const rabbitmqConnection = await rabbitMQLoader();
-  Logger.info('✌️ RabbitMQ loaded and connected!');
-
   const userModel = {
     name: 'userModel',
     // Notice the require syntax and the '.default'
     model: require('../models/user').default,
   };
-  const publisher = await publisherLoader({ amqpConn: rabbitmqConnection });
+  const campaignModel = {
+    name: 'campaignModel',
+    model: await require('../models/campaign').default({ sequelize: sequelizeConnection }),
+  }
 
   // It returns the agenda instance because it's needed in the subsequent loaders
   const { agenda } = await dependencyInjectorLoader({
     mongoConnection,
+    sequelizeConnection,
     models: [
       userModel,
+      campaignModel,
       // salaryModel,
       // whateverModel
     ],
-    publisher,
   });
   Logger.info('✌️ Dependency Injector loaded');
   await jobsLoader({ agenda });
   Logger.info('✌️ Jobs loaded');
-  await workers({ amqpConn: rabbitmqConnection });
-  Logger.info('✌️ Dependency Injector loaded')
   await expressLoader({ app: expressApp });
   Logger.info('✌️ Express loaded');
 };
