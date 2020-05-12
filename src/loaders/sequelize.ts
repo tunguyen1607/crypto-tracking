@@ -17,23 +17,36 @@ const createConnection = config => {
     connection
       .authenticate()
       .then(() => {
-        console.log('Connection has been established successfully.');
+        console.log('Connection ' + config.database + ' has been established successfully.');
         resolve(connection);
       })
       .catch(err => {
-        console.error('Unable to connect to the database:', err);
+        console.error('Unable to connect to the database ' + config.database, err);
         reject(err);
       });
   });
 }
 
 export default async () => {
-  return new Promise(function() {
+  return new Promise(async function(resolve, reject) {
     let connection = {};
-    if (configuration.sequelize instanceof Array) {
-      configuration.sequelize.forEach(async function(config) {
-        connection[config.database] = await createConnection(config);
-      });
+    try {
+      if (configuration.sequelize instanceof Array) {
+        console.log('list database found')
+        connection = { ...(await createConnection(configuration.sequelize[0])) };
+        connection[configuration.sequelize[0].database] = connection;
+        for (let index = 0; index < configuration.sequelize.length; index++) {
+          let config = configuration.sequelize[index];
+          if (index > 0) {
+            connection[config.database] = await createConnection(config);
+          }
+        }
+      } else {
+        connection = await createConnection(configuration.sequelize);
+      }
+      resolve(connection);
+    } catch (e) {
+      reject(e);
     }
   });
 };

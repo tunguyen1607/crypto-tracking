@@ -47,7 +47,7 @@ export default {
    */
   agendash: {
     user: 'agendash',
-    password: '123456'
+    password: '123456',
   },
   /**
    * API configs
@@ -60,16 +60,25 @@ export default {
    */
   emails: {
     apiKey: 'API key from mailgun',
-    domain: 'Domain Name from mailgun'
+    domain: 'Domain Name from mailgun',
   },
   rabbitmq: {
     url: process.env.CLOUDAMQP_URL,
   },
-  sequelize: {
-    database: 'notification_base',
-    host: 'localhost',
-    port: 3306,
-    user: 'root',
-    password: 'tuantu123',
-  },
+  sequelize: [
+    {
+      database: 'notification_base',
+      host: 'localhost',
+      port: 3306,
+      user: 'root',
+      password: 'tuantu123',
+    },
+    {
+      database: 'notification_base',
+      host: 'localhost',
+      port: 3306,
+      user: 'root',
+      password: 'tuantu123',
+    },
+  ],
 };

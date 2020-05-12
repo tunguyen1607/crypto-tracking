@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import middlewares from '../middlewares';
 import { Container } from 'typedi';
-import sequelize from 'sequelize';
+import producer from '../../services/producer';
 const route = Router();
 
 export default (app: Router) => {
@@ -15,9 +15,14 @@ export default (app: Router) => {
     const logger = Container.get('logger');
     const campaignModel = Container.get('campaignModel');
     // @ts-ignore
-    let rs = await campaignModel.findAll({
-      attributes: [[sequelize.fn('COUNT', sequelize.col('hats')), 'no_hats']],
-    });
+    let rs = await campaignModel.findAll();
+    return res.json({ rs: rs }).status(200);
+  });
+
+  route.get('/testProducer', async (req: Request, res: Response) => {
+    const logger = Container.get('logger');
+    const producerService = Container.get(producer);
+    let rs = await producerService.send('testProducer', req.query);
     return res.json({ rs: rs }).status(200);
   });
 };

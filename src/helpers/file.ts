@@ -22,7 +22,6 @@ export default function listJSFiles(dir, callback) {
       //is js file ?
       if (path.extname(file) === '.js' || path.extname(file) === '.ts') jsFiles.push(file);
     }
-    console.log(jsFiles);
     callback(null, jsFiles);
   });
 }

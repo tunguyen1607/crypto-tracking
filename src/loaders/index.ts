@@ -3,6 +3,8 @@ import dependencyInjectorLoader from './dependencyInjector';
 import mongooseLoader from './mongoose';
 import sequelizeLoader from './sequelize';
 import jobsLoader from './jobs';
+import consumersLoader from './consumers';
+import producerLoader from './producer';
 import Logger from './logger';
 //We have to import at least all the events once so they can be triggered
 import './events';
@@ -27,13 +29,15 @@ export default async ({ expressApp }) => {
   };
   const campaignModel = {
     name: 'campaignModel',
-    model: await require('../models/campaign').default({ sequelize: sequelizeConnection }),
+    model: await require('../models/campaign').default({ sequelize: sequelizeConnection['notification_base'] }),
   }
-
+  let producer = await producerLoader();
+  Logger.info('✌️ Producer loaded');
   // It returns the agenda instance because it's needed in the subsequent loaders
   const { agenda } = await dependencyInjectorLoader({
     mongoConnection,
     sequelizeConnection,
+    producer,
     models: [
       userModel,
       campaignModel,
@@ -42,6 +46,9 @@ export default async ({ expressApp }) => {
     ],
   });
   Logger.info('✌️ Dependency Injector loaded');
+  await consumersLoader();
+  Logger.info('✌️ Consumers loaded');
+
   await jobsLoader({ agenda });
   Logger.info('✌️ Jobs loaded');
   await expressLoader({ app: expressApp });

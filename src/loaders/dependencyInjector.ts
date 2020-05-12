@@ -8,10 +8,12 @@ import amqp from 'amqplib/callback_api';
 export default ({
   mongoConnection,
   sequelizeConnection,
+  producer,
   models,
 }: {
   mongoConnection;
   sequelizeConnection;
+  producer;
   models: { name: string; model: any }[];
 }) => {
   try {
@@ -22,6 +24,7 @@ export default ({
     const agendaInstance = agendaFactory({ mongoConnection });
 
     Container.set('agendaInstance', agendaInstance);
+    Container.set('producerInstance', producer);
     Container.set('logger', LoggerInstance);
     Container.set('emailClient', mailgun({ apiKey: config.emails.apiKey, domain: config.emails.domain }));
 

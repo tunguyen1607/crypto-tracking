@@ -5,6 +5,7 @@ import config from './config';
 import express from 'express';
 
 import Logger from './loaders/logger';
+import EventEmitter from 'events';
 
 async function startServer() {
   const app = express();
@@ -16,7 +17,10 @@ async function startServer() {
    * So we are using good old require.
    **/
   await require('./loaders').default({ expressApp: app });
-
+  let emitter = new EventEmitter();
+  // or 0 to turn off the limit
+  emitter.setMaxListeners(0);
+  process.setMaxListeners(0);
   app.listen(config.port, err => {
     if (err) {
       Logger.error(err);
