@@ -33,11 +33,11 @@ export default async () => {
     try {
       if (configuration.sequelize instanceof Array) {
         console.log('list database found')
-        connection = { ...(await createConnection(configuration.sequelize[0])) };
+        connection = await createConnection(configuration.sequelize[0]);
         connection[configuration.sequelize[0].database] = connection;
         for (let index = 0; index < configuration.sequelize.length; index++) {
-          let config = configuration.sequelize[index];
           if (index > 0) {
+            let config = configuration.sequelize[index];
             connection[config.database] = await createConnection(config);
           }
         }

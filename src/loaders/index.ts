@@ -29,7 +29,7 @@ export default async ({ expressApp }) => {
   };
   const campaignModel = {
     name: 'campaignModel',
-    model: await require('../models/campaign').default({ sequelize: sequelizeConnection['notification_base'] }),
+    model: await require('../models/campaign').default({ sequelize: sequelizeConnection }),
   }
   let producer = await producerLoader();
   Logger.info('✌️ Producer loaded');

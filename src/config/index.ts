@@ -73,12 +73,5 @@ export default {
       user: 'root',
       password: 'tuantu123',
     },
-    {
-      database: 'notification_base',
-      host: 'localhost',
-      port: 3306,
-      user: 'root',
-      password: 'tuantu123',
-    },
   ],
 };
