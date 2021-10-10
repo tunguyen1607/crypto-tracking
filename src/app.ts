@@ -16,17 +16,12 @@ async function startServer() {
    * Well, at least in node 10 without babel and at the time of writing
    * So we are using good old require.
    **/
-  await require('./loaders').default({ expressApp: app });
+  await require('./loaders').default({ expressApp: app, kafka: false });
   let emitter = new EventEmitter();
   // or 0 to turn off the limit
   emitter.setMaxListeners(0);
   process.setMaxListeners(0);
-  app.listen(config.port, err => {
-    if (err) {
-      Logger.error(err);
-      process.exit(1);
-      return;
-    }
+  app.listen(config.port, () => {
     Logger.info(`
       ################################################
       🛡️  Server listening on port: ${config.port} 🛡️ 

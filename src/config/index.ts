@@ -19,7 +19,11 @@ export default {
   /**
    * That long string from mlab
    */
-  databaseURL: process.env.MONGODB_URI,
+  databaseURL: !process.env.MONGODB_USER
+    ? process.env.MONGODB_URI
+    : `mongodb://${process.env.MONGODB_USER}:${encodeURIComponent(process.env.MONGODB_PASS)}@${
+        process.env.MONGODB_HOST
+      }:27017/${process.env.MONGODB_DATABASE}?authSource=admin`,
 
   /**
    * Your secret sauce
@@ -67,11 +71,21 @@ export default {
   },
   sequelize: [
     {
-      database: 'notification_base',
-      host: 'localhost',
-      port: 3306,
-      user: 'root',
-      password: 'tuantu123',
+      database: process.env.MYSQL_DATABASE,
+      host: process.env.MYSQL_HOST,
+      port: process.env.AGENDA_DB_COLLECTION || 3306,
+      user: process.env.MYSQL_USER,
+      password: process.env.MYSQL_PASS,
     },
   ],
+  aws: {
+    bucketName: 'media-all-bussiness',
+    userKey: 'AKIAJHNUMH2LHZJELZLQ',
+    userSecret: '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',
+  },
+  redis: {
+    password: process.env.REDIS_PASSWORD || '',
+    host: process.env.REDIS_HOST || '127.0.0.1',
+    port: process.env.REDIS_PORT || 6379,
+  },
 };

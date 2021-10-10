@@ -10,10 +10,16 @@ export default ({
   sequelizeConnection,
   producer,
   models,
+  publisher,
+  awsS3Instance,
+  redisInstance,
 }: {
   mongoConnection;
   sequelizeConnection;
   producer;
+  publisher;
+  awsS3Instance: any;
+  redisInstance: any;
   models: { name: string; model: any }[];
 }) => {
   try {
@@ -25,6 +31,9 @@ export default ({
 
     Container.set('agendaInstance', agendaInstance);
     Container.set('producerInstance', producer);
+    Container.set('publisherInstance', publisher);
+    Container.set('awsS3Instance', awsS3Instance);
+    Container.set('redisInstance', redisInstance);
     Container.set('logger', LoggerInstance);
     Container.set('emailClient', mailgun({ apiKey: config.emails.apiKey, domain: config.emails.domain }));
 
