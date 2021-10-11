@@ -71,11 +71,12 @@ export default {
   },
   sequelize: [
     {
-      database: process.env.MYSQL_DATABASE,
-      host: process.env.MYSQL_HOST,
-      port: process.env.AGENDA_DB_COLLECTION || 3306,
-      user: process.env.MYSQL_USER,
-      password: process.env.MYSQL_PASS,
+      database: process.env.SQL_DATABASE,
+      host: process.env.SQL_HOST,
+      port: process.env.SQL_PORT || 3306,
+      user: process.env.SQL_USER,
+      password: process.env.SQL_PASS,
+      dialect: process.env.SQL_DIALECT,
     },
   ],
   aws: {
