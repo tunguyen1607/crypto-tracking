@@ -48,9 +48,9 @@ export default async ({ expressApp, cronjob = true, rabbitmq = true, kafka = tru
     // Notice the require syntax and the '.default'
     model: require('../models/user').default,
   };
-  const campaignModel = {
-    name: 'campaignModel',
-    model: await require('../models/campaign').default({ sequelize: sequelizeConnection }),
+  const stockModel = {
+    name: 'stockModel',
+    model: await require('../models/stock').default({ sequelize: sequelizeConnection }),
   }
 
   // It returns the agenda instance because it's needed in the subsequent loaders
@@ -63,11 +63,12 @@ export default async ({ expressApp, cronjob = true, rabbitmq = true, kafka = tru
     redisInstance,
     models: [
       userModel,
-      campaignModel,
+      stockModel,
       // salaryModel,
       // whateverModel
     ],
   });
+
   Logger.info('✌️ Dependency Injector loaded');
   if (kafka) {
     await consumersLoader();

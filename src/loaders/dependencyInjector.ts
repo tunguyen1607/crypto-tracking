@@ -3,7 +3,6 @@ import LoggerInstance from './logger';
 import agendaFactory from './agenda';
 import config from '../config';
 import mailgun from 'mailgun-js';
-import amqp from 'amqplib/callback_api';
 
 export default ({
   mongoConnection,

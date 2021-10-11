@@ -2,11 +2,12 @@ import Sequelize from 'sequelize';
 import configuration from '../config';
 
 const createConnection = config => {
+  console.log(config);
   return new Promise(function(resolve, reject) {
     // @ts-ignore
     const connection = new Sequelize(config.database, config.user, config.password, {
       host: config.host,
-      dialect: 'mysql' /* one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' */,
+      dialect: config.dialect /* one of 'mysql' | 'mariadb' | 'postgres' | 'mssql' */,
       pool: {
         max: 5,
         min: 0,
@@ -16,8 +17,10 @@ const createConnection = config => {
     });
     connection
       .authenticate()
-      .then(() => {
+      .then(async () => {
         console.log('Connection ' + config.database + ' has been established successfully.');
+        let rs = await connection.sync({ force: true });
+        console.log('All models were synchronized successfully.');
         resolve(connection);
       })
       .catch(err => {
