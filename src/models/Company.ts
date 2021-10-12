@@ -1,55 +1,39 @@
 import Sequelize from 'sequelize';
 export default async ({ sequelize }) => {
-  let Stock = sequelize.define(
-    'Stock',
+  let Company = sequelize.define(
+    'Company',
     {
       // attributes
-      symbol: {
-        type: Sequelize.STRING,
-        allowNull: false,
-      },
-      company: {
+      name: {
         type: Sequelize.STRING,
       },
-      companyDescription: {
+      description: {
         type: Sequelize.STRING,
       },
-      price: {
-        type: Sequelize.FLOAT,
-      },
-      priceRef: {
-        type: Sequelize.FLOAT,
-      },
-      ceiling: {
-        type: Sequelize.FLOAT,
-      },
-      floor: {
-        type: Sequelize.FLOAT,
-      },
-      percentChange: {
+      country: {
         type: Sequelize.STRING,
       },
-      percentStatus: {
+      revenueCurrent: {
         type: Sequelize.STRING,
       },
-      volume: {
+      profitBefTax: {
         type: Sequelize.STRING,
       },
-      volumeBuy: {
+      profitAftTax: {
         type: Sequelize.STRING,
       },
-      volumeSell: {
+      dividendCash: {
         type: Sequelize.STRING,
       },
-      status: {
+      dividendStock: {
+        type: Sequelize.STRING,
+      },
+      // eslint-disable-next-line @typescript-eslint/camelcase
+      createdAt: {
         type: Sequelize.INTEGER,
       },
       // eslint-disable-next-line @typescript-eslint/camelcase
-      created_at: {
-        type: Sequelize.INTEGER,
-      },
-      // eslint-disable-next-line @typescript-eslint/camelcase
-      updated_at: {
+      updatedAt: {
         type: Sequelize.INTEGER,
       },
     },
@@ -58,6 +42,6 @@ export default async ({ sequelize }) => {
       timestamps: false,
     },
   );
-  await Stock.sync({ force: false });
-  return Stock;
+  await Company.sync({ force: false });
+  return Company;
 };

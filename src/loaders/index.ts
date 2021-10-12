@@ -50,7 +50,7 @@ export default async ({ expressApp, cronjob = true, rabbitmq = true, kafka = tru
   };
   const stockModel = {
     name: 'stockModel',
-    model: await require('../models/stock').default({ sequelize: sequelizeConnection }),
+    model: await require('../models/Stock').default({ sequelize: sequelizeConnection }),
   }
 
   // It returns the agenda instance because it's needed in the subsequent loaders
