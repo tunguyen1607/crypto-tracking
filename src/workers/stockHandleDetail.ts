@@ -9,7 +9,6 @@ export default {
     console.log('receive message ', JSON.stringify(object));
     const publishServiceInstance = Container.get(PublishService);
     try {
-
     } catch (e) {
       console.error(e);
     } finally {
