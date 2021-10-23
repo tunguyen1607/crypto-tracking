@@ -23,9 +23,11 @@ export default async ({ sequelize }) => {
         type: Sequelize.STRING,
       },
       dividendCash: {
+        //co tuc bang tien
         type: Sequelize.STRING,
       },
       dividendStock: {
+        //co tuc bang co phieu
         type: Sequelize.STRING,
       },
       // eslint-disable-next-line @typescript-eslint/camelcase
