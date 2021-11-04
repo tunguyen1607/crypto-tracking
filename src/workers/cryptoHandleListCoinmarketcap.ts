@@ -23,7 +23,7 @@ export default {
       let listCrypto = [];
       for (let i = 0; i < list.length; i++) {
         let cryptoItem: any = list[i];
-        listCrypto.push({
+        let body = {
           name: cryptoItem.name,
           symbol: cryptoItem.symbol,
           slug: cryptoItem.slug,
@@ -44,10 +44,13 @@ export default {
           source: 'coinmarketcap',
           status: 1,
           fullyDilutedMarketCap: cryptoItem.quote.USD.fully_diluted_market_cap,
-        });
+        };
+        listCrypto.push(body);
+        // @ts-ignore
+        let cryptoDetail = await cryptoModel.create(body);
+        console.log(cryptoDetail.id);
       }
       // @ts-ignore
-      await cryptoModel.bulkCreate(listCrypto);
     } catch (e) {
       console.error(e);
     } finally {
