@@ -48,8 +48,6 @@ export default {
       }
       // @ts-ignore
       await cryptoModel.bulkCreate(listCrypto);
-      console.log(list);
-      console.log(list[0]['quote']);
     } catch (e) {
       console.error(e);
     } finally {

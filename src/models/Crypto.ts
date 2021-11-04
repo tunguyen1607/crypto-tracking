@@ -66,9 +66,6 @@ export default async ({ sequelize }) => {
       volumeChange24h: {
         type: Sequelize.FLOAT,
       },
-      volume: {
-        type: Sequelize.FLOAT,
-      },
       marketDominance: {
         type: Sequelize.STRING,
       },
