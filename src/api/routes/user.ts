@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
 import middlewares from '../middlewares';
 import { Container } from 'typedi';
-import producer from '../../services/producer';
+import producer from '../../services/publish';
 const route = Router();
 
 export default (app: Router) => {
@@ -22,7 +22,7 @@ export default (app: Router) => {
   route.get('/testProducer', async (req: Request, res: Response) => {
     const logger = Container.get('logger');
     const producerService = Container.get(producer);
-    let rs = await producerService.send('testProducer', req.query);
+    let rs = await producerService.publish('', 'crypto_handle_list_coinmarketcap', req.query);
     return res.json({ rs: rs }).status(200);
   });
 };

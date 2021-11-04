@@ -12,13 +12,35 @@ export default async ({ sequelize }) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      image: {
+        type: Sequelize.STRING,
+      },
+      dateAdded: {
+        type: Sequelize.DATE,
+      },
+      lastUpdated: {
+        type: Sequelize.DATE,
+      },
+      sourceId: {
+        type: Sequelize.STRING,
+      },
+      source: {
+        type: Sequelize.STRING,
+      },
+      slug: {
+        type: Sequelize.STRING,
+      },
       description: {
         type: Sequelize.STRING,
-        allowNull: false,
+      },
+      platform: {
+        type: Sequelize.JSONB,
+      },
+      tags: {
+        type: Sequelize.JSONB,
       },
       categoryId: {
         type: Sequelize.INTEGER,
-        allowNull: false,
       },
       price: {
         type: Sequelize.FLOAT,
@@ -41,6 +63,9 @@ export default async ({ sequelize }) => {
       volume24h: {
         type: Sequelize.FLOAT,
       },
+      volumeChange24h: {
+        type: Sequelize.FLOAT,
+      },
       volume: {
         type: Sequelize.FLOAT,
       },
@@ -50,8 +75,17 @@ export default async ({ sequelize }) => {
       circulatingSupply: {
         type: Sequelize.FLOAT,
       },
+      fullyDilutedMarketCap: {
+        type: Sequelize.FLOAT,
+      },
       maxSupply: {
         type: Sequelize.FLOAT,
+      },
+      totalSupply: {
+        type: Sequelize.FLOAT,
+      },
+      cmcRank: {
+        type: Sequelize.INTEGER,
       },
       marketCap: {
         //Market Cap = Current Price x Circulating Supply.
@@ -60,20 +94,12 @@ export default async ({ sequelize }) => {
       status: {
         type: Sequelize.INTEGER,
       },
-      // eslint-disable-next-line @typescript-eslint/camelcase
-      createdAt: {
-        type: Sequelize.INTEGER,
-      },
-      // eslint-disable-next-line @typescript-eslint/camelcase
-      updatedAt: {
-        type: Sequelize.INTEGER,
-      },
     },
     {
       // options
-      timestamps: false,
+      timestamps: true,
     },
   );
-  await Crypto.sync({ force: false });
+  await Crypto.sync({ force: true });
   return Crypto;
 };
