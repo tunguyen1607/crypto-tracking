@@ -47,7 +47,29 @@ export default {
         };
         listCrypto.push(body);
         // @ts-ignore
-        let cryptoDetail = await cryptoModel.create(body);
+        let cryptoDetail = await cryptoModel.findOne({
+          where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },
+        });
+        if (cryptoDetail) {
+          // @ts-ignore
+          cryptoDetail = await cryptoModel.update(
+            { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },
+            body,
+          );
+        } else {
+          // @ts-ignore
+          cryptoDetail = await cryptoModel.create(body);
+        }
+        await publishServiceInstance.publish('', 'crypto_handle_list_historical_coinmarketcap', {
+          sourceId: cryptoDetail.id,
+          id: cryptoDetail.id,
+          symbol: cryptoDetail.symbol,
+        });
+        await publishServiceInstance.publish('', 'crypto_handle_detail_coinmarketcap', {
+          sourceId: cryptoDetail.id,
+          id: cryptoDetail.id,
+          symbol: cryptoDetail.symbol,
+        });
         console.log(cryptoDetail.id);
       }
       // @ts-ignore

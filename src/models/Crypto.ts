@@ -7,10 +7,12 @@ export default async ({ sequelize }) => {
       symbol: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique: true,
       },
       name: {
         type: Sequelize.STRING,
         allowNull: false,
+        unique: true,
       },
       image: {
         type: Sequelize.STRING,
@@ -29,6 +31,8 @@ export default async ({ sequelize }) => {
       },
       slug: {
         type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
       },
       description: {
         type: Sequelize.STRING,
