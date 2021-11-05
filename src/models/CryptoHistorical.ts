@@ -7,24 +7,35 @@ export default async ({ sequelize }) => {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      categoryId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-      },
-      date: {
+      sourceId: {
         type: Sequelize.STRING,
       },
+      date: {
+        type: Sequelize.DATE,
+      },
       timestamp: {
+        type: Sequelize.INTEGER,
+      },
+      timeOpen: {
         type: Sequelize.DATE,
       },
       priceOpen: {
         type: Sequelize.FLOAT,
       },
+      timeHigh: {
+        type: Sequelize.DATE,
+      },
       priceHigh: {
         type: Sequelize.FLOAT,
       },
+      timeLow: {
+        type: Sequelize.DATE,
+      },
       priceLow: {
         type: Sequelize.FLOAT,
+      },
+      timeClose: {
+        type: Sequelize.DATE,
       },
       priceClose: {
         type: Sequelize.FLOAT,
@@ -41,16 +52,16 @@ export default async ({ sequelize }) => {
       },
       // eslint-disable-next-line @typescript-eslint/camelcase
       createdAt: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DATE,
       },
       // eslint-disable-next-line @typescript-eslint/camelcase
       updatedAt: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DATE,
       },
     },
     {
       // options
-      timestamps: false,
+      timestamps: true,
     },
   );
   await CryptoHistorical.sync({ force: false });

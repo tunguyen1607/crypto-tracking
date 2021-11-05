@@ -21,7 +21,7 @@ export default {
       });
       let list: any = result.data['data'];
       let listCrypto = [];
-      for (let i = 0; i < list.length; i++) {
+      for (let i = 0; i < 1; i++) {
         let cryptoItem: any = list[i];
         let body = {
           name: cryptoItem.name,
@@ -51,19 +51,29 @@ export default {
           where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },
         });
         if (cryptoDetail) {
+          body['sourceId'] = cryptoDetail.id + '';
+          body['symbol'] = cryptoDetail.symbol;
+          body['slug'] = cryptoDetail.slug;
+          body['startTimestampHistorical'] = cryptoDetail.startTimestampHistorical;
+          body['startTimestampHistorical'] = cryptoDetail.startTimestampHistorical;
+          body['lastTimestampHistorical'] = cryptoDetail.lastTimestampHistorical;
           // @ts-ignore
-          cryptoDetail = await cryptoModel.update(
-            { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },
-            body,
-          );
+          await cryptoModel.update(body, {
+            where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },
+          });
+          body['id'] = cryptoDetail.id;
+          cryptoDetail = body;
         } else {
           // @ts-ignore
           cryptoDetail = await cryptoModel.create(body);
         }
+        console.log(cryptoDetail);
         await publishServiceInstance.publish('', 'crypto_handle_list_historical_coinmarketcap', {
           sourceId: cryptoDetail.id,
           id: cryptoDetail.id,
           symbol: cryptoDetail.symbol,
+          startTimestampHistorical: cryptoDetail.startTimestampHistorical,
+          lastTimestampHistorical: cryptoDetail.lastTimestampHistorical,
         });
         await publishServiceInstance.publish('', 'crypto_handle_detail_coinmarketcap', {
           sourceId: cryptoDetail.id,

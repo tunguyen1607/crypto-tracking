@@ -1,4 +1,5 @@
 import Sequelize from 'sequelize';
+import {flatMap} from "tslint/lib/utils";
 export default async ({ sequelize }) => {
   let Crypto = sequelize.define(
     'Crypto',
@@ -92,6 +93,12 @@ export default async ({ sequelize }) => {
         //Market Cap = Current Price x Circulating Supply.
         type: Sequelize.STRING,
       },
+      startTimestampHistorical: {
+        type: Sequelize.INTEGER,
+      },
+      lastTimestampHistorical: {
+        type: Sequelize.INTEGER,
+      },
       status: {
         type: Sequelize.INTEGER,
       },
@@ -101,6 +108,6 @@ export default async ({ sequelize }) => {
       timestamps: true,
     },
   );
-  await Crypto.sync({ force: true });
+  await Crypto.sync({ force: false });
   return Crypto;
 };
