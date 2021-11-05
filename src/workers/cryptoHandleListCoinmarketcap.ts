@@ -21,7 +21,7 @@ export default {
       });
       let list: any = result.data['data'];
       let listCrypto = [];
-      for (let i = 0; i < 1; i++) {
+      for (let i = 0; i < list.length; i++) {
         let cryptoItem: any = list[i];
         let body = {
           name: cryptoItem.name,
