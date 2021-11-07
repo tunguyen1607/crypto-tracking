@@ -85,11 +85,16 @@ export default class AwsService {
     });
   }
 
-  public async reuploadImage(icon, domain = 'https://flashscore.com') {
+  public async reuploadImage(icon, domain = null) {
     if (icon) {
       if (icon.includes('background-image')) {
         icon = getBackgroundImage(icon);
       }
+      if(!domain){
+        // @ts-ignore
+        domain = new URL(icon).hostname;
+      }
+      // @ts-ignore
       let imageUri = isValidHttpUrl(icon) ? icon : new URL(icon, domain).href;
       console.log(imageUri);
       if (isValidHttpUrl(imageUri)) {

@@ -63,6 +63,21 @@ export default async ({ expressApp, cronjob = true, rabbitmq = true, kafka = tru
     model: await require('../models/CryptoHistorical').default({ sequelize: sequelizeConnection }),
   };
 
+  const cryptoCategoryModel = {
+    name: 'cryptoCategoryModel',
+    model: await require('../models/CryptoCategory').default({ sequelize: sequelizeConnection }),
+  };
+
+  const cryptoCategoryItemModel = {
+    name: 'cryptoCategoryItemModel',
+    model: await require('../models/CryptoCategoryItem').default({ sequelize: sequelizeConnection }),
+  };
+
+  const currencyModel = {
+    name: 'currencyModel',
+    model: await require('../models/Currency').default({ sequelize: sequelizeConnection }),
+  };
+
   // It returns the agenda instance because it's needed in the subsequent loaders
   const { agenda } = await dependencyInjectorLoader({
     mongoConnection,
@@ -76,6 +91,9 @@ export default async ({ expressApp, cronjob = true, rabbitmq = true, kafka = tru
       stockModel,
       cryptoModel,
       cryptoHistoricalModel,
+      cryptoCategoryModel,
+      cryptoCategoryItemModel,
+      currencyModel,
       // salaryModel,
       // whateverModel
     ],

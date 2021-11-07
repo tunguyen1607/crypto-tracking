@@ -12,6 +12,8 @@ export default {
     const cryptoModel = Container.get('cryptoModel');
 
     try {
+      await publishServiceInstance.publish('', 'crypto_handle_currency_coinmarketcap', {});
+      await publishServiceInstance.publish('', 'crypto_handle_categories_coinmarketcap', {});
       const result = await axios({
         method: 'GET',
         url: `https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=200&convert=USD`,
@@ -40,7 +42,7 @@ export default {
           volumeChange24h: cryptoItem.quote.USD.volume_change_24h,
           marketCap: cryptoItem.quote.USD.market_cap,
           marketDominance: cryptoItem.quote.USD.market_cap_dominance,
-          sourceId: cryptoItem.id,
+          sourceId: cryptoItem.id+'',
           source: 'coinmarketcap',
           status: 1,
           fullyDilutedMarketCap: cryptoItem.quote.USD.fully_diluted_market_cap,
@@ -51,12 +53,6 @@ export default {
           where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },
         });
         if (cryptoDetail) {
-          body['sourceId'] = cryptoDetail.id + '';
-          body['symbol'] = cryptoDetail.symbol;
-          body['slug'] = cryptoDetail.slug;
-          body['startTimestampHistorical'] = cryptoDetail.startTimestampHistorical;
-          body['startTimestampHistorical'] = cryptoDetail.startTimestampHistorical;
-          body['lastTimestampHistorical'] = cryptoDetail.lastTimestampHistorical;
           // @ts-ignore
           await cryptoModel.update(body, {
             where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },
@@ -67,7 +63,6 @@ export default {
           // @ts-ignore
           cryptoDetail = await cryptoModel.create(body);
         }
-        console.log(cryptoDetail);
         await publishServiceInstance.publish('', 'crypto_handle_list_historical_coinmarketcap', {
           sourceId: cryptoDetail.id,
           id: cryptoDetail.id,

@@ -1,5 +1,4 @@
 import Sequelize from 'sequelize';
-import {flatMap} from "tslint/lib/utils";
 export default async ({ sequelize }) => {
   let Crypto = sequelize.define(
     'Crypto',
@@ -8,14 +7,12 @@ export default async ({ sequelize }) => {
       symbol: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
       },
       name: {
         type: Sequelize.STRING,
         allowNull: false,
-        unique: true,
       },
-      image: {
+      logo: {
         type: Sequelize.STRING,
       },
       dateAdded: {
@@ -38,14 +35,17 @@ export default async ({ sequelize }) => {
       description: {
         type: Sequelize.STRING,
       },
+      urls: {
+        type: Sequelize.JSONB,
+      },
       platform: {
         type: Sequelize.JSONB,
       },
       tags: {
         type: Sequelize.JSONB,
       },
-      categoryId: {
-        type: Sequelize.INTEGER,
+      category: {
+        type: Sequelize.STRING,
       },
       price: {
         type: Sequelize.FLOAT,
@@ -90,6 +90,20 @@ export default async ({ sequelize }) => {
         type: Sequelize.INTEGER,
       },
       marketCap: {
+        //Market Cap = Current Price x Circulating Supply.
+        type: Sequelize.STRING,
+      },
+      subreddit: {
+        type: Sequelize.STRING,
+      },
+      isHidden: {
+        type: Sequelize.INTEGER,
+        defaultValue: 0,
+      },
+      twitterUsername: {
+        type: Sequelize.STRING,
+      },
+      notice: {
         //Market Cap = Current Price x Circulating Supply.
         type: Sequelize.STRING,
       },
