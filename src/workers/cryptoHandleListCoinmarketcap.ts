@@ -66,6 +66,7 @@ export default {
           // @ts-ignore
           cryptoDetail = await cryptoModel.create(body);
         }
+        console.log(cryptoDetail.logo);
         if (!cryptoDetail.logo) {
           await publishServiceInstance.publish('', 'crypto_handle_detail_coinmarketcap', {
             sourceId: cryptoDetail.sourceId,
@@ -80,7 +81,6 @@ export default {
           startTimestampHistorical: cryptoDetail.startTimestampHistorical,
           lastTimestampHistorical: cryptoDetail.lastTimestampHistorical,
         });
-        console.log(cryptoDetail.id);
       }
       // @ts-ignore
     } catch (e) {

@@ -68,7 +68,7 @@ export default {
             'X-CMC_PRO_API_KEY': `5c400230-4a9c-424a-9953-1b65624bbd7a`,
           },
         });
-        let detailCategory = categoryDetailRs.data['data'];
+        let detailCategory: any = categoryDetailRs.data['data'];
         for (let j = 0; j < detailCategory.coins.length; j++) {
           let cryptoItem: any = detailCategory.coins[j];
           let bodyCrypto = {
@@ -93,7 +93,6 @@ export default {
             status: 1,
             fullyDilutedMarketCap: cryptoItem.quote.USD.fully_diluted_market_cap,
           };
-          console.log(bodyCrypto);
           // @ts-ignore
           let cryptoDetail = await cryptoModel.findOne({
             where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },

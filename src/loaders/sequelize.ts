@@ -14,13 +14,12 @@ const createConnection = config => {
         acquire: 30000,
         idle: 10000,
       },
+      logging: false,
     });
     connection
       .authenticate()
       .then(async () => {
         console.log('Connection ' + config.database + ' has been established successfully.');
-        let rs = await connection.sync({ force: true });
-        console.log('All models were synchronized successfully.');
         resolve(connection);
       })
       .catch(err => {

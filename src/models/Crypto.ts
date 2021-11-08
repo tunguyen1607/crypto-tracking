@@ -122,6 +122,6 @@ export default async ({ sequelize }) => {
       timestamps: true,
     },
   );
-  await Crypto.sync({ force: false });
+  // await Crypto.sync({ force: false });
   return Crypto;
 };

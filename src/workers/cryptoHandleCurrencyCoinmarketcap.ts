@@ -41,7 +41,7 @@ export default {
             where: {
               sourceId: currencyItem.id + '',
               symbol: currencyItem.symbol,
-              slug: currencyItem.slug.toLowerCase(),
+              slug: currencyItem.symbol.toLowerCase(),
             },
           });
         } else {

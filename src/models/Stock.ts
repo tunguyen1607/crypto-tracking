@@ -74,6 +74,6 @@ export default async ({ sequelize }) => {
       timestamps: false,
     },
   );
-  await Stock.sync({ force: false });
+  // await Stock.sync({ force: false });
   return Stock;
 };
