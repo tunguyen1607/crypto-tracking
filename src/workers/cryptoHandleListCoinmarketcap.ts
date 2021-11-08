@@ -64,14 +64,14 @@ export default {
           cryptoDetail = await cryptoModel.create(body);
         }
         await publishServiceInstance.publish('', 'crypto_handle_list_historical_coinmarketcap', {
-          sourceId: cryptoDetail.id,
+          sourceId: cryptoDetail.sourceId,
           id: cryptoDetail.id,
           symbol: cryptoDetail.symbol,
           startTimestampHistorical: cryptoDetail.startTimestampHistorical,
           lastTimestampHistorical: cryptoDetail.lastTimestampHistorical,
         });
         await publishServiceInstance.publish('', 'crypto_handle_detail_coinmarketcap', {
-          sourceId: cryptoDetail.id,
+          sourceId: cryptoDetail.sourceId,
           id: cryptoDetail.id,
           symbol: cryptoDetail.symbol,
         });
