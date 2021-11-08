@@ -51,7 +51,6 @@ export default {
           await cryptoCategoryModel.update(body, {
             where: {
               sourceId: categoryDetail.id + '',
-              symbol: categoryDetail.symbol,
               slug: urlSlug(categoryDetail.name.toLowerCase()),
             },
           });
@@ -61,6 +60,7 @@ export default {
           // @ts-ignore
           cateDetail = await cryptoCategoryModel.create(body);
         }
+        console.log(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/category?id=${categoryDetail.id}`)
         let categoryDetailRs = await axios({
           method: 'GET',
           url: `https://pro-api.coinmarketcap.com/v1/cryptocurrency/category?id=${categoryDetail.id}`,
