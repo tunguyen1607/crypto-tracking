@@ -13,7 +13,7 @@ export default async ({ sequelize }) => {
         allowNull: false,
       },
       logo: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
       dateAdded: {
         type: Sequelize.DATE,
@@ -33,7 +33,7 @@ export default async ({ sequelize }) => {
         unique: true,
       },
       description: {
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
       urls: {
         type: Sequelize.JSONB,
@@ -105,7 +105,7 @@ export default async ({ sequelize }) => {
       },
       notice: {
         //Market Cap = Current Price x Circulating Supply.
-        type: Sequelize.STRING,
+        type: Sequelize.TEXT,
       },
       startTimestampHistorical: {
         type: Sequelize.INTEGER,

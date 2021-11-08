@@ -15,9 +15,9 @@ export default {
     try {
       let { id, sourceId, startTimestampHistorical, lastTimestampHistorical } = object;
       let startTimestamp =
-        getPreviousMonthOfDate(getBeginningOfDate()) > startTimestampHistorical
-          ? getBeginningOfDate()
-          : lastTimestampHistorical;
+        startTimestampHistorical && getPreviousMonthOfDate(getBeginningOfDate()) < startTimestampHistorical
+          ? lastTimestampHistorical
+          : getBeginningOfDate();
       let lastTimestamp = getPreviousMonthOfDate(startTimestamp, 4);
       console.log(
         `https://api.coinmarketcap.com/data-api/v3/cryptocurrency/historical?id=${sourceId}&convertId=2781&timeStart=${lastTimestamp}&timeEnd=${startTimestamp}`,
@@ -31,10 +31,7 @@ export default {
         for (let i = 0; i < list.length; i++) {
           let historicalItem = list[i];
           let date = historicalItem.quote.timestamp;
-          console.log(historicalItem);
           let timestamp = Math.ceil(new Date(date).getTime() / 1000);
-          console.log(new Date(date));
-          console.log(timestamp);
           let body = {
             cryptoId: id,
             status: 1,
@@ -78,7 +75,12 @@ export default {
 
       // @ts-ignore
     } catch (e) {
-      console.error(e);
+      console.log('crypto_handle_list_historical_coinmarketcap');
+      if (e.response && e.response.statusText) {
+        console.error(e.response.statusText);
+      } else {
+        console.error(e);
+      }
     } finally {
       cb(true);
     }

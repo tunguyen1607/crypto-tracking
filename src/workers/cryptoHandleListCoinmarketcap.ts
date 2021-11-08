@@ -58,10 +58,20 @@ export default {
             where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },
           });
           body['id'] = cryptoDetail.id;
+          body['startTimestampHistorical'] = cryptoDetail.startTimestampHistorical;
+          body['lastTimestampHistorical'] = cryptoDetail.lastTimestampHistorical;
+          body['logo'] = cryptoDetail.logo;
           cryptoDetail = body;
         } else {
           // @ts-ignore
           cryptoDetail = await cryptoModel.create(body);
+        }
+        if (!cryptoDetail.logo) {
+          await publishServiceInstance.publish('', 'crypto_handle_detail_coinmarketcap', {
+            sourceId: cryptoDetail.sourceId,
+            id: cryptoDetail.id,
+            symbol: cryptoDetail.symbol,
+          });
         }
         await publishServiceInstance.publish('', 'crypto_handle_list_historical_coinmarketcap', {
           sourceId: cryptoDetail.sourceId,
@@ -69,11 +79,6 @@ export default {
           symbol: cryptoDetail.symbol,
           startTimestampHistorical: cryptoDetail.startTimestampHistorical,
           lastTimestampHistorical: cryptoDetail.lastTimestampHistorical,
-        });
-        await publishServiceInstance.publish('', 'crypto_handle_detail_coinmarketcap', {
-          sourceId: cryptoDetail.sourceId,
-          id: cryptoDetail.id,
-          symbol: cryptoDetail.symbol,
         });
         console.log(cryptoDetail.id);
       }

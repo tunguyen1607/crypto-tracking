@@ -23,7 +23,7 @@ export default {
           'X-CMC_PRO_API_KEY': `5c400230-4a9c-424a-9953-1b65624bbd7a`,
         },
       });
-      let detail = result.data['data'];
+      let detail: any = result.data['data'];
       let body = {
         sourceId,
         logo: await awsServiceInstance.reuploadImage(detail[sourceId].logo),
@@ -40,7 +40,12 @@ export default {
       await cryptoModel.update(body, { where: { id } });
       // @ts-ignore
     } catch (e) {
-      console.error(e);
+      console.log('crypto_handle_detail_coinmarketcap');
+      if (e.response && e.response.statusText) {
+        console.error(e.response.statusText);
+      } else {
+        console.error(e);
+      }
     } finally {
       cb(true);
     }

@@ -51,7 +51,12 @@ export default {
       }
       // @ts-ignore
     } catch (e) {
-      console.error(e);
+      console.log('crypto_handle_currency_coinmarketcap');
+      if (e.response && e.response.statusText) {
+        console.error(e.response.statusText);
+      } else {
+        console.error(e);
+      }
     } finally {
       cb(true);
     }
