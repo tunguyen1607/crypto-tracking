@@ -42,7 +42,7 @@ export default {
           volumeChange24h: cryptoItem.quote.USD.volume_change_24h,
           marketCap: cryptoItem.quote.USD.market_cap,
           marketDominance: cryptoItem.quote.USD.market_cap_dominance,
-          sourceId: cryptoItem.id+'',
+          sourceId: cryptoItem.id + '',
           source: 'coinmarketcap',
           status: 1,
           fullyDilutedMarketCap: cryptoItem.quote.USD.fully_diluted_market_cap,
