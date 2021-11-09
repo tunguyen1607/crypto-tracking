@@ -1,6 +1,6 @@
 import { Container } from 'typedi';
 import PublishService from '../services/publish';
-import { getBeginningOfDate, getPreviousMonthOfDate } from '../helpers/date';
+import { getBeginningOfDate, getPreviousMonthOfDate, checkValidDate } from '../helpers/date';
 import axios from 'axios';
 
 export default {
@@ -38,17 +38,19 @@ export default {
             timestamp,
             date,
             sourceId,
-            timeOpen: historicalItem.timeOpen,
-            timeClose: historicalItem.timeClose,
-            timeHigh: historicalItem.timeHigh,
-            timeLow: historicalItem.timeLow,
-            priceOpen: historicalItem.quote.open,
-            priceClose: historicalItem.quote.close,
-            priceLow: historicalItem.quote.low,
-            priceHigh: historicalItem.quote.high,
-            volume: historicalItem.quote.volume,
-            marketCap: historicalItem.quote.marketCap,
+            timeOpen: checkValidDate(historicalItem.timeOpen) ? historicalItem.timeOpen : null,
+            timeClose: checkValidDate(historicalItem.timeClose) ? historicalItem.timeClose : null,
+            timeHigh: checkValidDate(historicalItem.timeHigh) ? historicalItem.timeHigh : null,
+            timeLow: checkValidDate(historicalItem.timeLow) ? historicalItem.timeLow : null,
+            priceOpen: historicalItem.quote && historicalItem.quote.open ? historicalItem.quote.open : null,
+            priceClose: historicalItem.quote && historicalItem.quote.close ? historicalItem.quote.close : null,
+            priceLow: historicalItem.quote && historicalItem.quote.low ? historicalItem.quote.low : null,
+            priceHigh: historicalItem.quote && historicalItem.quote.high ? historicalItem.quote.high : null,
+            volume: historicalItem.quote && historicalItem.quote.volume ? historicalItem.quote.volume : null,
+            marketCap: historicalItem.quote && historicalItem.quote.marketCap ? historicalItem.quote.marketCap : null,
           };
+          console.log(historicalItem);
+          console.log(body);
           // @ts-ignore
           let cryptoDetail = await cryptoHistoricalModel.findOne({
             where: { sourceId: sourceId + '', cryptoId: id, timestamp, date },

@@ -12,8 +12,6 @@ export default {
     const cryptoModel = Container.get('cryptoModel');
 
     try {
-      await publishServiceInstance.publish('', 'crypto_handle_currency_coinmarketcap', {});
-      await publishServiceInstance.publish('', 'crypto_handle_categories_coinmarketcap', {});
       const result = await axios({
         method: 'GET',
         url: `https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=200&convert=USD`,

@@ -26,3 +26,7 @@ export function getPreviousMonthOfDate(date = null, numPrevious = 1) {
   today.setUTCHours(0, 0, 0, 0);
   return new Date(today).getTime() / 1000;
 }
+
+export function checkValidDate(dateObject) {
+  return new Date(dateObject).toString() !== 'Invalid Date';
+}
