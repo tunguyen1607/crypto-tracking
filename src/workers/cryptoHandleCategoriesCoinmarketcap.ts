@@ -23,6 +23,7 @@ export default {
       let list: any = result.data['data'];
       for (let i = 0; i < list.length; i++) {
         let categoryDetail: any = list[i];
+        console.log(categoryDetail);
         let body = {
           name: categoryDetail.name,
           title: categoryDetail.title,
