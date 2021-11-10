@@ -55,6 +55,6 @@ export default async ({ sequelize }) => {
       timestamps: true,
     },
   );
-  await CryptoCategory.sync({ force: true });
+  await CryptoCategory.sync({ force: false });
   return CryptoCategory;
 };
