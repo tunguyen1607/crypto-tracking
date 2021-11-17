@@ -1,5 +1,6 @@
 import config from '../config';
 import redis from 'redis';
+import { promisify } from 'util';
 
 export default () => {
   // @ts-ignore
@@ -20,6 +21,7 @@ export default () => {
       console.error(error);
       reject(error);
     });
+
     return resolve(client);
   });
 };

@@ -1,5 +1,6 @@
 import config from '../config';
 import EmailSequenceJob from '../jobs/emailSequence';
+import WatchPriceBTC from '../jobs/watchPriceBTC';
 import Agenda from 'agenda';
 
 export default ({ agenda }: { agenda: Agenda }) => {
@@ -9,6 +10,8 @@ export default ({ agenda }: { agenda: Agenda }) => {
     // @TODO Could this be a static method? Would it be better?
     new EmailSequenceJob().handler,
   );
-
+  // new WatchPriceBTC().handler().then(function(ok) {
+  //   console.log(ok);
+  // });
   agenda.start();
 };
