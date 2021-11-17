@@ -12,9 +12,9 @@ const blockingWait = function(seconds) {
 };
 
 export default {
-  topic: 'prepareDataToNotify',
+  topic: 'kafkaTest1',
   status: true,
-  totalConsumer: 1,
+  totalConsumer: 10,
   run: async function(message) {
     return new Promise(async function(resolve, reject) {
       try {

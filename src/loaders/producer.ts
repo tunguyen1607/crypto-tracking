@@ -5,8 +5,7 @@ export default (): Promise<kafka.Producer> => {
   return new Promise(function(resolve, reject) {
     try {
       let kafkaConfig = {
-        kafkaBrokers: 'localhost:9092',
-        topic: 'test',
+        kafkaBrokers: '45.32.120.55:9092',
       }
       let HighLevelProducer = kafka.HighLevelProducer;
 

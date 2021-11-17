@@ -17,7 +17,7 @@ export default () => {
         if (worker.status) {
           let consumerOptions: kafka.ConsumerGroupOptions = {
             groupId: worker.groupId,
-            kafkaHost: 'localhost:9092',
+            kafkaHost: '45.32.120.55:9092',
             sessionTimeout: 15000,
             autoCommit: true,
             autoCommitIntervalMs: 5000,
