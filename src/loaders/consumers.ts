@@ -72,7 +72,7 @@ export default () => {
         async.each(consumerGroups, (consumer, callback) => {
           consumer.close(true, callback);
         });
-        process.exit(0);
+        // process.exit(0);
       });
       return resolve('ok');
     });
