@@ -1,7 +1,8 @@
 import { Router, Request, Response } from 'express';
 import middlewares from '../middlewares';
 import { Container } from 'typedi';
-import producer from '../../services/publish';
+import publish from '../../services/publish';
+import producer from '../../services/producer';
 const route = Router();
 
 export default (app: Router) => {
@@ -21,8 +22,15 @@ export default (app: Router) => {
 
   route.get('/testProducer', async (req: Request, res: Response) => {
     const logger = Container.get('logger');
-    const producerService = Container.get(producer);
+    const producerService = Container.get(publish);
     let rs = await producerService.publish('', 'crypto_handle_list_coinmarketcap', req.query);
+    return res.json({ rs: rs }).status(200);
+  });
+
+  route.get('/testProducerKafka', async (req: Request, res: Response) => {
+    const logger = Container.get('logger');
+    const producerService = Container.get(producer);
+    let rs = await producerService.send('prepareDataToNotify', {ok: 'ok'});
     return res.json({ rs: rs }).status(200);
   });
 };

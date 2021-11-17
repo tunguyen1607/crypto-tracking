@@ -38,7 +38,7 @@ export default () => {
           let topic = worker.topic;
           let totalConsumer = worker.totalConsumer || 100;
           for (var i = 0; i < totalConsumer; i++) {
-            consumerOptions['id'] = 'consumer' + i
+            consumerOptions['id'] = 'consumer' + i;
             var consumerGroup = new kafka.ConsumerGroup(consumerOptions, topic);
             consumerGroups.push(consumerGroup);
             consumerGroup.on('error', function(error) {
