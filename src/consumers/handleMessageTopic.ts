@@ -14,7 +14,7 @@ const blockingWait = function(seconds) {
 };
 
 export default {
-  topic: 'kafkaTest1',
+  topic: 'jobCollectCoinPrice',
   status: true,
   totalConsumer: 1,
   run: async function(object) {
@@ -24,8 +24,14 @@ export default {
       try {
         let data = JSON.parse(object.value);
         if (data.symbol) {
-          const wss = new WebSocket('wss://stream.binance.com:9443/ws/btcusdt@trade');
-          let seconds = 5 * 60 * 60;
+          const wss = new WebSocket(`wss://stream.binance.com:9443/ws/${data.symbol.toLowerCase()}usdt@trade`);
+          let seconds = 60 * 60;
+          let keyCurrentPrice = data.symbol.toLowerCase() + '_current_price';
+          let keyHighPrice = data.symbol.toLowerCase() + '_high_price';
+          let keyHighPriceTime = data.symbol.toLowerCase() + '_high_price_time';
+          let keyLowPrice = data.symbol.toLowerCase() + '_low_price';
+          let keyLowPriceTime = data.symbol.toLowerCase() + '_low_price_time';
+          let keyTimeStamp = data.symbol.toLowerCase() + '_current_timestamp';
           setTimeout(function() {
             console.log('wait for %s seconds', seconds);
             // wss.terminate();
@@ -33,7 +39,6 @@ export default {
           }, seconds * 1000);
           // @ts-ignore
           wss.on('message', async function incoming(message) {
-            console.log(message);
             // @ts-ignore
             const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
             // @ts-ignore
@@ -41,32 +46,32 @@ export default {
 
             let object = JSON.parse(message);
             // @ts-ignore
-            await setAsync('btc_current_price', object.p);
-            await setAsync('btc_timestamp', object.T);
+            await setAsync(keyCurrentPrice, object.p);
+            await setAsync(keyTimeStamp, object.T);
             // @ts-ignore
-            let btcHighPrice = await getAsync('btc_high_price');
+            let btcHighPrice = await getAsync(keyHighPrice);
             if (!btcHighPrice || isNaN(btcHighPrice)) {
               // @ts-ignore
-              await setAsync('btc_high_price', object.p);
-              await setAsync('btc_high_price', object.T);
+              await setAsync(keyHighPrice, object.p);
+              await setAsync(keyHighPrice, object.T);
             } else {
               if (parseFloat(btcHighPrice) < parseFloat(object.p)) {
                 // @ts-ignore
-                await setAsync('btc_high_price', object.p);
-                await setAsync('btc_high_price_time', object.T);
+                await setAsync(keyHighPrice, object.p);
+                await setAsync(keyLowPriceTime, object.T);
               }
             }
             // @ts-ignore
-            let btcLowPrice = getAsync('btc_low_price');
+            let btcLowPrice = getAsync(keyLowPrice);
             if (!btcLowPrice || isNaN(btcLowPrice)) {
               // @ts-ignore
-              await setAsync('btc_low_price', object.p);
-              await setAsync('btc_low_price_time', object.T);
+              await setAsync(keyLowPrice, object.p);
+              await setAsync(keyHighPriceTime, object.T);
             } else {
               if (parseFloat(btcLowPrice) > parseFloat(object.p)) {
                 // @ts-ignore
-                await setAsync('btc_low_price', object.p);
-                await setAsync('btc_low_price_time', object.T);
+                await setAsync(keyLowPrice, object.p);
+                await setAsync(keyHighPriceTime, object.T);
               }
             }
           });

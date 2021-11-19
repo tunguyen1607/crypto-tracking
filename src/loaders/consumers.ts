@@ -47,6 +47,7 @@ export default () => {
             });
             consumerGroup.on('message', async function(message) {
               try {
+                this.pause();
                 console.log(
                   '%s read msg Topic="%s" Partition=%s Offset=%d',
                   this.client.clientId,
@@ -55,7 +56,6 @@ export default () => {
                   message.offset,
                   message.value,
                 );
-                this.pause();
                 await worker.run(message);
               } catch (e) {
                 LoggerInstance.error('[kafka] error worker ' + JSON.stringify(worker.topic) + ':' + e.message);
