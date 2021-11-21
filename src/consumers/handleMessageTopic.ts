@@ -24,7 +24,7 @@ export default {
       try {
         let data = JSON.parse(object.value);
         if (data.symbol) {
-          const wss = new WebSocket(`wss://stream.binance.com:9443/ws/${data.symbol.toLowerCase()}usdt@trade`);
+          const wss = new WebSocket(`wss://stream.binance.com:9443/ws/${data.symbol.toLowerCase()}usdt@trade/bnbusdt@trade`);
           let seconds = 60 * 60;
           let keyCurrentPrice = data.symbol.toLowerCase() + '_current_price';
           let keyTimeStamp = data.symbol.toLowerCase() + '_current_timestamp';
