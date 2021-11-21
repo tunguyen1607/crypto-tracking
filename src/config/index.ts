@@ -69,6 +69,10 @@ export default {
   rabbitmq: {
     url: process.env.CLOUDAMQP_URL,
   },
+  kafka: {
+    host: process.env.KAFKA_HOST,
+    groupId: process.env.KAFKA_GROUPID || 'GroupInit',
+  },
   sequelize: [
     {
       database: process.env.SQL_DATABASE,

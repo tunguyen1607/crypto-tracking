@@ -3,6 +3,7 @@ import listJSFiles from '../helpers/file';
 import path from 'path';
 import kafka from 'kafka-node';
 import async from 'async';
+import config from '../config';
 export default () => {
   return new Promise(function(resolve, reject) {
     listJSFiles(path.dirname(__dirname) + '/consumers', async function(err, files) {
@@ -16,8 +17,8 @@ export default () => {
         let worker = (await import(files[i])).default;
         if (worker.status) {
           let consumerOptions: kafka.ConsumerGroupOptions = {
-            groupId: worker.groupId,
-            kafkaHost: '45.32.120.55:9092',
+            groupId: config.kafka.groupId,
+            kafkaHost: config.kafka.host,
             sessionTimeout: 15000,
             autoCommit: true,
             autoCommitIntervalMs: 5000,
@@ -36,7 +37,7 @@ export default () => {
             fromOffset: 'earliest', // equivalent of auto.offset.reset valid values are 'none', 'latest', 'earliest',
           };
           let topic = worker.topic;
-          let totalConsumer = worker.totalConsumer || 100;
+          let totalConsumer = worker.totalConsumer || 20;
           for (var i = 0; i < totalConsumer; i++) {
             consumerOptions['id'] = 'consumer' + i;
             var consumerGroup = new kafka.ConsumerGroup(consumerOptions, topic);

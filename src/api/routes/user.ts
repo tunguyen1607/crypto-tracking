@@ -30,7 +30,7 @@ export default (app: Router) => {
   route.get('/testProducerKafka', async (req: Request, res: Response) => {
     const logger = Container.get('logger');
     const producerService = Container.get(producer);
-    let rs = await producerService.send('kafkaTest1', req.query);
+    let rs = await producerService.send('LivePriceCoinConsumer', req.query);
     return res.json({ rs: rs }).status(200);
   });
 };

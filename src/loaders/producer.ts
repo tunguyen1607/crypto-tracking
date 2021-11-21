@@ -1,11 +1,12 @@
 import kafka from 'kafka-node';
 import LoggerInstance from './logger';
+import config from '../config';
 
 export default (): Promise<kafka.Producer> => {
   return new Promise(function(resolve, reject) {
     try {
       let kafkaConfig = {
-        kafkaBrokers: '45.32.120.55:9092',
+        kafkaBrokers: config.kafka.host,
       };
       let HighLevelProducer = kafka.HighLevelProducer;
 

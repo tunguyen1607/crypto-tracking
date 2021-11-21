@@ -14,7 +14,7 @@ const blockingWait = function(seconds) {
 };
 
 export default {
-  topic: 'jobCollectCoinPrice',
+  topic: 'LivePriceCoinConsumer',
   status: true,
   totalConsumer: 1,
   run: async function(object) {
@@ -27,14 +27,14 @@ export default {
           const wss = new WebSocket(`wss://stream.binance.com:9443/ws/${data.symbol.toLowerCase()}usdt@trade`);
           let seconds = 60 * 60;
           let keyCurrentPrice = data.symbol.toLowerCase() + '_current_price';
+          let keyTimeStamp = data.symbol.toLowerCase() + '_current_timestamp';
           let keyHighPrice = data.symbol.toLowerCase() + '_high_price';
           let keyHighPriceTime = data.symbol.toLowerCase() + '_high_price_time';
           let keyLowPrice = data.symbol.toLowerCase() + '_low_price';
           let keyLowPriceTime = data.symbol.toLowerCase() + '_low_price_time';
-          let keyTimeStamp = data.symbol.toLowerCase() + '_current_timestamp';
           setTimeout(function() {
             console.log('wait for %s seconds', seconds);
-            // wss.terminate();
+            wss.terminate();
             return resolve(true);
           }, seconds * 1000);
           // @ts-ignore
@@ -45,6 +45,7 @@ export default {
             const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
 
             let object = JSON.parse(message);
+            console.log(object);
             // @ts-ignore
             await setAsync(keyCurrentPrice, object.p);
             await setAsync(keyTimeStamp, object.T);
