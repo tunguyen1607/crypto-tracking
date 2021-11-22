@@ -14,7 +14,7 @@ const blockingWait = function(seconds) {
 };
 
 export default {
-  topic: 'LivePriceCoinConsumer',
+  topic: 'BinanceLivePriceCoinConsumer',
   status: true,
   totalConsumer: 1,
   run: async function(object) {
@@ -23,15 +23,23 @@ export default {
       const RedisInstance = Container.get('redisInstance');
       try {
         let data = JSON.parse(object.value);
-        if (data.symbol) {
-          const wss = new WebSocket(`wss://stream.binance.com:9443/ws/${data.symbol.toLowerCase()}usdt@trade/bnbusdt@trade`);
+        if (data.symbols) {
+          let symbols = data.symbols;
+          if (!Array.isArray(symbols)) {
+            symbols = symbols.split(',');
+          }
+          let linkSuffix = '';
+          for (let s = 0; s < symbols.length; s++) {
+            linkSuffix += `${symbols[s].toLowerCase()}usdt@trade`;
+            if (s < symbols.length - 1) {
+              linkSuffix += '/';
+            }
+          }
+          let linkToCall = `wss://stream.binance.com:9443/ws/${linkSuffix}`;
+          console.log(linkToCall);
+          const wss = new WebSocket(linkToCall);
           let seconds = 60 * 60;
-          let keyCurrentPrice = data.symbol.toLowerCase() + '_current_price';
-          let keyTimeStamp = data.symbol.toLowerCase() + '_current_timestamp';
-          let keyHighPrice = data.symbol.toLowerCase() + '_high_price';
-          let keyHighPriceTime = data.symbol.toLowerCase() + '_high_price_time';
-          let keyLowPrice = data.symbol.toLowerCase() + '_low_price';
-          let keyLowPriceTime = data.symbol.toLowerCase() + '_low_price_time';
+
           setTimeout(function() {
             console.log('wait for %s seconds', seconds);
             wss.terminate();
@@ -46,6 +54,13 @@ export default {
 
             let object = JSON.parse(message);
             console.log(object);
+            let symbol = object.s.replace(/USDT/g, '').toLowerCase();
+            let keyCurrentPrice = symbol + '_current_price';
+            let keyTimeStamp = symbol + '_current_timestamp';
+            let keyHighPrice = symbol + '_high_price';
+            let keyHighPriceTime = symbol + '_high_price_time';
+            let keyLowPrice = symbol + '_low_price';
+            let keyLowPriceTime = symbol + '_low_price_time';
             // @ts-ignore
             await setAsync(keyCurrentPrice, object.p);
             await setAsync(keyTimeStamp, object.T);

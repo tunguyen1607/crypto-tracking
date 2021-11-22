@@ -2,6 +2,7 @@ import path from 'path';
 import glob from 'glob';
 import fs from 'fs';
 import callsite from 'callsite';
+import aws from '../loaders/aws';
 
 /*
     List all js file
@@ -26,6 +27,43 @@ export default function listJSFiles(dir, callback) {
   });
 }
 
+export function listJSFilesSync(dir): any {
+  return new Promise(async function(resolve, reject) {
+    let jsFiles = [];
+    let modules = await globAsync(dir + '/*');
+    for (let m = 0; m < modules.length; m++) {
+      if (fs.statSync(modules[m]).isFile()) continue;
+      let module = path.parse(modules[m]).base;
+      let versions = await globAsync(modules[m] + '/*');
+      for (let z = 0; z < versions.length; z++) {
+        let pathModule = versions[z];
+        let version = path.parse(versions[z]).base;
+        if (fs.statSync(pathModule).isFile()) continue;
+        let files = await globAsync(pathModule + '/router.*');
+        for (let i = 0; i < files.length; i++) {
+          let file = files[i];
+          //is file ?
+          if (!fs.statSync(file).isFile()) continue;
+
+          //is js file ?
+          if (path.extname(file) === '.js' || path.extname(file) === '.ts') jsFiles.push({ file, version, module });
+        }
+      }
+    }
+    return resolve(jsFiles);
+  });
+}
+
+async function globAsync(dirPath): Promise<any> {
+  return new Promise(function(resolve, reject) {
+    glob(dirPath, async function(er, versions) {
+      if (er) {
+        reject(er);
+      }
+      resolve(versions);
+    });
+  });
+}
 /*
     Get the caller path dir then append file name
 
@@ -53,7 +91,7 @@ export function remoteDirname(fileName) {
   */
   var requester = stack[2].getFileName();
   return path.join(path.dirname(requester), fileName);
-};
+}
 
 export function dateSecondNow(seconds = false) {
   if (seconds) {
