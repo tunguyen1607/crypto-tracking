@@ -15,7 +15,14 @@ import redis from './redis';
 //We have to import at least all the events once so they can be triggered
 import './events';
 
-export default async ({ expressApp, cronjob = true, rabbitmq = true, kafka = true }) => {
+export default async ({
+  expressApp,
+  cronjob = false,
+  rabbitmq = false,
+  kafka = false,
+  consumer = false,
+  worker = false,
+}) => {
   const mongoConnection = await mongooseLoader();
   const sequelizeConnection = await sequelizeLoader();
   Logger.info('✌️ DB loaded and connected!');
@@ -100,11 +107,11 @@ export default async ({ expressApp, cronjob = true, rabbitmq = true, kafka = tru
   });
 
   Logger.info('✌️ Dependency Injector loaded');
-  if (kafka) {
+  if (kafka && consumer) {
     await consumersLoader();
     Logger.info('✌️ Consumers loaded');
   }
-  if (rabbitmq) {
+  if (rabbitmq && worker) {
     await workers({ amqpConn: rabbitmqConnection });
     Logger.info('✌️ Workers loaded');
   }

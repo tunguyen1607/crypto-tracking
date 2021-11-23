@@ -21,6 +21,10 @@ export default {
     return new Promise(async function(resolve, reject) {
       const Logger = Container.get('logger');
       const RedisInstance = Container.get('redisInstance');
+      // @ts-ignore
+      const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
+      // @ts-ignore
+      const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
       try {
         let data = JSON.parse(object.value);
         if (data.symbols) {
@@ -47,10 +51,7 @@ export default {
           }, seconds * 1000);
           // @ts-ignore
           wss.on('message', async function incoming(message) {
-            // @ts-ignore
-            const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
-            // @ts-ignore
-            const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
+
 
             let object = JSON.parse(message);
             console.log(object);
