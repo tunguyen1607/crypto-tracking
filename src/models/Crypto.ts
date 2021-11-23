@@ -116,6 +116,12 @@ export default async ({ sequelize }) => {
       status: {
         type: Sequelize.INTEGER,
       },
+      market: {
+        type: Sequelize.STRING,
+      },
+      statusMarket: {
+        type: Sequelize.STRING,
+      }
     },
     {
       // options

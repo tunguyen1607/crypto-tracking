@@ -14,18 +14,31 @@ export default {
     const awsServiceInstance = Container.get(AWSService);
     const cryptoModel = Container.get('cryptoModel');
     try {
-      let { id, sourceId, symbol } = object;
-      console.log(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=${sourceId}`);
+      let { id, sourceId, symbol, marketData } = object;
+      let queryText = '';
+      if(sourceId){
+        queryText = `id=${sourceId}`;
+      }else if(symbol){
+        queryText = `symbol=${symbol}`;
+        sourceId = symbol;
+      }
+      console.log(`https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?${queryText}&aux=urls,logo,description,tags,platform,date_added,notice,status`);
       const result = await axios({
         method: 'GET',
-        url: `https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?id=${sourceId}`,
+        url: `https://pro-api.coinmarketcap.com/v1/cryptocurrency/info?${queryText}&aux=urls,logo,description,tags,platform,date_added,notice,status`,
         headers: {
           'X-CMC_PRO_API_KEY': `5c400230-4a9c-424a-9953-1b65624bbd7a`,
         },
       });
       let detail: any = result.data['data'];
+      if(!detail){
+        throw new Error('empty data '+ JSON.stringify(result.data));
+      }
       let body = {
-        sourceId,
+        sourceId: detail[sourceId].id,
+        symbol: detail[sourceId].symbol,
+        slug: detail[sourceId].slug,
+        name: detail[sourceId].name,
         logo: await awsServiceInstance.reuploadImage(detail[sourceId].logo),
         tags: detail[sourceId].tags,
         category: detail[sourceId].category,
@@ -35,14 +48,44 @@ export default {
         notice: detail[sourceId].notice,
         isHidden: detail[sourceId].is_hidden,
         platform: detail[sourceId].platform,
+        circulatingSupply: detail[sourceId].self_reported_circulating_supply,
+        status: detail[sourceId].status == 'active' ? 1 : 0,
+        dateAdded: detail[sourceId].date_added,
+        description: detail[sourceId].description,
+        source: 'coinmarketcap'
       };
-      // @ts-ignore
-      await cryptoModel.update(body, { where: { id } });
+      body = {...body, ...marketData};
+      if(id){
+        // @ts-ignore
+        await cryptoModel.update(body, { where: { id } });
+      }else {
+        // @ts-ignore
+        let cryptoDetail = await cryptoModel.findOne({
+          where: { sourceId: detail[sourceId].id + '', symbol: detail[sourceId].symbol, slug: detail[sourceId].slug },
+        });
+        if (cryptoDetail) {
+          // @ts-ignore
+          await cryptoModel.update(body, {
+            where: { sourceId: detail[sourceId].id + '', symbol: detail[sourceId].symbol, slug: detail[sourceId].slug },
+          });
+        } else {
+          // @ts-ignore
+          cryptoDetail = await cryptoModel.create(body);
+        }
+        await publishServiceInstance.publish('', 'crypto_handle_list_historical_coinmarketcap', {
+          sourceId: cryptoDetail.sourceId,
+          id: cryptoDetail.id,
+          symbol: cryptoDetail.symbol,
+          startTimestampHistorical: cryptoDetail.startTimestampHistorical,
+          lastTimestampHistorical: cryptoDetail.lastTimestampHistorical,
+        });
+      }
+
       // @ts-ignore
     } catch (e) {
       console.log('crypto_handle_detail_coinmarketcap');
       if (e.response && e.response.statusText) {
-        console.error(e.response.statusText);
+        console.error(e.response.data);
       } else {
         console.error(e);
       }

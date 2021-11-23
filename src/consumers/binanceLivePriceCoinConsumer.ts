@@ -51,8 +51,6 @@ export default {
           }, seconds * 1000);
           // @ts-ignore
           wss.on('message', async function incoming(message) {
-
-
             let object = JSON.parse(message);
             console.log(object);
             let symbol = object.s.replace(/USDT/g, '').toLowerCase();
