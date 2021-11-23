@@ -3,7 +3,6 @@ import { URL } from 'url';
 import path from 'path';
 import { match } from 'path-to-regexp';
 import fs from 'fs';
-import request from 'request';
 import axios from 'axios';
 import mime from 'mime-types';
 import striptags from 'striptags';
@@ -80,35 +79,33 @@ export function downloadImageAxios(
   });
 }
 
-export function downloadImage(uri, filename, fileExtension: any): Promise<{ location: string; fileType: string }> {
-  return new Promise(function(resolve, reject) {
-    if (!validURL(uri)) {
-      uri = setHttp(uri);
-    }
-    request.head(uri, function(err, res, body) {
-      if (err) {
-        console.error(err);
-        resolve(null);
-      }
-      if (res) {
+const download_image = (url, filename, fileExtension: any): Promise<{ location: string; fileType: string }>  =>
+  axios({
+    url,
+    responseType: 'stream',
+  }).then(
+    response =>
+      new Promise((resolve, reject)=> {
+        if (!validURL(url)) {
+          url = setHttp(url);
+        }
         if (!filename) {
-          let parsed = url.parse(uri);
+          let parsed = url.parse(url);
           filename = path.basename(parsed.pathname);
         }
-        let fileExtension = mime.extension(res.headers['content-type']);
-        request(uri)
-          .pipe(fs.createWriteStream(filename + '.' + fileExtension))
-          .on('close', function() {
-            resolve({
-              location: filename + '.' + fileExtension,
-              fileType: res.headers['content-type'],
-            });
-          });
-      } else {
-        resolve(null);
-      }
-    });
-  });
+        let fileExtension = mime.extension(response.headers['content-type']);
+        // @ts-ignore
+        response.data.pipe(fs.createWriteStream(filename + '.' + fileExtension))
+          .on('finish', () => resolve({
+            location: filename + '.' + fileExtension,
+            fileType: response.headers['content-type'],
+          }))
+          .on('error', e => reject(e));
+      }),
+  );
+
+export function downloadImage(uri, filename, fileExtension: any): Promise<{ location: string; fileType: string }> {
+  return download_image(uri, filename, fileExtension);
 }
 
 export function urlSlug(str) {
