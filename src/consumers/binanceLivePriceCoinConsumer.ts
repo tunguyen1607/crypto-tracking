@@ -27,6 +27,7 @@ export default {
       const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
       try {
         let data = JSON.parse(object.value);
+        let activeSymbols = [];
         if (data.symbols) {
           let symbols = data.symbols;
           if (!Array.isArray(symbols)) {
@@ -43,16 +44,20 @@ export default {
           console.log(linkToCall);
           const wss = new WebSocket(linkToCall);
           let seconds = 60 * 60;
-
+          let interval = setInterval(function() {
+            console.log(activeSymbols);
+          }, 5*60*1000);
           setTimeout(function() {
             console.log('wait for %s seconds', seconds);
             wss.terminate();
+            clearInterval(interval);
             return resolve(true);
           }, seconds * 1000);
+
           // @ts-ignore
           wss.on('message', async function incoming(message) {
             let object = JSON.parse(message);
-            console.log(object);
+            // console.log(object);
             let symbol = object.s.replace(/USDT/g, '').toLowerCase();
             let keyCurrentPrice = symbol + '_current_price';
             let keyTimeStamp = symbol + '_current_timestamp';
@@ -60,6 +65,12 @@ export default {
             let keyHighPriceTime = symbol + '_high_price_time';
             let keyLowPrice = symbol + '_low_price';
             let keyLowPriceTime = symbol + '_low_price_time';
+            if(activeSymbols.indexOf(symbol) < 0){
+              activeSymbols.push(symbol);
+              activeSymbols = activeSymbols.filter(function(item, pos) {
+                return activeSymbols.indexOf(item) == pos;
+              })
+            }
             // @ts-ignore
             await setAsync(keyCurrentPrice, object.p);
             await setAsync(keyTimeStamp, object.T);
