@@ -70,6 +70,11 @@ export default async ({
     model: await require('../models/CryptoHistorical').default({ sequelize: sequelizeConnection }),
   };
 
+  const cryptoHistoricalTimeModel = {
+    name: 'cryptoHistoricalTimeModel',
+    model: await require('../models/CryptoHistoricalTime').default({ sequelize: sequelizeConnection }),
+  };
+
   const cryptoCategoryModel = {
     name: 'cryptoCategoryModel',
     model: await require('../models/CryptoCategory').default({ sequelize: sequelizeConnection }),
@@ -98,6 +103,7 @@ export default async ({
       stockModel,
       cryptoModel,
       cryptoHistoricalModel,
+      cryptoHistoricalTimeModel,
       cryptoCategoryModel,
       cryptoCategoryItemModel,
       currencyModel,

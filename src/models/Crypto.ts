@@ -50,26 +50,11 @@ export default async ({ sequelize }) => {
       price: {
         type: Sequelize.FLOAT,
       },
-      priceChange24h: {
+      volume: {
         type: Sequelize.FLOAT,
       },
-      priceChangePercent24h: {
-        type: Sequelize.FLOAT,
-      },
-      priceHighest24h: {
-        type: Sequelize.FLOAT,
-      },
-      priceLowest24h: {
-        type: Sequelize.FLOAT,
-      },
-      percentStatus: {
-        type: Sequelize.STRING,
-      },
-      volume24h: {
-        type: Sequelize.FLOAT,
-      },
-      volumeChange24h: {
-        type: Sequelize.FLOAT,
+      lastTimeUpdatePrice: {
+        type: Sequelize.INTEGER,
       },
       marketDominance: {
         type: Sequelize.STRING,

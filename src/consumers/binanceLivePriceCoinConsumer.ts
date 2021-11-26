@@ -59,47 +59,47 @@ export default {
             let object = JSON.parse(message);
             // console.log(object);
             let symbol = object.s.replace(/USDT/g, '').toLowerCase();
-            let keyCurrentPrice = symbol + '_current_price';
-            let keyTimeStamp = symbol + '_current_timestamp';
-            let keyHighPrice = symbol + '_high_price';
-            let keyHighPriceTime = symbol + '_high_price_time';
-            let keyLowPrice = symbol + '_low_price';
-            let keyLowPriceTime = symbol + '_low_price_time';
+            let objectPrice: any = await getAsync(symbol+'_to_usdt');
+            if(objectPrice){
+              objectPrice = JSON.parse(objectPrice);
+            }else {
+              objectPrice = {};
+            }
+            console.log(objectPrice);
             if(activeSymbols.indexOf(symbol) < 0){
               activeSymbols.push(symbol);
               activeSymbols = activeSymbols.filter(function(item, pos) {
                 return activeSymbols.indexOf(item) == pos;
               })
             }
+            objectPrice['price'] = object.p;
+            objectPrice['timestamp'] = object.p;
             // @ts-ignore
-            await setAsync(keyCurrentPrice, object.p);
-            await setAsync(keyTimeStamp, object.T);
-            // @ts-ignore
-            let btcHighPrice = await getAsync(keyHighPrice);
+            let btcHighPrice = objectPrice['highPrice'];
             if (!btcHighPrice || isNaN(btcHighPrice)) {
-              // @ts-ignore
-              await setAsync(keyHighPrice, object.p);
-              await setAsync(keyHighPrice, object.T);
+              objectPrice['highPrice'] = object.p;
+              objectPrice['highPriceTimestamp'] = object.T;
             } else {
               if (parseFloat(btcHighPrice) < parseFloat(object.p)) {
                 // @ts-ignore
-                await setAsync(keyHighPrice, object.p);
-                await setAsync(keyLowPriceTime, object.T);
+                objectPrice['highPrice'] = object.p;
+                objectPrice['highPriceTimestamp'] = object.T;
               }
             }
             // @ts-ignore
-            let btcLowPrice = getAsync(keyLowPrice);
+            let btcLowPrice = objectPrice['lowPrice'];
             if (!btcLowPrice || isNaN(btcLowPrice)) {
               // @ts-ignore
-              await setAsync(keyLowPrice, object.p);
-              await setAsync(keyHighPriceTime, object.T);
+              objectPrice['lowPrice'] = object.p;
+              objectPrice['lowPriceTimestamp'] = object.T;
             } else {
               if (parseFloat(btcLowPrice) > parseFloat(object.p)) {
                 // @ts-ignore
-                await setAsync(keyLowPrice, object.p);
-                await setAsync(keyHighPriceTime, object.T);
+                objectPrice['lowPrice'] = object.p;
+                objectPrice['lowPriceTimestamp'] = object.T;
               }
             }
+            await setAsync(symbol+'_to_usdt', JSON.stringify(objectPrice));
           });
 
           wss.on('error', function error(error) {

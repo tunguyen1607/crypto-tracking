@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { Container } from 'typedi';
 import { promisify } from 'util';
+import {Joi} from "celebrate";
 
 export async function info(req: Request, res: Response) {
   try {
@@ -20,15 +21,22 @@ export async function info(req: Request, res: Response) {
       findQuery['symbol'] = query.symbol.toUpperCase();
     }
     // @ts-ignore
-    let cryptoDetail = await cryptoModel.findOne({
+    let cryptoDetail: any = await cryptoModel.findOne({
       where: findQuery,
+      raw: true,
       attributes: ['price', 'symbol', 'description', 'logo'],
     });
+    console.log(cryptoDetail);
     if (!cryptoDetail || !cryptoDetail.symbol) {
       throw new Error('Not found crypto info|400');
     }
-    let priceKey = cryptoDetail.symbol.toLowerCase() + '_current_price';
-    cryptoDetail.price = await getAsync(priceKey);
+    let priceKey = cryptoDetail.symbol.toLowerCase() + +'_to_usdt';
+    let priceObject = await getAsync(priceKey);
+    if(priceObject){
+      priceObject = JSON.parse(priceObject);
+      cryptoDetail.price = priceObject['price'];
+      cryptoDetail['usdt'] = priceObject;
+    }
     return res.json({ data: cryptoDetail }).status(200);
   } catch (error) {
     if (error.message && error.message.includes('|')) {

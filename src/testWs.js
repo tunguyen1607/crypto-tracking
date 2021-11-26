@@ -4,11 +4,11 @@ const binance = new Binance().options({
   APISECRET: 'oLn8mDkkbX6sWNPpRBCWckZXjm8LD3wvfq1FAR3cLV8Sh7YXMRwWDpUFGxgoUFpa'
 });
 async function run() {
-  binance.candlesticks("BNBBTC", "5m", (error, ticks, symbol) => {
+  binance.candlesticks("BTCUSDT", "1d", (error, ticks, symbol) => {
     console.info("candlesticks()", ticks);
     let last_tick = ticks[ticks.length - 1];
     let [time, open, high, low, close, volume, closeTime, assetVolume, trades, buyBaseVolume, buyAssetVolume, ignored] = last_tick;
     console.info(symbol+" last close: "+close);
-  }, {limit: 500, endTime: 1514764800000});
+  }, {limit: 500, endTime: new Date().getTime()});
 }
 run();
