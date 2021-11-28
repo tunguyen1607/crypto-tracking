@@ -25,13 +25,26 @@ export default {
       }
       // @ts-ignore
       let cryptoDetail = await cryptoModel.findOne({where: {symbol}});
+      let priceObject = await getAsync(symbol.toLowerCase()+'_to_usdt');
       // @ts-ignore
       await cryptoModel.update({
-        price: await getAsync(symbol.toLowerCase()+'_current_price'),
+        price: priceObject.price,
       }, {where: {id: cryptoDetail.id}});
       if(!cryptoDetail){
         throw new Error('not found crypto with symbol '+symbol);
       }
+      // @ts-ignore
+      await cryptoHistoricalTimeModel.create({
+        cryptoId: cryptoDetail.id,
+        symbol: cryptoDetail.symbol,
+        sourceId: cryptoDetail.sourceId,
+        datetime: new Date(priceObject.timestamp),
+        timestamp: priceObject.timestamp,
+        price: priceObject.price,
+        volume: priceObject,
+        status: 1,
+        type: type,
+      });
     } catch (e) {
       // @ts-ignore
       Logger.error('🔥 Error with queue crypto_handle_price_and_historical_binance: %o', e);

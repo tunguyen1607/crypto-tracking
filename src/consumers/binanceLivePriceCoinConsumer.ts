@@ -65,6 +65,7 @@ export default {
             }else {
               objectPrice = {};
             }
+            console.log(symbol+'_to_usdt');
             console.log(objectPrice);
             if(activeSymbols.indexOf(symbol) < 0){
               activeSymbols.push(symbol);
@@ -73,7 +74,7 @@ export default {
               })
             }
             objectPrice['price'] = object.p;
-            objectPrice['timestamp'] = object.p;
+            objectPrice['timestamp'] = object.T;
             // @ts-ignore
             let btcHighPrice = objectPrice['highPrice'];
             if (!btcHighPrice || isNaN(btcHighPrice)) {

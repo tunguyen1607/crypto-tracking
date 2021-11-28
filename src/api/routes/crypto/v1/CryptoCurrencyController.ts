@@ -30,8 +30,10 @@ export async function info(req: Request, res: Response) {
     if (!cryptoDetail || !cryptoDetail.symbol) {
       throw new Error('Not found crypto info|400');
     }
-    let priceKey = cryptoDetail.symbol.toLowerCase() + +'_to_usdt';
+    let priceKey = cryptoDetail.symbol.toLowerCase() +'_to_usdt';
     let priceObject = await getAsync(priceKey);
+    console.log(priceKey);
+    console.log(priceObject);
     if(priceObject){
       priceObject = JSON.parse(priceObject);
       cryptoDetail.price = priceObject['price'];
