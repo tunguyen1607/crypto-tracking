@@ -8,7 +8,7 @@ export default async ({ sequelize }) => {
         allowNull: false,
       },
       symbol: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.STRING,
         allowNull: false,
       },
       sourceId: {
@@ -21,7 +21,7 @@ export default async ({ sequelize }) => {
         type: Sequelize.INTEGER,
       },
       price: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.FLOAT,
       },
       volume: {
         type: Sequelize.FLOAT,

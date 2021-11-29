@@ -3,6 +3,7 @@ import url from 'url';
 import { checkDataNull } from '../helpers/object';
 import WebSocket from 'ws';
 import { promisify } from 'util';
+import PublishService from "../services/publish";
 
 const blockingWait = function(seconds) {
   return new Promise(function (resolve, reject) {
@@ -21,6 +22,7 @@ export default {
     return new Promise(async function(resolve, reject) {
       const Logger = Container.get('logger');
       const RedisInstance = Container.get('redisInstance');
+      const publishServiceInstance = Container.get(PublishService);
       // @ts-ignore
       const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
       // @ts-ignore
@@ -44,8 +46,16 @@ export default {
           console.log(linkToCall);
           const wss = new WebSocket(linkToCall);
           let seconds = 60 * 60;
-          let interval = setInterval(function() {
+          let interval = setInterval(async function() {
             console.log(activeSymbols);
+            activeSymbols.map(async function (symbol) {
+              await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
+                symbol: symbol,
+                type: '5m',
+                priceObject: await getAsync(symbol + '_to_usdt')
+              });
+            })
+
           }, 5*60*1000);
           setTimeout(function() {
             console.log('wait for %s seconds', seconds);
@@ -63,10 +73,13 @@ export default {
             if(objectPrice){
               objectPrice = JSON.parse(objectPrice);
             }else {
-              objectPrice = {};
+              objectPrice = {
+                'openTimeStamp': object.T,
+                'openPrice': object.p
+              };
             }
-            console.log(symbol+'_to_usdt');
-            console.log(objectPrice);
+            // console.log(symbol+'_to_usdt');
+            // console.log(objectPrice);
             if(activeSymbols.indexOf(symbol) < 0){
               activeSymbols.push(symbol);
               activeSymbols = activeSymbols.filter(function(item, pos) {
