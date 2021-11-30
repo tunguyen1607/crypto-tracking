@@ -4,6 +4,7 @@ import { checkDataNull } from '../helpers/object';
 import WebSocket from 'ws';
 import { promisify } from 'util';
 import PublishService from "../services/publish";
+import axios from "axios";
 
 const blockingWait = function(seconds) {
   return new Promise(function (resolve, reject) {
@@ -49,14 +50,19 @@ export default {
           let interval = setInterval(async function() {
             console.log(activeSymbols);
             activeSymbols.map(async function (symbol) {
+              const result = await axios({
+                method: 'GET',
+                url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
+              });
               await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
                 symbol: symbol,
                 type: '5m',
-                priceObject: await getAsync(symbol + '_to_usdt')
+                priceObject: await getAsync(symbol + '_to_usdt'),
+                ticker: result.data
               });
             })
 
-          }, 5*60*1000);
+          }, 1*60*1000);
           setTimeout(function() {
             console.log('wait for %s seconds', seconds);
             wss.terminate();

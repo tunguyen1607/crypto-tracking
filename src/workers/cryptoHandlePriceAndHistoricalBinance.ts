@@ -20,9 +20,16 @@ export default {
     // @ts-ignore
     const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
     try {
-      let { symbol, type, priceObject } = object;
+      let { symbol, type, priceObject, ticker } = object;
       if(!symbol){
         throw new Error('not found symbol');
+      }
+      if(!ticker){
+        const result = await axios({
+          method: 'GET',
+          url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
+        });
+        ticker = result.data;
       }
       // @ts-ignore
       let cryptoDetail = await cryptoModel.findOne({where: {symbol: symbol.toUpperCase()}});
@@ -57,7 +64,7 @@ export default {
           priceClose: priceObject.price ? priceObject.price : null,
           priceLow: priceObject.lowPrice ? priceObject.lowPrice : null,
           priceHigh: priceObject.highPrice ? priceObject.highPrice : null,
-          // volume: historicalItem.quote && historicalItem.quote.volume ? historicalItem.quote.volume : null,
+          volume: ticker && ticker.volume ? ticker.volume : null,
           // marketCap: historicalItem.quote && historicalItem.quote.marketCap ? historicalItem.quote.marketCap : null,
         })
       }else {
@@ -70,7 +77,7 @@ export default {
           datetime: new Date(priceObject.timestamp),
           timestamp: Math.ceil(priceObject.timestamp/1000),
           price: priceObject.price,
-          volume: priceObject,
+          volume: ticker.volume,
           status: 1,
           type: type,
         });
