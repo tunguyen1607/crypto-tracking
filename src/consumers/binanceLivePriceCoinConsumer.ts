@@ -79,10 +79,7 @@ export default {
             if(objectPrice){
               objectPrice = JSON.parse(objectPrice);
             }else {
-              objectPrice = {
-                'openTimeStamp': object.T,
-                'openPrice': object.p
-              };
+              objectPrice = {};
             }
             // console.log(symbol+'_to_usdt');
             // console.log(objectPrice);
