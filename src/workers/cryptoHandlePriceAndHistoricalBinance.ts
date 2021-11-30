@@ -20,7 +20,7 @@ export default {
     // @ts-ignore
     const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
     try {
-      let { symbol, type } = object;
+      let { symbol, type, priceObject } = object;
       if(!symbol){
         throw new Error('not found symbol');
       }
@@ -29,7 +29,9 @@ export default {
       if(!cryptoDetail){
         throw new Error('not found crypto with symbol '+symbol);
       }
-      let priceObject = await getAsync(symbol.toLowerCase()+'_to_usdt');
+      if(!priceObject){
+        priceObject = await getAsync(symbol.toLowerCase()+'_to_usdt');
+      }
       if(priceObject){
         priceObject = JSON.parse(priceObject);
       }
