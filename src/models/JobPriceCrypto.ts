@@ -4,7 +4,11 @@ export default async ({ sequelize }) => {
     'Crypto',
     {
       // attributes
-      symbol: {
+      symbols: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      jobId: {
         type: Sequelize.STRING,
         allowNull: false,
       },
