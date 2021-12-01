@@ -21,6 +21,7 @@ export default {
     const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
     try {
       let { symbol, type, priceObject, ticker } = object;
+      console.log(ticker);
       if(!symbol){
         throw new Error('not found symbol');
       }
@@ -56,19 +57,18 @@ export default {
           timestamp: Math.ceil(priceObject.timestamp/1000),
           date,
           sourceId: cryptoDetail.sourceId,
-          timeOpen: checkValidDate(priceObject.openTimeStamp) ? new Date(Math.ceil(priceObject.openTimeStamp/1000)) : null,
-          timeClose: checkValidDate(priceObject.timestamp) ? new Date(Math.ceil(priceObject.timestamp/1000)) : null,
-          timeHigh: checkValidDate(priceObject.highPriceTimestamp) ? new Date(Math.ceil(priceObject.highPriceTimestamp/1000)) : null,
-          timeLow: checkValidDate(priceObject.lowPriceTimestamp) ? new Date(Math.ceil(priceObject.lowPriceTimestamp/1000)) : null,
-          priceOpen: priceObject.openPrice ? priceObject.openPrice : null,
-          priceClose: priceObject.price ? priceObject.price : null,
-          priceLow: priceObject.lowPrice ? priceObject.lowPrice : null,
-          priceHigh: priceObject.highPrice ? priceObject.highPrice : null,
+          timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(Math.ceil(ticker.openTime/1000)) : null,
+          timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(Math.ceil(ticker.closeTime/1000)) : null,
+          timeHigh: priceObject && checkValidDate(priceObject.highPriceTimestamp) ? new Date(Math.ceil(priceObject.highPriceTimestamp/1000)) : null,
+          timeLow: priceObject && checkValidDate(priceObject.lowPriceTimestamp) ? new Date(Math.ceil(priceObject.lowPriceTimestamp/1000)) : null,
+          priceOpen:  ticker && ticker && ticker.openPrice ? ticker.openPrice : null,
+          priceClose: priceObject && priceObject.price ? priceObject.price : null,
+          priceLow: ticker && ticker.lowPrice ? ticker.lowPrice : null,
+          priceHigh: ticker && ticker.highPrice ? ticker.highPrice : null,
           volume: ticker && ticker.volume ? ticker.volume : null,
           // marketCap: historicalItem.quote && historicalItem.quote.marketCap ? historicalItem.quote.marketCap : null,
         })
       }else {
-        console.log(priceObject);
         // @ts-ignore
         await cryptoHistoricalTimeModel.create({
           cryptoId: cryptoDetail.id,

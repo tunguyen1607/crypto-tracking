@@ -15,6 +15,7 @@ export default {
     const Logger = Container.get('logger');
     const RedisInstance = Container.get('redisInstance');
     const cryptoModel = Container.get('cryptoModel');
+    const cryptoMarketModel = Container.get('cryptoMarketModel');
     const publishServiceInstance = Container.get(PublishService);
     // @ts-ignore
     const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
@@ -34,12 +35,33 @@ export default {
         if(cryptoItem.status == 'BREAK'){
           status = 0;
         }
+        // @ts-ignore
+        let cryptoMarketItem = await cryptoMarketModel.findOne({
+          where: {
+            symbol: cryptoItem.symbol,
+            market: 'binance'
+          }
+        });
+
+        if(!cryptoMarketItem){
+          // @ts-ignore
+          await cryptoMarketModel.create({
+            symbol: cryptoItem.symbol,
+            baseAsset: cryptoItem.baseAsset,
+            quoteAsset: cryptoItem.quoteAsset,
+            config: cryptoItem,
+            status,
+            market: 'binance',
+            statusMarket: cryptoItem.status
+          });
+        }
+
         let body = {
           symbol: cryptoItem.baseAsset,
           statusMarket: cryptoItem.status,
           market: 'binance',
           status,
-        }
+        };
         // @ts-ignore
         let cryptoDetail = await cryptoModel.findOne({
           where: { symbol: cryptoItem.baseAsset },
@@ -50,7 +72,6 @@ export default {
             where: { id: cryptoDetail.id },
           });
         }else {
-          console.log(body);
           console.log(cryptoItem.symbol);
           await publishServiceInstance.publish('', 'crypto_handle_detail_coinmarketcap', {
             symbol: body.symbol,
