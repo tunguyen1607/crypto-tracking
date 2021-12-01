@@ -2,11 +2,7 @@ import { Container } from 'typedi';
 import PublishService from '../services/publish';
 import axios from 'axios';
 import {promisify} from "util";
-const Binance = require('node-binance-api');
-const binance = new Binance().options({
-  APIKEY: '<key>',
-  APISECRET: '<secret>'
-});
+import BinanceService from '../services/binance';
 
 export default {
   queueName: 'crypto_handle_list_binance',
@@ -17,17 +13,13 @@ export default {
     const cryptoModel = Container.get('cryptoModel');
     const cryptoMarketModel = Container.get('cryptoMarketModel');
     const publishServiceInstance = Container.get(PublishService);
+    const binanceServiceInstance = Container.get(BinanceService);
     // @ts-ignore
     const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
     // @ts-ignore
     const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
     try {
-      let linkToCall = `https://api.binance.com/api/v3/exchangeInfo`;
-      console.log(linkToCall);
-      const result = await axios({
-        method: 'GET',
-        url: linkToCall,
-      });
+      const result:any = binanceServiceInstance.exchangeInfo();
       let listCrypto: any = result.data['symbols'];
       for (let i = 0; i < listCrypto.length; i++){
         let cryptoItem: any = listCrypto[i];
