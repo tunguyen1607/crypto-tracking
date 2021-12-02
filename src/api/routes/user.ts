@@ -33,4 +33,12 @@ export default (app: Router) => {
     let rs = await producerService.send('BinanceLivePriceCoinConsumer', req.query);
     return res.json({ rs: rs }).status(200);
   });
+
+  route.get('/testProducerBull', async (req: Request, res: Response) => {
+    const logger = Container.get('logger');
+    const producerService = Container.get('jobLivePriceBinance');
+    // @ts-ignore
+    let rs = await producerService.add(req.query);
+    return res.json({ rs: rs }).status(200);
+  });
 };

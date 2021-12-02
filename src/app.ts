@@ -16,7 +16,7 @@ async function startServer() {
    * Well, at least in node 10 without babel and at the time of writing
    * So we are using good old require.
    **/
-  await require('./loaders').default({ expressApp: app, kafka: true, rabbitmq: true, consumer: true });
+  await require('./loaders').default({ expressApp: app, rabbitmq: true, longJob: true });
   let emitter = new EventEmitter();
   // or 0 to turn off the limit
   emitter.setMaxListeners(0);

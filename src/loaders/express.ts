@@ -3,7 +3,7 @@ import bodyParser from 'body-parser';
 import cors from 'cors';
 import routes from '../api';
 import config from '../config';
-export default ({ app }: { app: express.Application }) => {
+export default ({ app, serverAdapter }: { app: express.Application, serverAdapter:any }) => {
   /**
    * Health Check endpoints
    * @TODO Explain why they are here
@@ -14,6 +14,7 @@ export default ({ app }: { app: express.Application }) => {
   app.head('/status', (req, res) => {
     res.status(200).end();
   });
+
 
   // Useful if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
   // It shows the real origin IP in the heroku or Cloudwatch logs
@@ -31,6 +32,11 @@ export default ({ app }: { app: express.Application }) => {
 
   // Middleware that transforms the raw string of req.body into json
   app.use(bodyParser.json());
+  if(serverAdapter){
+    const basePath = '/bull/queues';
+    serverAdapter.setBasePath(basePath);
+    app.use('/bull/queues', serverAdapter.getRouter());
+  }
   // Load API routes
   app.use(config.api.prefix, routes());
   /// catch 404 and forward to error handler
@@ -39,6 +45,7 @@ export default ({ app }: { app: express.Application }) => {
     err['status'] = 404;
     next(err);
   });
+
 
   /// error handlers
   app.use((err, req, res, next) => {

@@ -7,6 +7,7 @@ import consumersLoader from './consumers';
 import producerLoader from './producer';
 import rabbitMQLoader from './rabbitmq';
 import publisherLoader from './publisher';
+import bullJobsLoader from './bullJobs';
 import workers from './workers';
 import Logger from './logger';
 
@@ -22,6 +23,7 @@ export default async ({
   kafka = false,
   consumer = false,
   worker = false,
+  longJob = false,
 }) => {
   const mongoConnection = await mongooseLoader();
   const sequelizeConnection = await sequelizeLoader();
@@ -94,6 +96,13 @@ export default async ({
     name: 'currencyModel',
     model: await require('../models/Currency').default({ sequelize: sequelizeConnection }),
   };
+  let queues:any = [];
+  let serverAdapter:any = null;
+  if(longJob){
+    let bull:any = await bullJobsLoader();
+    queues = bull.queues;
+    serverAdapter = bull.serverAdapter;
+  }
 
   // It returns the agenda instance because it's needed in the subsequent loaders
   const { agenda } = await dependencyInjectorLoader({
@@ -116,6 +125,7 @@ export default async ({
       // salaryModel,
       // whateverModel
     ],
+    queues,
   });
 
   Logger.info('✌️ Dependency Injector loaded');
@@ -132,8 +142,9 @@ export default async ({
     await jobsLoader({ agenda });
     Logger.info('✌️ Jobs loaded');
   }
+
   if (expressApp) {
-    await expressLoader({ app: expressApp });
+    await expressLoader({ app: expressApp, serverAdapter });
     Logger.info('✌️ Express loaded');
   }
 };

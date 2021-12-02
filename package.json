@@ -31,6 +31,8 @@
   "author": "Santiago Quinteros",
   "license": "ISC",
   "dependencies": {
+    "@bull-board/api": "^3.7.0",
+    "@bull-board/express": "^3.7.0",
     "agenda": "^2.3.0",
     "agendash": "^1.0.0",
     "amqplib": "^0.8.0",
@@ -38,6 +40,7 @@
     "aws-sdk": "^2.1004.0",
     "axios": "^0.23.0",
     "body-parser": "^1.19.0",
+    "bull": "^4.1.1",
     "callsite": "^1.0.0",
     "celebrate": "^9.1.0",
     "cors": "^2.8.4",
@@ -66,6 +69,7 @@
     "reflect-metadata": "^0.1.12",
     "sequelize": "^6.11.0",
     "striptags": "^3.2.0",
+    "throng": "^5.0.0",
     "typedi": "^0.8.0",
     "util": "^0.12.4",
     "winston": "^3.3.3",
@@ -74,6 +78,7 @@
   "devDependencies": {
     "@types/agenda": "^2.0.9",
     "@types/amqplib": "^0.5.17",
+    "@types/bull": "^3.15.6",
     "@types/express": "^4.17.13",
     "@types/jest": "^23.3.8",
     "@types/lodash": "^4.14.175",

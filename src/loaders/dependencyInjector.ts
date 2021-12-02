@@ -9,6 +9,7 @@ export default ({
   sequelizeConnection,
   producer,
   models,
+  queues,
   publisher,
   awsS3Instance,
   redisInstance,
@@ -20,12 +21,17 @@ export default ({
   awsS3Instance: any;
   redisInstance: any;
   models: { name: string; model: any }[];
+  queues: { name: string; queue: any }[];
 }) => {
   try {
     models.forEach(m => {
       Container.set(m.name, m.model);
     });
-
+    let listQueue:any = [];
+    queues.forEach(q => {
+      Container.set(q.name, q.queue);
+      listQueue.push(q.queue);
+    });
     const agendaInstance = agendaFactory({ mongoConnection });
 
     Container.set('agendaInstance', agendaInstance);
