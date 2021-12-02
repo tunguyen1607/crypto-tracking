@@ -1,7 +1,7 @@
 import config from '../config';
 import Queue from 'bull';
 import throng from 'throng';
-import listJSFiles from "../helpers/file";
+import {runSyncListJsFile} from "../helpers/file";
 import path from "path";
 import LoggerInstance from "./logger";
 // Connect to a local redis instance locally, and the Heroku-provided URL in production
@@ -11,34 +11,30 @@ const { BullAdapter } = require('@bull-board/api/bullAdapter');
 const { ExpressAdapter } = require('@bull-board/express');
 
 export default () => {
-  return new Promise(function(resolve, reject) {
-    listJSFiles(path.dirname(__dirname) + '/jobQueues', async function(err, files) {
-      if (err) {
-        LoggerInstance.error('[AMQP] error ' + err.message);
+  return new Promise(async function(resolve, reject) {
+    let queues = [];
+    let bullAdapters = [];
+    let files: any = await runSyncListJsFile(path.dirname(__dirname) + '/jobQueues');
+    for (var i = 0; i < files.length; i++) {
+      let worker = require(files[i]).default;
+      LoggerInstance.info('[Bull Queue] run file '+files[i]);
+      if (worker.status) {
+        let workQueue = new Queue(worker.queueName, REDIS_URL);
+        workQueue.process(worker.prefetch ? worker.prefetch : 1, worker.run);
+        queues.push({
+          name: worker.queueName,
+          queue: workQueue,
+        });
+        bullAdapters.push(new BullAdapter(workQueue));
       }
-      let queues = [];
-      let bullAdapters = [];
-      for (var i = 0; i < files.length; i++) {
-        let worker = require(files[i]).default;
-        LoggerInstance.info('[Bull Queue] run file '+files[i]);
-        if (worker.status) {
-          let workQueue = new Queue(worker.queueName, REDIS_URL);
-          workQueue.process(worker.prefetch ? worker.prefetch : 1, worker.run);
-          queues.push({
-            name: worker.queueName,
-            queue: workQueue,
-          });
-          bullAdapters.push(new BullAdapter(workQueue));
-        }
-      }
-      const serverAdapter = new ExpressAdapter();
+    }
+    const serverAdapter = new ExpressAdapter();
 
-      createBullBoard({
-        queues: bullAdapters,
-        serverAdapter
-      });
-      resolve({queues, serverAdapter});
+    createBullBoard({
+      queues: bullAdapters,
+      serverAdapter
     });
+    resolve({queues, serverAdapter});
   });
 // Initialize the clustered worker process
 // See: https://devcenter.heroku.com/articles/node-concurrency for more info

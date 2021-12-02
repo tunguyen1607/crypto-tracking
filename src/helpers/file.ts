@@ -27,6 +27,25 @@ export default function listJSFiles(dir, callback) {
   });
 }
 
+export function runSyncListJsFile(dir) {
+  return new Promise(function (resolve, reject) {
+    glob(dir + '/**/*', function(er, files) {
+      let jsFiles = [];
+
+      for (let i = 0; i < files.length; i++) {
+        let file = files[i];
+
+        //is file ?
+        if (!fs.statSync(file).isFile()) continue;
+
+        //is js file ?
+        if (path.extname(file) === '.js' || path.extname(file) === '.ts') jsFiles.push(file);
+      }
+      resolve(jsFiles);
+    });
+  })
+}
+
 export function listJSFilesSync(dir): any {
   return new Promise(async function(resolve, reject) {
     let jsFiles = [];
