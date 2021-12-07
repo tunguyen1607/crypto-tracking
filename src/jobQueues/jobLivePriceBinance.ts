@@ -18,11 +18,11 @@ export default {
       const Logger = Container.get('logger');
       const RedisInstance = Container.get('redisInstance');
       const publishServiceInstance = Container.get(PublishService);
-      // @ts-ignore
-      const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
-      // @ts-ignore
-      const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
       try {
+        // @ts-ignore
+        const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
+        // @ts-ignore
+        const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
         let data = job.data;
         let activeSymbols = [];
         if (data.symbols) {
