@@ -40,9 +40,7 @@ export default {
             }
           }
           let linkToCall = `wss://stream.binance.com:9443/ws/${linkSuffix}`;
-          console.log(linkToCall);
           const wss = new WebSocket(linkToCall);
-          let seconds = 60 * 60;
           let interval = setInterval(async function() {
             console.log(activeSymbols);
             activeSymbols.map(async function (symbol) {
@@ -60,15 +58,19 @@ export default {
             })
 
           }, 1*60*1000);
-          setTimeout(function() {
-            console.log('wait for %s seconds', seconds);
+          let now = new Date();
+          let millisTill = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 0).getTime() - now.getTime();
+          if (millisTill < 0) {
+            millisTill += 86400000; // it's after 10am, try 10am tomorrow.
+          }
+          setTimeout(function(){
             activeSymbols.map(async function (symbol) {
               await delAsync(symbol + '_to_usdt');
             });
             wss.terminate();
             clearInterval(interval);
             return resolve(true);
-          }, seconds * 1000);
+            }, millisTill);
 
           // @ts-ignore
           wss.on('message', async function incoming(message) {
