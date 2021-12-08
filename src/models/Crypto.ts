@@ -56,6 +56,9 @@ export default async ({ sequelize }) => {
       lastTimeUpdatePrice: {
         type: Sequelize.INTEGER,
       },
+      jobId: {
+        type: Sequelize.STRING,
+      },
       marketDominance: {
         type: Sequelize.STRING,
       },

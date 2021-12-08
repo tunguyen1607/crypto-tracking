@@ -20,8 +20,7 @@ export default {
     // @ts-ignore
     const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
     try {
-      let { symbol, type, priceObject, ticker } = object;
-      console.log(ticker);
+      let { symbol, type, priceObject, ticker, jobId } = object;
       if(!symbol){
         throw new Error('not found symbol');
       }
@@ -46,6 +45,8 @@ export default {
       // @ts-ignore
       await cryptoModel.update({
         price: priceObject.price,
+        lastTimeUpdatePrice: Math.ceil(priceObject.timestamp/1000),
+        jobId
       }, {where: {id: cryptoDetail.id}});
 
       if(type == '1day'){

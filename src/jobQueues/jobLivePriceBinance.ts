@@ -23,6 +23,8 @@ export default {
         const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
         // @ts-ignore
         const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
+        // @ts-ignore
+        const delAsync = promisify(RedisInstance.del).bind(RedisInstance);
         let data = job.data;
         let activeSymbols = [];
         if (data.symbols) {
@@ -52,13 +54,17 @@ export default {
                 symbol: symbol,
                 type: '5m',
                 priceObject: await getAsync(symbol + '_to_usdt'),
-                ticker: result.data
+                ticker: result.data,
+                jobId: job.id,
               });
             })
 
           }, 1*60*1000);
           setTimeout(function() {
             console.log('wait for %s seconds', seconds);
+            activeSymbols.map(async function (symbol) {
+              await delAsync(symbol + '_to_usdt');
+            });
             wss.terminate();
             clearInterval(interval);
             return resolve(true);
