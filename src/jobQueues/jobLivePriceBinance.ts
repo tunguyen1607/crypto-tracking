@@ -40,14 +40,18 @@ export default {
             }
           }
           let linkToCall = `wss://stream.binance.com:9443/ws/${linkSuffix}`;
+          console.log(linkToCall);
           const wss = new WebSocket(linkToCall);
           let interval = setInterval(async function() {
             console.log(activeSymbols);
             activeSymbols.map(async function (symbol) {
+              console.log(symbol);
+              console.log('call api '+ `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`);
               const result = await axios({
                 method: 'GET',
                 url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
               });
+              console.log(result);
               await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
                 symbol: symbol,
                 type: '5m',
@@ -63,12 +67,25 @@ export default {
           if (millisTill < 0) {
             millisTill += 86400000; // it's after 10am, try 10am tomorrow.
           }
-          setTimeout(function(){
+          console.log(millisTill)
+          setTimeout( function(){
             activeSymbols.map(async function (symbol) {
+              const result = await axios({
+                method: 'GET',
+                url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
+              });
+              await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
+                symbol: symbol,
+                type: '1day',
+                priceObject: await getAsync(symbol + '_to_usdt'),
+                ticker: result.data,
+                jobId: job.id,
+              });
               await delAsync(symbol + '_to_usdt');
             });
             wss.terminate();
             clearInterval(interval);
+
             return resolve(true);
             }, millisTill);
 

@@ -1,17 +1,14 @@
 import config from '../config';
-import EmailSequenceJob from '../jobs/emailSequence';
-import WatchPriceBTC from '../jobs/watchPriceBTC';
+import WatchPriceCryptoBinance from '../jobs/watchPriceCryptoBinance';
 import Agenda from 'agenda';
 
-export default ({ agenda }: { agenda: Agenda }) => {
+export default async ({ agenda }: { agenda: Agenda }) => {
   agenda.define(
-    'send-email',
+    'watch-price-binance',
     { priority: 'high', concurrency: config.agenda.concurrency },
     // @TODO Could this be a static method? Would it be better?
-    new EmailSequenceJob().handler,
+    new WatchPriceCryptoBinance().handler
   );
-  // new WatchPriceBTC().handler().then(function(ok) {
-  //   console.log(ok);
-  // });
-  agenda.start();
+  await agenda.start();
+  await agenda.every('2 hours', 'watch-price-binance');
 };
