@@ -27,6 +27,7 @@ export default (longJob = true) => {
             queue: workQueue,
           });
           if(longJob){
+            console.log(worker.prefetch);
             workQueue.process(worker.prefetch ? worker.prefetch : 1, worker.run);
           }
         }
