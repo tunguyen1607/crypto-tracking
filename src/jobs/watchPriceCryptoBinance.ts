@@ -17,19 +17,22 @@ export default class WatchPriceCryptoBinance {
         },
         limit: 1000
       });
+      console.log(listCryptoMarkets);
       for (let i = 0; i < listCryptoMarkets.length; i++) {
         let cryptoDetail = listCryptoMarkets[i];
+        console.log(cryptoDetail.symbol);
         if (cryptoDetail.jobId) {
           // @ts-ignore
           const resJob = await producerService.getJob(cryptoDetail.jobId) as Job;
           console.log(resJob);
-          if (resJob && await resJob.isActive() || await resJob.isWaiting() || await resJob.isDelayed()) {
+          if (resJob && (await resJob.isActive() || await resJob.isWaiting() || await resJob.isDelayed())) {
+            console.log('skip '+ cryptoDetail.symbol.toLowerCase())
             continue;
           }
         }
         // @ts-ignore
         await producerService.add({
-          symbols: cryptoDetail.symbol,
+          symbols: cryptoDetail.symbol.toLowerCase(),
         });
       }
       done();

@@ -3,4 +3,5 @@ import * as cryptoCurrencyController from './CryptoCurrencyController';
 
 export default route => {
   route.get('/info', [cryptoCurrencyController.info]);
+  route.get('/list', [cryptoCurrencyController.list]);
 };

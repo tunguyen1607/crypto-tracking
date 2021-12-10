@@ -51,7 +51,6 @@ export default {
                 method: 'GET',
                 url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
               });
-              console.log(result);
               await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
                 symbol: symbol,
                 type: '5m',
@@ -67,7 +66,6 @@ export default {
           if (millisTill < 0) {
             millisTill += 86400000; // it's after 10am, try 10am tomorrow.
           }
-          console.log(millisTill)
           setTimeout( function(){
             activeSymbols.map(async function (symbol) {
               const result = await axios({
