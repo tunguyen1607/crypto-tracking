@@ -33,7 +33,6 @@ export default (longJob = true) => {
               console.log(`Job-${job.id} failed. Creating new Job-${newJob.id} with highest priority for same data.`);
             });
           }
-
         }
       }
       const serverAdapter = new ExpressAdapter();
