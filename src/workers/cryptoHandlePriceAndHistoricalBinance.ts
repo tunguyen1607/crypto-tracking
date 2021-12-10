@@ -24,13 +24,7 @@ export default {
       if(!symbol){
         throw new Error('not found symbol');
       }
-      if(!ticker){
-        const result = await axios({
-          method: 'GET',
-          url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
-        });
-        ticker = result.data;
-      }
+
       // @ts-ignore
       let cryptoDetail = await cryptoModel.findOne({where: {symbol: symbol.toUpperCase()}});
       if(!cryptoDetail){
@@ -50,6 +44,13 @@ export default {
       }, {where: {id: cryptoDetail.id}});
 
       if(type == '1day'){
+        if(!ticker){
+          const result = await axios({
+            method: 'GET',
+            url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
+          });
+          ticker = result.data;
+        }
         let date = timeConverter(priceObject.timestamp, false);
         // @ts-ignore
         cryptoHistoricalModel.create({
@@ -78,7 +79,7 @@ export default {
           datetime: new Date(priceObject.timestamp),
           timestamp: Math.ceil(priceObject.timestamp/1000),
           price: priceObject.price,
-          volume: ticker.volume,
+          // volume: ticker.volume,
           status: 1,
           type: type,
         });

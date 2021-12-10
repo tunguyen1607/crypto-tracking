@@ -62,7 +62,7 @@ export default {
               });
             })
 
-          }, 1*60*1000);
+          }, 5*60*1000);
           setTimeout(function() {
             console.log('wait for %s seconds', seconds);
             wss.terminate();
