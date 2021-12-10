@@ -21,13 +21,13 @@ export default (longJob = true) => {
         LoggerInstance.info('[Bull Queue] run file '+files[i]);
         if (worker.status) {
           let workQueue = new Queue(worker.queueName, REDIS_URL);
+          bullAdapters.push(new BullAdapter(workQueue));
           if(longJob){
             workQueue.process(worker.prefetch ? worker.prefetch : 1, worker.run);
             queues.push({
               name: worker.queueName,
               queue: workQueue,
             });
-            bullAdapters.push(new BullAdapter(workQueue));
             workQueue.on('failed', async function (job, error) {
               let newJob = await workQueue.add(job.data, { ...{ priority: 1 }, ...job.opts });
               console.log(`Job-${job.id} failed. Creating new Job-${newJob.id} with highest priority for same data.`);
