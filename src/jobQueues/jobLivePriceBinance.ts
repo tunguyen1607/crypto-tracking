@@ -12,7 +12,7 @@ function sleep(ms) {
 export default {
   queueName: 'jobLivePriceBinance',
   status: true,
-  prefetch: 30,
+  prefetch: process.env.LIVE_PRICE_CONCURRENCY || 30,
   run: async function(job) {
     return new Promise(async function(resolve, reject) {
       const Logger = Container.get('logger');
