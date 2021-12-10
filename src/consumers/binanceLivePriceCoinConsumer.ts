@@ -50,20 +50,27 @@ export default {
           let interval = setInterval(async function() {
             console.log(activeSymbols);
             activeSymbols.map(async function (symbol) {
+              await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
+                symbol: symbol,
+                type: '5m',
+                priceObject: await getAsync(symbol + '_to_usdt'),
+              });
+            })
+          }, 5*60*1000);
+
+          setTimeout(function() {
+            activeSymbols.map(async function (symbol) {
               const result = await axios({
                 method: 'GET',
                 url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
               });
               await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
                 symbol: symbol,
-                type: '5m',
+                type: '1day',
                 priceObject: await getAsync(symbol + '_to_usdt'),
                 ticker: result.data
               });
             })
-
-          }, 5*60*1000);
-          setTimeout(function() {
             console.log('wait for %s seconds', seconds);
             wss.terminate();
             clearInterval(interval);
