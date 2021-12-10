@@ -28,10 +28,6 @@ export default (longJob = true) => {
           });
           if(longJob){
             workQueue.process(worker.prefetch ? worker.prefetch : 1, worker.run);
-            workQueue.on('failed', async function (job, error) {
-              let newJob = await workQueue.add(job.data, { ...{ priority: 1 }, ...job.opts });
-              console.log(`Job-${job.id} failed. Creating new Job-${newJob.id} with highest priority for same data.`);
-            });
           }
         }
       }
