@@ -10,7 +10,7 @@ export default class WatchPriceCryptoBinance {
     const producerService = Container.get('jobLivePriceBinance');
     try {
       // @ts-ignore
-      let listCryptoMarkets = await cryptoModel.find({
+      let listCryptoMarkets = await cryptoModel.findAll({
         where: {
           market: 'binance',
           statusMarket: 'TRADING'
