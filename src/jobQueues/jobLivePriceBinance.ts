@@ -45,22 +45,15 @@ export default {
           let interval = setInterval(async function() {
             console.log(activeSymbols);
             activeSymbols.map(async function (symbol) {
-              console.log(symbol);
-              console.log('call api '+ `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`);
-              const result = await axios({
-                method: 'GET',
-                url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
-              });
               await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
                 symbol: symbol,
                 type: '5m',
                 priceObject: await getAsync(symbol + '_to_usdt'),
-                ticker: result.data,
                 jobId: job.id,
               });
             })
 
-          }, 1*60*1000);
+          }, 5*60*1000);
           let now = new Date();
           let millisTill = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 0).getTime() - now.getTime();
           if (millisTill < 0) {
