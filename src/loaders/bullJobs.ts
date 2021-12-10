@@ -10,7 +10,7 @@ const { createBullBoard } = require('@bull-board/api');
 const { BullAdapter } = require('@bull-board/api/bullAdapter');
 const { ExpressAdapter } = require('@bull-board/express');
 
-export default () => {
+export default (longJob = true) => {
   return new Promise(async function(resolve, reject) {
     try {
       let queues = [];
@@ -21,16 +21,18 @@ export default () => {
         LoggerInstance.info('[Bull Queue] run file '+files[i]);
         if (worker.status) {
           let workQueue = new Queue(worker.queueName, REDIS_URL);
-          workQueue.process(worker.prefetch ? worker.prefetch : 1, worker.run);
-          queues.push({
-            name: worker.queueName,
-            queue: workQueue,
-          });
-          bullAdapters.push(new BullAdapter(workQueue));
-          workQueue.on('failed', async function (job, error) {
-            let newJob = await workQueue.add(job.data, { ...{ priority: 1 }, ...job.opts });
-            console.log(`Job-${job.id} failed. Creating new Job-${newJob.id} with highest priority for same data.`);
-          });
+          if(longJob){
+            workQueue.process(worker.prefetch ? worker.prefetch : 1, worker.run);
+            queues.push({
+              name: worker.queueName,
+              queue: workQueue,
+            });
+            bullAdapters.push(new BullAdapter(workQueue));
+            workQueue.on('failed', async function (job, error) {
+              let newJob = await workQueue.add(job.data, { ...{ priority: 1 }, ...job.opts });
+              console.log(`Job-${job.id} failed. Creating new Job-${newJob.id} with highest priority for same data.`);
+            });
+          }
         }
       }
       const serverAdapter = new ExpressAdapter();

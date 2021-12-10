@@ -96,13 +96,9 @@ export default async ({
     name: 'currencyModel',
     model: await require('../models/Currency').default({ sequelize: sequelizeConnection }),
   };
-  let queues:any = [];
-  let serverAdapter:any = null;
-  if(longJob){
-    let bull:any = await bullJobsLoader();
-    queues = bull.queues;
-    serverAdapter = bull.serverAdapter;
-  }
+  let bull:any = await bullJobsLoader(longJob);
+  let queues = bull.queues;
+  let serverAdapter = bull.serverAdapter;
 
   // It returns the agenda instance because it's needed in the subsequent loaders
   const { agenda } = await dependencyInjectorLoader({
@@ -122,8 +118,6 @@ export default async ({
       cryptoCategoryModel,
       cryptoCategoryItemModel,
       currencyModel,
-      // salaryModel,
-      // whateverModel
     ],
     queues,
   });
