@@ -5,7 +5,7 @@ import {runSyncListJsFile} from "../helpers/file";
 import path from "path";
 import LoggerInstance from "./logger";
 // Connect to a local redis instance locally, and the Heroku-provided URL in production
-let REDIS_URL = process.env.REDIS_URL || "redis://:Tuantu123@@45.32.120.55:6379/2";
+let REDIS_URL = process.env.REDIS_URL_QUEUE || "redis://:Tuantu123@@45.32.120.55:6379/2";
 const { createBullBoard } = require('@bull-board/api');
 const { BullAdapter } = require('@bull-board/api/bullAdapter');
 const { ExpressAdapter } = require('@bull-board/express');
