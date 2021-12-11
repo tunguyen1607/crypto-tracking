@@ -97,16 +97,15 @@ export default {
             }, millisTill);
           let symbol = symbols[0].toLowerCase();
           let objectPrice: any = await getAsync(symbol+'_to_usdt');
+          if(objectPrice){
+            objectPrice = JSON.parse(objectPrice);
+          }else {
+            objectPrice = {};
+          }
           // @ts-ignore
           wss.on('message', async function incoming(message) {
             let object = JSON.parse(message);
             // console.log(object);
-
-            if(objectPrice){
-              objectPrice = JSON.parse(objectPrice);
-            }else {
-              objectPrice = {};
-            }
             if(activeSymbols.indexOf(symbol) < 0){
               activeSymbols.push(symbol);
               activeSymbols = activeSymbols.filter(function(item, pos) {
