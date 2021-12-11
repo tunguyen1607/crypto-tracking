@@ -18,6 +18,8 @@ export default {
       const Logger = Container.get('logger');
       const RedisInstance = Container.get('redisInstance');
       const publishServiceInstance = Container.get(PublishService);
+      const cryptoModel = Container.get('cryptoModel');
+      const producerService = Container.get('jobLivePriceBinance');
       try {
         // @ts-ignore
         const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
@@ -55,12 +57,20 @@ export default {
 
           }, 5*60*1000);
           let now = new Date();
-          let millisTill = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 0).getTime() - now.getTime();
+          let millisTill = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 55, 59, 0).getTime() - now.getTime();
           if (millisTill < 0) {
             millisTill += 86400000; // it's after 10am, try 10am tomorrow.
           }
           setTimeout( function(){
             activeSymbols.map(async function (symbol) {
+              if(data.cryptoId){
+                // @ts-ignore
+                let job = await producerService.add({
+                  symbols: symbol.toLowerCase(),
+                });
+                // @ts-ignore
+                await cryptoModel.update({jobId: job.id}, {where: {id: data.cryptoId}});
+              }
               const result = await axios({
                 method: 'GET',
                 url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,

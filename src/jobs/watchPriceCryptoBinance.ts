@@ -17,24 +17,29 @@ export default class WatchPriceCryptoBinance {
         },
         limit: 1000
       });
-      console.log(listCryptoMarkets);
       for (let i = 0; i < listCryptoMarkets.length; i++) {
         let cryptoDetail = listCryptoMarkets[i];
-        console.log(cryptoDetail.symbol);
         if(cryptoDetail && cryptoDetail.symbol){
           if (cryptoDetail.jobId) {
             // @ts-ignore
             const resJob = await producerService.getJob(cryptoDetail.jobId) as Job;
-            console.log(resJob);
-            if (resJob && (await resJob.isActive() || await resJob.isWaiting() || await resJob.isDelayed())) {
-              console.log('skip '+ cryptoDetail.symbol.toLowerCase())
-              continue;
+            if (resJob) {
+              if(await resJob.isActive() || await resJob.isWaiting() || await resJob.isDelayed()){
+                console.log('skip '+ cryptoDetail.symbol.toLowerCase())
+                continue;
+              }
+              if(await resJob.isStuck() || await resJob.isPaused()){
+                await resJob.moveToFailed({message: 'no need to process'});
+              }
             }
           }
           // @ts-ignore
           let job = await producerService.add({
             symbols: cryptoDetail.symbol.toLowerCase(),
+            cryptoId: cryptoDetail.id
           });
+          // @ts-ignore
+          await cryptoModel.update({jobId: job.id}, {where: {id: cryptoDetail.id}});
           console.log('send symbol '+cryptoDetail.symbol+ ' with job '+job.id);
         }
       }
