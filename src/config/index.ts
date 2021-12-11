@@ -89,8 +89,6 @@ export default {
     userSecret: 'zW8wtvm5KM0ctvy6zlxYCxbKMmUfh93LMZC1aZPQ',
   },
   redis: {
-    password: process.env.REDIS_PASSWORD || '',
-    host: process.env.REDIS_HOST || '127.0.0.1',
-    port: process.env.REDIS_PORT || 6379,
+    url: process.env.REDIS_URL,
   },
 };
