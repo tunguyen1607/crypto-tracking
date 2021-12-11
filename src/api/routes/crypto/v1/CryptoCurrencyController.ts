@@ -78,13 +78,15 @@ export async function list(req: Request, res: Response) {
       limit: limit,
       where: filter,
       raw: true,
-      attributes: ['id', 'price', 'symbol', 'description', 'logo', 'dateAdded', 'lastUpdated', 'volume', 'sourceId', 'source', 'slug', 'category', 'marketDominance', 'circulatingSupply', 'maxSupply', 'totalSupply', 'cmcRank', 'marketCap'],
+      attributes: ['id', 'price', 'symbol', 'description', 'logo', 'dateAdded', 'lastUpdated', 'volume', 'sourceId', 'source', 'slug', 'category', 'marketDominance', 'circulatingSupply', 'maxSupply', 'totalSupply', 'cmcRank', 'marketCap', 'market', 'statusMarket'],
     });
     // @ts-ignore
     let count: any = await cryptoModel.count({
       where: filter,
     });
-    cryptoList.map(async function (item) {
+    let start = Date.now();
+    for (let i = 0; i < cryptoList.length; i++){
+      let item = cryptoList[i];
       let priceKey = item.symbol.toLowerCase() +'_to_usdt';
       let priceObject = await getAsync(priceKey);
       if(priceObject){
@@ -92,8 +94,10 @@ export async function list(req: Request, res: Response) {
         item.price = priceObject['price'];
         item['quote'] = priceObject;
       }
-    });
-
+      cryptoList[i] = item;
+    }
+    let end = Date.now();
+    console.log(end - start)
     return res.json({ data: cryptoList, count: count}).status(200);
   } catch (error) {
     if (error.message && error.message.includes('|')) {

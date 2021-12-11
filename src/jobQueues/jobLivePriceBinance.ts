@@ -88,20 +88,20 @@ export default {
               delete priceSymbol['highPriceTimestamp'];
               delete priceSymbol['lowPrice'];
               delete priceSymbol['lowPriceTimestamp'];
-              await setAsync(symbol + '_to_usdt', priceSymbol);
+              await setAsync(symbol + '_to_usdt', JSON.stringify(priceSymbol));
             });
             wss.terminate();
             clearInterval(interval);
 
             return resolve(true);
             }, millisTill);
-
+          let symbol = symbols[0].toLowerCase();
+          let objectPrice: any = await getAsync(symbol+'_to_usdt');
           // @ts-ignore
           wss.on('message', async function incoming(message) {
             let object = JSON.parse(message);
             // console.log(object);
-            let symbol = object.s.replace(/USDT/g, '').toLowerCase();
-            let objectPrice: any = await getAsync(symbol+'_to_usdt');
+
             if(objectPrice){
               objectPrice = JSON.parse(objectPrice);
             }else {
