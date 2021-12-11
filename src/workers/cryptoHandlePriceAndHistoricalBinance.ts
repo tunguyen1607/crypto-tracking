@@ -3,6 +3,7 @@ import PublishService from '../services/publish';
 import axios from 'axios';
 import {promisify} from "util";
 import {checkValidDate, timeConverter} from "../helpers/date";
+import {isStringJson} from "../helpers/object";
 
 export default {
   queueName: 'crypto_handle_price_and_historical_binance',
@@ -33,7 +34,7 @@ export default {
       if(!priceObject){
         priceObject = await getAsync(symbol.toLowerCase()+'_to_usdt');
       }
-      if(priceObject){
+      if(priceObject && isStringJson(priceObject)){
         priceObject = JSON.parse(priceObject);
       }
       // @ts-ignore

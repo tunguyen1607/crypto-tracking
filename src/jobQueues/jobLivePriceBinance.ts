@@ -71,6 +71,7 @@ export default {
                 // @ts-ignore
                 await cryptoModel.update({jobId: job.id}, {where: {id: data.cryptoId}});
               }
+              let priceSymbol = await getAsync(symbol + '_to_usdt');
               const result = await axios({
                 method: 'GET',
                 url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
@@ -78,11 +79,16 @@ export default {
               await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
                 symbol: symbol,
                 type: '1day',
-                priceObject: await getAsync(symbol + '_to_usdt'),
+                priceObject: priceSymbol,
                 ticker: result.data,
                 jobId: job.id,
               });
-              await delAsync(symbol + '_to_usdt');
+              priceSymbol = JSON.parse(priceSymbol);
+              delete priceSymbol['highPrice'];
+              delete priceSymbol['highPriceTimestamp'];
+              delete priceSymbol['lowPrice'];
+              delete priceSymbol['lowPriceTimestamp'];
+              await setAsync(symbol + '_to_usdt', priceSymbol);
             });
             wss.terminate();
             clearInterval(interval);
@@ -101,8 +107,6 @@ export default {
             }else {
               objectPrice = {};
             }
-            // console.log(symbol+'_to_usdt');
-            // console.log(objectPrice);
             if(activeSymbols.indexOf(symbol) < 0){
               activeSymbols.push(symbol);
               activeSymbols = activeSymbols.filter(function(item, pos) {
