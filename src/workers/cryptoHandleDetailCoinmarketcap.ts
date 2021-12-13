@@ -3,6 +3,7 @@ import PublishService from '../services/publish';
 import AWSService from '../services/aws';
 import { getBeginningOfDate, getPreviousMonthOfDate } from '../helpers/date';
 import axios from 'axios';
+import {urlSlug} from "../helpers/crawler";
 
 export default {
   queueName: 'crypto_handle_detail_coinmarketcap',
@@ -31,6 +32,7 @@ export default {
         },
       });
       let detail: any = result.data['data'];
+      detail[sourceId].symbol = urlSlug(detail[sourceId].symbol, false);
       if(!detail){
         throw new Error('empty data '+ JSON.stringify(result.data));
       }
@@ -61,7 +63,7 @@ export default {
       }else {
         // @ts-ignore
         let cryptoDetail = await cryptoModel.findOne({
-          where: { sourceId: detail[sourceId].id + '', symbol: detail[sourceId].symbol, slug: detail[sourceId].slug },
+          where: { symbol: detail[sourceId].symbol, slug: detail[sourceId].slug },
         });
         if (cryptoDetail) {
           // @ts-ignore

@@ -20,7 +20,6 @@ export default {
         },
       });
       let list: any = result.data['data'];
-      let listCrypto = [];
       for (let i = 0; i < list.length; i++) {
         let cryptoItem: any = list[i];
         let body = {
@@ -32,7 +31,7 @@ export default {
           maxSupply: cryptoItem.max_supply,
           circulatingSupply: cryptoItem.circulating_supply,
           totalSupply: cryptoItem.total_supply,
-          cmcRank: cryptoItem.cmc_rank,
+          rank: cryptoItem.cmc_rank,
           tags: cryptoItem.tags,
           platform: cryptoItem.platform,
           price: cryptoItem.quote.USD.price,
@@ -45,10 +44,9 @@ export default {
           status: 1,
           fullyDilutedMarketCap: cryptoItem.quote.USD.fully_diluted_market_cap,
         };
-        listCrypto.push(body);
         // @ts-ignore
         let cryptoDetail = await cryptoModel.findOne({
-          where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },
+          where: { symbol: cryptoItem.symbol, slug: cryptoItem.slug },
         });
         if (cryptoDetail) {
           // @ts-ignore
@@ -64,7 +62,6 @@ export default {
           // @ts-ignore
           cryptoDetail = await cryptoModel.create(body);
         }
-        console.log(cryptoDetail.logo);
         if (!cryptoDetail.logo) {
           await publishServiceInstance.publish('', 'crypto_handle_detail_coinmarketcap', {
             sourceId: cryptoDetail.sourceId,

@@ -1,5 +1,6 @@
 import Sequelize from 'sequelize';
 export default async ({ sequelize }) => {
+  // @ts-ignore
   let Crypto = sequelize.define(
     'Crypto',
     {
@@ -38,6 +39,9 @@ export default async ({ sequelize }) => {
       urls: {
         type: Sequelize.JSONB,
       },
+      socials: {
+        type: Sequelize.JSONB,
+      },
       platform: {
         type: Sequelize.JSONB,
       },
@@ -74,7 +78,7 @@ export default async ({ sequelize }) => {
       totalSupply: {
         type: Sequelize.FLOAT,
       },
-      cmcRank: {
+      rank: {
         type: Sequelize.INTEGER,
       },
       marketCap: {
@@ -109,7 +113,13 @@ export default async ({ sequelize }) => {
       },
       statusMarket: {
         type: Sequelize.STRING,
-      }
+      },
+      numberOfMarkets: {
+        type: Sequelize.INTEGER,
+      },
+      numberOfExchanges: {
+        type: Sequelize.INTEGER,
+      },
     },
     {
       // options

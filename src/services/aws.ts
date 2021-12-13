@@ -25,6 +25,7 @@ export default class AwsService {
         }
         if (isBase64(fileBuff)) {
           let fileType = fileBuff.substring('data:image/'.length, fileBuff.indexOf(';base64'));
+          console.log(fileType);
           let imageBody = fileBuff.replace(/^data:image\/\w+;base64,/, '');
           imageBody = imageBody.replace(/ /g, '+');
           var buff = Buffer.from(imageBody, 'base64');
@@ -36,7 +37,7 @@ export default class AwsService {
               Key: fileName,
               Body: buff,
               ACL: 'public-read',
-              ContentType: fileType,
+              ContentType: fileType == 'svg' ? 'image/svg+xml' : fileType,
             };
             if (s3bucket === null) {
               s3bucket = that.s3Bucket;
