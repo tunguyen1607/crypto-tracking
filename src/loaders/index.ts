@@ -8,6 +8,7 @@ import producerLoader from './producer';
 import rabbitMQLoader from './rabbitmq';
 import publisherLoader from './publisher';
 import bullJobsLoader from './bullJobs';
+import websocketLoader from './websockets';
 import workers from './workers';
 import Logger from './logger';
 
@@ -15,6 +16,8 @@ import awsS3 from './aws';
 import redis from './redis';
 //We have to import at least all the events once so they can be triggered
 import './events';
+import config from "../config";
+import express from "express";
 
 export default async ({
   expressApp,
@@ -25,6 +28,7 @@ export default async ({
   worker = false,
   longJob = false,
 }) => {
+  const app = express();
   const mongoConnection = await mongooseLoader();
   const sequelizeConnection = await sequelizeLoader();
   Logger.info('✌️ DB loaded and connected!');
@@ -138,7 +142,15 @@ export default async ({
   }
 
   if (expressApp) {
-    await expressLoader({ app: expressApp, serverAdapter });
+    await expressLoader({ app: app, serverAdapter });
     Logger.info('✌️ Express loaded');
+    let server = app.listen(config.port, async () => {
+      Logger.info(`
+      ################################################
+      🛡️  Server listening on port: ${config.port} 🛡️ 
+      ################################################
+    `);
+      await websocketLoader(server);
+    });
   }
 };

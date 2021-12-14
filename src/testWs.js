@@ -1,14 +1,11 @@
-const Binance = require('node-binance-api');
-const binance = new Binance().options({
-  APIKEY: 'eUCrfqLYRLcY8JofQpK8BzP1Pci1eNYW9i0fPIAzjSLDrRNq9HQ0KgIK6s70RNZY',
-  APISECRET: 'oLn8mDkkbX6sWNPpRBCWckZXjm8LD3wvfq1FAR3cLV8Sh7YXMRwWDpUFGxgoUFpa'
-});
-async function run() {
-  binance.candlesticks("BTCUSDT", "1d", (error, ticks, symbol) => {
-    console.info("candlesticks()", ticks);
-    let last_tick = ticks[ticks.length - 1];
-    let [time, open, high, low, close, volume, closeTime, assetVolume, trades, buyBaseVolume, buyAssetVolume, ignored] = last_tick;
-    console.info(symbol+" last close: "+close);
-  }, {limit: 500, endTime: new Date().getTime()});
-}
-run();
+const WebSocket = require('ws');
+const {uuidv4} = require('uuidv4');
+const wss = new WebSocket.Server({ port: 7071 });
+const clients = new Map();
+wss.on('connection', (ws) => {
+  const id = uuidv4();
+  const color = Math.floor(Math.random() * 360);
+  const metadata = {id, color};
+
+  clients.set(ws, metadata);
+})
