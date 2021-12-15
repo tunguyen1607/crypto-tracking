@@ -81,7 +81,7 @@ export default {
             maxSupply: cryptoItem.max_supply,
             circulatingSupply: cryptoItem.circulating_supply,
             totalSupply: cryptoItem.total_supply,
-            cmcRank: cryptoItem.cmc_rank,
+            rank: cryptoItem.cmc_rank,
             tags: cryptoItem.tags,
             platform: cryptoItem.platform,
             price: cryptoItem.quote.USD.price,
