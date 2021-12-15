@@ -11,7 +11,7 @@ export default {
     const Logger = Container.get('logger');
     const RedisInstance = Container.get('redisInstance');
     const cryptoModel = Container.get('cryptoModel');
-    const cryptoMarketModel = Container.get('cryptoMarketModel');
+    const cryptoExchangeModel = Container.get('cryptoExchangeModel');
     const publishServiceInstance = Container.get(PublishService);
     const binanceServiceInstance = Container.get(BinanceService);
     // @ts-ignore
@@ -28,7 +28,7 @@ export default {
           status = 0;
         }
         // @ts-ignore
-        let cryptoMarketItem = await cryptoMarketModel.findOne({
+        let cryptoMarketItem = await cryptoExchangeModel.findOne({
           where: {
             symbol: cryptoItem.symbol,
             market: 'binance'
@@ -37,7 +37,7 @@ export default {
 
         if(!cryptoMarketItem){
           // @ts-ignore
-          await cryptoMarketModel.create({
+          await cryptoExchangeModel.create({
             symbol: cryptoItem.symbol,
             baseAsset: cryptoItem.baseAsset,
             quoteAsset: cryptoItem.quoteAsset,

@@ -94,6 +94,6 @@ export default async (expressServer) => {
 
       ws.ping(null, undefined);
     });
-  }, 10000);
+  }, 30000);
   return websocketServer;
 };

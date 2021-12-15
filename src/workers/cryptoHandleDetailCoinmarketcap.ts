@@ -32,7 +32,7 @@ export default {
         },
       });
       let detail: any = result.data['data'];
-      detail[sourceId].symbol = urlSlug(detail[sourceId].symbol, false);
+      detail[sourceId].symbol = urlSlug(detail[sourceId].symbol);
       if(!detail){
         throw new Error('empty data '+ JSON.stringify(result.data));
       }
