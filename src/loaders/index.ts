@@ -9,6 +9,7 @@ import rabbitMQLoader from './rabbitmq';
 import publisherLoader from './publisher';
 import bullJobsLoader from './bullJobs';
 import websocketLoader from './websockets';
+import socketIOLoader from './socketIO';
 import workers from './workers';
 import Logger from './logger';
 
@@ -27,6 +28,8 @@ export default async ({
   consumer = false,
   worker = false,
   longJob = false,
+  websocket = false,
+  socketIO = false,
 }) => {
   const app = express();
   const mongoConnection = await mongooseLoader();
@@ -143,14 +146,21 @@ export default async ({
 
   if (expressApp) {
     await expressLoader({ app: app, serverAdapter });
+    let server = require('http').createServer(app);
     Logger.info('✌️ Express loaded');
-    let server = app.listen(config.port, async () => {
+    if(websocket){
+      await websocketLoader(server);
+    }
+    if(socketIO){
+      await socketIOLoader(server, {room: 'test', users: []});
+    }
+    server.listen(config.port, async () => {
       Logger.info(`
       ################################################
       🛡️  Server listening on port: ${config.port} 🛡️ 
       ################################################
     `);
-      await websocketLoader(server);
+
     });
   }
 };
