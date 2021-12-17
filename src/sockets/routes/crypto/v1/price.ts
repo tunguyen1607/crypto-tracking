@@ -13,7 +13,9 @@ export default {
     let watchList = [];
     let interval = null;
     socket.on('latest', function (message) {
-      if(message.method && message.method == 'subscribe'){
+      console.log(message);
+      if(message.method){
+        console.log(message.method);
         switch (message.method) {
           case 'subscribe':
             if (message.symbols) {
@@ -32,7 +34,7 @@ export default {
                   }
                   socket.emit('latest', JSON.stringify(priceObject))
                 })
-              }, 30000)
+              }, 1000)
             }
             break;
           default:
