@@ -13,25 +13,32 @@ export default {
     let watchList = [];
     let interval = null;
     socket.on('latest', function (message) {
-      if(message.method && message.method !== 'subscribe'){
-        if (message.symbols) {
-          watchList = [...message.symbols];
+      if(message.method && message.method == 'subscribe'){
+        switch (message.method) {
+          case 'subscribe':
+            if (message.symbols) {
+              watchList = [...message.symbols];
+            }
+            if (interval) {
+              clearInterval(interval);
+            }
+            if (watchList.length > 0) {
+              interval = setInterval(function () {
+                watchList.forEach(async function (item) {
+                  let priceObject = await getAsync(item + '_to_usdt');
+                  if (priceObject) {
+                    priceObject = JSON.parse(priceObject);
+                    priceObject['symbol'] = item;
+                  }
+                  socket.emit('latest', JSON.stringify(priceObject))
+                })
+              }, 30000)
+            }
+            break;
+          default:
+            clearInterval(interval);
         }
-        if (interval) {
-          clearInterval(interval);
-        }
-        if (watchList.length > 0) {
-          interval = setInterval(function () {
-            watchList.forEach(async function (item) {
-              let priceObject = await getAsync(item + '_to_usdt');
-              if (priceObject) {
-                priceObject = JSON.parse(priceObject);
-                priceObject['symbol'] = item;
-              }
-              socket.emit('latest', JSON.stringify(priceObject))
-            })
-          }, 30000)
-        }
+
       }
 
     });
