@@ -15,7 +15,6 @@ export default {
     socket.on('latest', function (message) {
       console.log(message);
       if(message.method){
-        console.log(message.method);
         switch (message.method) {
           case 'subscribe':
             let rooms = socket.rooms;
