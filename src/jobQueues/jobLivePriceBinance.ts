@@ -140,8 +140,8 @@ export default {
                 objectPrice['lowPriceTimestamp'] = object.T;
               }
             }
-            console.log(symbol+'_to_usdt');
             console.log(objectPrice);
+            objectPrice['symbol'] = symbol;
             let rs = await setAsync(symbol+'_to_usdt', JSON.stringify(objectPrice));
             console.log(rs);
           });

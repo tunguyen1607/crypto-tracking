@@ -7,7 +7,9 @@ export default (io) => {
       console.log(files[i].file);
       io.use(require(files[i].file).default.middlewares);
       io.of('/' + files[i].version + '/' + files[i].module + '/'+ files[i].fileName)
-        .on('connection', require(files[i].file).default.router);
+        .on('connection', function (socket) {
+          require(files[i].file).default.router(socket, io);
+        });
     }
   });
 };
