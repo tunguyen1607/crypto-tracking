@@ -33,6 +33,7 @@
   "dependencies": {
     "@bull-board/api": "^3.7.0",
     "@bull-board/express": "^3.7.0",
+    "@socket.io/redis-adapter": "^7.1.0",
     "agenda": "^2.3.0",
     "agendash": "^1.0.0",
     "amqplib": "^0.8.0",

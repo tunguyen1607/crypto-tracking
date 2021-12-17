@@ -152,7 +152,7 @@ export default async ({
       await websocketLoader(server);
     }
     if(socketIO){
-      await socketIOLoader(server, {room: 'test', users: []});
+      await socketIOLoader(server, {redis: redisInstance});
     }
     server.listen(config.port, async () => {
       Logger.info(`

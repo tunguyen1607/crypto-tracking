@@ -5,6 +5,7 @@ import { promisify } from 'util';
 export default () => {
   // @ts-ignore
   return new Promise(function(resolve, reject) {
+    console.log(config.redis.url);
     const client = redis.createClient({
       url: config.redis.url,
     });
