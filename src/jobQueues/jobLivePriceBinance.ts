@@ -88,7 +88,8 @@ export default {
               delete priceSymbol['highPriceTimestamp'];
               delete priceSymbol['lowPrice'];
               delete priceSymbol['lowPriceTimestamp'];
-              await setAsync(symbol + '_to_usdt', JSON.stringify(priceSymbol));
+              let rs = await setAsync(symbol + '_to_usdt', JSON.stringify(priceSymbol));
+              console.log(rs);
             });
             wss.terminate();
             clearInterval(interval);
@@ -139,7 +140,9 @@ export default {
                 objectPrice['lowPriceTimestamp'] = object.T;
               }
             }
-            await setAsync(symbol+'_to_usdt', JSON.stringify(objectPrice));
+            console.log(objectPrice);
+            let rs = await setAsync(symbol+'_to_usdt', JSON.stringify(objectPrice));
+            console.log(rs);
           });
 
           wss.on('error', function error(error) {

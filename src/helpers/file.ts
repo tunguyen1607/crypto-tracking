@@ -59,13 +59,17 @@ export function listJSFilesSync(dir): any {
         let version = path.parse(versions[z]).base;
         if (fs.statSync(pathModule).isFile()) continue;
         let files = await globAsync(pathModule + '/router.*');
+        if(!files || files.length == 0){
+          files = await globAsync(pathModule + '/*');
+        }
         for (let i = 0; i < files.length; i++) {
           let file = files[i];
+          let fileName = path.parse(file).name;
           //is file ?
           if (!fs.statSync(file).isFile()) continue;
 
           //is js file ?
-          if (path.extname(file) === '.js' || path.extname(file) === '.ts') jsFiles.push({ file, version, module });
+          if (path.extname(file) === '.js' || path.extname(file) === '.ts') jsFiles.push({ file, version, module, fileName });
         }
       }
     }

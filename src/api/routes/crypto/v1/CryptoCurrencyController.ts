@@ -79,6 +79,10 @@ export async function list(req: Request, res: Response) {
       where: filter,
       raw: true,
       attributes: ['id', 'price', 'symbol', 'description', 'logo', 'dateAdded', 'lastUpdated', 'volume', 'sourceId', 'source', 'slug', 'category', 'marketDominance', 'circulatingSupply', 'maxSupply', 'totalSupply', 'rank', 'marketCap', 'market', 'statusMarket'],
+      order: [
+        ['rank', 'ASC'],
+        ['name', 'ASC'],
+      ],
     });
     // @ts-ignore
     let count: any = await cryptoModel.count({

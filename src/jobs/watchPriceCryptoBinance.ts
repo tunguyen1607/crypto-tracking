@@ -15,7 +15,11 @@ export default class WatchPriceCryptoBinance {
           market: 'binance',
           statusMarket: 'TRADING'
         },
-        limit: 1000
+        limit: 10,
+        order: [
+          ['rank', 'ASC'],
+          ['name', 'ASC'],
+        ],
       });
       for (let i = 0; i < listCryptoMarkets.length; i++) {
         let cryptoDetail = listCryptoMarkets[i];
