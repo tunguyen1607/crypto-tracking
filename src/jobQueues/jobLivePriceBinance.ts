@@ -4,6 +4,7 @@ import { urlSlug } from '../helpers/crawler';
 import axios from 'axios';
 import {promisify} from "util";
 import WebSocket from 'ws';
+import io from 'socket.io-client';
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -103,6 +104,24 @@ export default {
           }else {
             objectPrice = {};
           }
+          let socket = io('http://localhost:32857/v1/crypto/price?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyYjNkNTQ1ZDI4ZTU1MTY5MjI2YzI1NjNhNTVmMWFlZDcyZGVmZDI5OTM2YSIsImFwcElkIjoiMDQxYTFhNWIxYjEwY2M4NDkzZGYiLCJidW5kbGVJZCI6ImNvbS5ueW53LnNjb3JlIiwiZXhwIjoxNjM5OTIxNjA3LjQ4NCwiaWF0IjoxNjM5NjYyNDA3fQ.SHvJ1aYHf7SFwD17X7C4ORXzufjhJwyuAmfSovIlsV8');
+          socket.on("connect", () => {
+            // or with emit() and custom event names
+            setInterval(function () {
+              activeSymbols.map(async function (symbol) {
+                console.log(symbol)
+                socket.emit("priceLive", {method: 'system', room: symbol, data: JSON.parse(await getAsync(symbol+'_to_usdt'))});
+              })
+            }, 1000)
+          });
+          socket.on('connect_error', function(err)
+          {
+            console.log("connect failed"+err);
+          });
+          socket.on("error", (mess)=>{
+            console.log(mess)
+          })
+
           // @ts-ignore
           wss.on('message', async function incoming(message) {
             let object = JSON.parse(message);
@@ -140,10 +159,8 @@ export default {
                 objectPrice['lowPriceTimestamp'] = object.T;
               }
             }
-            console.log(objectPrice);
             objectPrice['symbol'] = symbol;
             let rs = await setAsync(symbol+'_to_usdt', JSON.stringify(objectPrice));
-            console.log(rs);
           });
 
           wss.on('error', function error(error) {

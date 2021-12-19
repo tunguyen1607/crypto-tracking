@@ -21,7 +21,7 @@ import config from "../config";
 import express from "express";
 
 export default async ({
-  expressApp,
+  expressApp = false,
   cronjob = false,
   rabbitmq = false,
   kafka = false,

@@ -21,12 +21,14 @@ export default {
             rooms.forEach(function (room) {
               socket.leave(room);
             });
-            if (message.symbols) {
+            if (message.symbols && Array.isArray(message.symbols)) {
               watchList = [...message.symbols];
               watchList.forEach(function (item) {
+                console.log(item);
                 socket.join(item);
               })
             }
+            console.log(socket.rooms);
             // if (interval) {
             //   clearInterval(interval);
             // }
@@ -38,21 +40,20 @@ export default {
             //         priceObject = JSON.parse(priceObject);
             //         priceObject['symbol'] = item;
             //       }
-            //       // socket.to(item).emit('latest', JSON.stringify(priceObject))
+            //       socket.to(item).emit('latest', JSON.stringify(priceObject))
             //     })
             //   }, 1000)
             // }
-            break;
-          case 'system':
-            socket.broadcast.to(message.room).emit('latest', message.data);
             break;
           default:
             clearInterval(interval);
         }
 
       }
-
     });
+    socket.on('priceLive', function (message) {
+      socket.broadcast.to(message.room).emit('latest', JSON.stringify(message.data));
+    })
   },
   middlewares: [middlewares.isAuth]
 }

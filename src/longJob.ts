@@ -13,7 +13,8 @@ async function startServer() {
   process.setMaxListeners(0);
 }
 
-throng({
-  worker: startServer,         // Fn to call in cluster workers (can be async)
-  count: os.cpus().length,        // Number of workers
-})
+startServer();
+// throng({
+//   worker: startServer,         // Fn to call in cluster workers (can be async)
+//   count: os.cpus().length,        // Number of workers
+// })
