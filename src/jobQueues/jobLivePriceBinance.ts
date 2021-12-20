@@ -114,8 +114,12 @@ export default {
                   return activeSymbols.indexOf(item) == pos;
                 })
               }
+              if(parseFloat(objectPrice['price']) != parseFloat(object.p)){
+                socket.emit("priceLive", {method: 'system', room: symbol, data: JSON.parse(await getAsync(symbol+'_to_usdt'))});
+              }
               objectPrice['price'] = object.p;
               objectPrice['timestamp'] = object.T;
+
               // @ts-ignore
               let btcHighPrice = objectPrice['highPrice'];
               if (!btcHighPrice || isNaN(btcHighPrice)) {
