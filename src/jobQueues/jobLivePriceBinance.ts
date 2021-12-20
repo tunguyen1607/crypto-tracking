@@ -57,6 +57,25 @@ export default {
             })
 
           }, 5*60*1000);
+          let socket = io('http://localhost:32857/v1/crypto/price?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyYjNkNTQ1ZDI4ZTU1MTY5MjI2YzI1NjNhNTVmMWFlZDcyZGVmZDI5OTM2YSIsImFwcElkIjoiMDQxYTFhNWIxYjEwY2M4NDkzZGYiLCJidW5kbGVJZCI6ImNvbS5ueW53LnNjb3JlIiwiZXhwIjoxNjM5OTIxNjA3LjQ4NCwiaWF0IjoxNjM5NjYyNDA3fQ.SHvJ1aYHf7SFwD17X7C4ORXzufjhJwyuAmfSovIlsV8');
+          let socketInterval = null;
+          socket.on("connect", () => {
+            // or with emit() and custom event names
+            socketInterval = setInterval(function () {
+              activeSymbols.map(async function (symbol) {
+                console.log(symbol)
+                socket.emit("priceLive", {method: 'system', room: symbol, data: JSON.parse(await getAsync(symbol+'_to_usdt'))});
+              })
+            }, 5000)
+          });
+          socket.on('connect_error', function(err)
+          {
+            console.log("connect failed"+err);
+          });
+          socket.on("error", (mess)=>{
+            console.log(mess)
+          })
+
           let now = new Date();
           let millisTill = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 55, 59, 0).getTime() - now.getTime();
           if (millisTill < 0) {
@@ -94,6 +113,7 @@ export default {
             });
             wss.terminate();
             clearInterval(interval);
+            clearInterval(socketInterval);
 
             return resolve(true);
             }, millisTill);
@@ -104,23 +124,7 @@ export default {
           }else {
             objectPrice = {};
           }
-          let socket = io('http://localhost:32857/v1/crypto/price?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyYjNkNTQ1ZDI4ZTU1MTY5MjI2YzI1NjNhNTVmMWFlZDcyZGVmZDI5OTM2YSIsImFwcElkIjoiMDQxYTFhNWIxYjEwY2M4NDkzZGYiLCJidW5kbGVJZCI6ImNvbS5ueW53LnNjb3JlIiwiZXhwIjoxNjM5OTIxNjA3LjQ4NCwiaWF0IjoxNjM5NjYyNDA3fQ.SHvJ1aYHf7SFwD17X7C4ORXzufjhJwyuAmfSovIlsV8');
-          socket.on("connect", () => {
-            // or with emit() and custom event names
-            setInterval(function () {
-              activeSymbols.map(async function (symbol) {
-                console.log(symbol)
-                socket.emit("priceLive", {method: 'system', room: symbol, data: JSON.parse(await getAsync(symbol+'_to_usdt'))});
-              })
-            }, 1000)
-          });
-          socket.on('connect_error', function(err)
-          {
-            console.log("connect failed"+err);
-          });
-          socket.on("error", (mess)=>{
-            console.log(mess)
-          })
+
 
           // @ts-ignore
           wss.on('message', async function incoming(message) {
