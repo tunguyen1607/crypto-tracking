@@ -130,7 +130,6 @@ export default {
                   // @ts-ignore
                   objectPrice['highPrice'] = object.p;
                   objectPrice['highPriceTimestamp'] = object.T;
-                  socket.emit("priceLive", {method: 'system', room: symbol, data: JSON.parse(await getAsync(symbol+'_to_usdt'))});
                 }
               }
               // @ts-ignore
@@ -144,7 +143,6 @@ export default {
                   // @ts-ignore
                   objectPrice['lowPrice'] = object.p;
                   objectPrice['lowPriceTimestamp'] = object.T;
-                  socket.emit("priceLive", {method: 'system', room: symbol, data: JSON.parse(await getAsync(symbol+'_to_usdt'))});
                 }
               }
               objectPrice['symbol'] = symbol;
