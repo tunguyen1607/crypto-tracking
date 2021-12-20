@@ -26,8 +26,6 @@ export default {
         const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
         // @ts-ignore
         const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
-        // @ts-ignore
-        const delAsync = promisify(RedisInstance.del).bind(RedisInstance);
         let data = job.data;
         let activeSymbols = [];
         if (data.symbols) {
@@ -44,7 +42,7 @@ export default {
           }
 
           let socket = io('http://localhost:32857/v1/crypto/price?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyYjNkNTQ1ZDI4ZTU1MTY5MjI2YzI1NjNhNTVmMWFlZDcyZGVmZDI5OTM2YSIsImFwcElkIjoiMDQxYTFhNWIxYjEwY2M4NDkzZGYiLCJidW5kbGVJZCI6ImNvbS5ueW53LnNjb3JlIiwiZXhwIjoxNjM5OTIxNjA3LjQ4NCwiaWF0IjoxNjM5NjYyNDA3fQ.SHvJ1aYHf7SFwD17X7C4ORXzufjhJwyuAmfSovIlsV8');
-          socket.on("connect", () => {
+          socket.on("connect", async () => {
             let linkToCall = `wss://stream.binance.com:9443/ws/${linkSuffix}`;
             console.log(linkToCall);
             const wss = new WebSocket(linkToCall);
