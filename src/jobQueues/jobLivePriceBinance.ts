@@ -42,31 +42,117 @@ export default {
               linkSuffix += '/';
             }
           }
-          let linkToCall = `wss://stream.binance.com:9443/ws/${linkSuffix}`;
-          console.log(linkToCall);
-          const wss = new WebSocket(linkToCall);
-          let interval = setInterval(async function() {
-            console.log(activeSymbols);
-            activeSymbols.map(async function (symbol) {
-              await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
-                symbol: symbol,
-                type: '5m',
-                priceObject: await getAsync(symbol + '_to_usdt'),
-                jobId: job.id,
-              });
-            })
 
-          }, 5*60*1000);
           let socket = io('http://localhost:32857/v1/crypto/price?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyYjNkNTQ1ZDI4ZTU1MTY5MjI2YzI1NjNhNTVmMWFlZDcyZGVmZDI5OTM2YSIsImFwcElkIjoiMDQxYTFhNWIxYjEwY2M4NDkzZGYiLCJidW5kbGVJZCI6ImNvbS5ueW53LnNjb3JlIiwiZXhwIjoxNjM5OTIxNjA3LjQ4NCwiaWF0IjoxNjM5NjYyNDA3fQ.SHvJ1aYHf7SFwD17X7C4ORXzufjhJwyuAmfSovIlsV8');
-          let socketInterval = null;
           socket.on("connect", () => {
-            // or with emit() and custom event names
-            socketInterval = setInterval(function () {
+            let linkToCall = `wss://stream.binance.com:9443/ws/${linkSuffix}`;
+            console.log(linkToCall);
+            const wss = new WebSocket(linkToCall);
+            let interval = setInterval(async function() {
               activeSymbols.map(async function (symbol) {
-                console.log(symbol)
-                socket.emit("priceLive", {method: 'system', room: symbol, data: JSON.parse(await getAsync(symbol+'_to_usdt'))});
+                await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
+                  symbol: symbol,
+                  type: '5m',
+                  priceObject: await getAsync(symbol + '_to_usdt'),
+                  jobId: job.id,
+                });
               })
-            }, 5000)
+            }, 5*60*1000);
+            // or with emit() and custom event names
+            let now = new Date();
+            let millisTill = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 55, 59, 0).getTime() - now.getTime();
+            if (millisTill < 0) {
+              millisTill += 86400000; // it's after 10am, try 10am tomorrow.
+            }
+            setTimeout( function(){
+              activeSymbols.map(async function (symbol) {
+                if(data.cryptoId){
+                  // @ts-ignore
+                  let job = await producerService.add({
+                    symbols: symbol.toLowerCase(),
+                  });
+                  // @ts-ignore
+                  await cryptoModel.update({jobId: job.id}, {where: {id: data.cryptoId}});
+                }
+                let priceSymbol = await getAsync(symbol + '_to_usdt');
+                const result = await axios({
+                  method: 'GET',
+                  url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
+                });
+                await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
+                  symbol: symbol,
+                  type: '1day',
+                  priceObject: priceSymbol,
+                  ticker: result.data,
+                  jobId: job.id,
+                });
+                priceSymbol = JSON.parse(priceSymbol);
+                delete priceSymbol['highPrice'];
+                delete priceSymbol['highPriceTimestamp'];
+                delete priceSymbol['lowPrice'];
+                delete priceSymbol['lowPriceTimestamp'];
+                let rs = await setAsync(symbol + '_to_usdt', JSON.stringify(priceSymbol));
+                console.log(rs);
+              });
+              wss.terminate();
+              clearInterval(interval);
+
+              return resolve(true);
+            }, millisTill);
+            let symbol = symbols[0].toLowerCase();
+            let objectPrice: any = await getAsync(symbol+'_to_usdt');
+            if(objectPrice){
+              objectPrice = JSON.parse(objectPrice);
+            }else {
+              objectPrice = {};
+            }
+            // @ts-ignore
+            wss.on('message', async function incoming(message) {
+              let object = JSON.parse(message);
+              // console.log(object);
+              if(activeSymbols.indexOf(symbol) < 0){
+                activeSymbols.push(symbol);
+                activeSymbols = activeSymbols.filter(function(item, pos) {
+                  return activeSymbols.indexOf(item) == pos;
+                })
+              }
+              objectPrice['price'] = object.p;
+              objectPrice['timestamp'] = object.T;
+              // @ts-ignore
+              let btcHighPrice = objectPrice['highPrice'];
+              if (!btcHighPrice || isNaN(btcHighPrice)) {
+                objectPrice['highPrice'] = object.p;
+                objectPrice['highPriceTimestamp'] = object.T;
+              } else {
+                if (parseFloat(btcHighPrice) < parseFloat(object.p)) {
+                  // @ts-ignore
+                  objectPrice['highPrice'] = object.p;
+                  objectPrice['highPriceTimestamp'] = object.T;
+                  socket.emit("priceLive", {method: 'system', room: symbol, data: JSON.parse(await getAsync(symbol+'_to_usdt'))});
+                }
+              }
+              // @ts-ignore
+              let btcLowPrice = objectPrice['lowPrice'];
+              if (!btcLowPrice || isNaN(btcLowPrice)) {
+                // @ts-ignore
+                objectPrice['lowPrice'] = object.p;
+                objectPrice['lowPriceTimestamp'] = object.T;
+              } else {
+                if (parseFloat(btcLowPrice) > parseFloat(object.p)) {
+                  // @ts-ignore
+                  objectPrice['lowPrice'] = object.p;
+                  objectPrice['lowPriceTimestamp'] = object.T;
+                  socket.emit("priceLive", {method: 'system', room: symbol, data: JSON.parse(await getAsync(symbol+'_to_usdt'))});
+                }
+              }
+              objectPrice['symbol'] = symbol;
+              let rs = await setAsync(symbol+'_to_usdt', JSON.stringify(objectPrice));
+            });
+
+            wss.on('error', function error(error) {
+              console.log(error);
+              reject(error);
+            });
           });
           socket.on('connect_error', function(err)
           {
@@ -75,102 +161,6 @@ export default {
           socket.on("error", (mess)=>{
             console.log(mess)
           })
-
-          let now = new Date();
-          let millisTill = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 55, 59, 0).getTime() - now.getTime();
-          if (millisTill < 0) {
-            millisTill += 86400000; // it's after 10am, try 10am tomorrow.
-          }
-          setTimeout( function(){
-            activeSymbols.map(async function (symbol) {
-              if(data.cryptoId){
-                // @ts-ignore
-                let job = await producerService.add({
-                  symbols: symbol.toLowerCase(),
-                });
-                // @ts-ignore
-                await cryptoModel.update({jobId: job.id}, {where: {id: data.cryptoId}});
-              }
-              let priceSymbol = await getAsync(symbol + '_to_usdt');
-              const result = await axios({
-                method: 'GET',
-                url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
-              });
-              await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
-                symbol: symbol,
-                type: '1day',
-                priceObject: priceSymbol,
-                ticker: result.data,
-                jobId: job.id,
-              });
-              priceSymbol = JSON.parse(priceSymbol);
-              delete priceSymbol['highPrice'];
-              delete priceSymbol['highPriceTimestamp'];
-              delete priceSymbol['lowPrice'];
-              delete priceSymbol['lowPriceTimestamp'];
-              let rs = await setAsync(symbol + '_to_usdt', JSON.stringify(priceSymbol));
-              console.log(rs);
-            });
-            wss.terminate();
-            clearInterval(interval);
-            clearInterval(socketInterval);
-
-            return resolve(true);
-            }, millisTill);
-          let symbol = symbols[0].toLowerCase();
-          let objectPrice: any = await getAsync(symbol+'_to_usdt');
-          if(objectPrice){
-            objectPrice = JSON.parse(objectPrice);
-          }else {
-            objectPrice = {};
-          }
-
-
-          // @ts-ignore
-          wss.on('message', async function incoming(message) {
-            let object = JSON.parse(message);
-            // console.log(object);
-            if(activeSymbols.indexOf(symbol) < 0){
-              activeSymbols.push(symbol);
-              activeSymbols = activeSymbols.filter(function(item, pos) {
-                return activeSymbols.indexOf(item) == pos;
-              })
-            }
-            objectPrice['price'] = object.p;
-            objectPrice['timestamp'] = object.T;
-            // @ts-ignore
-            let btcHighPrice = objectPrice['highPrice'];
-            if (!btcHighPrice || isNaN(btcHighPrice)) {
-              objectPrice['highPrice'] = object.p;
-              objectPrice['highPriceTimestamp'] = object.T;
-            } else {
-              if (parseFloat(btcHighPrice) < parseFloat(object.p)) {
-                // @ts-ignore
-                objectPrice['highPrice'] = object.p;
-                objectPrice['highPriceTimestamp'] = object.T;
-              }
-            }
-            // @ts-ignore
-            let btcLowPrice = objectPrice['lowPrice'];
-            if (!btcLowPrice || isNaN(btcLowPrice)) {
-              // @ts-ignore
-              objectPrice['lowPrice'] = object.p;
-              objectPrice['lowPriceTimestamp'] = object.T;
-            } else {
-              if (parseFloat(btcLowPrice) > parseFloat(object.p)) {
-                // @ts-ignore
-                objectPrice['lowPrice'] = object.p;
-                objectPrice['lowPriceTimestamp'] = object.T;
-              }
-            }
-            objectPrice['symbol'] = symbol;
-            let rs = await setAsync(symbol+'_to_usdt', JSON.stringify(objectPrice));
-          });
-
-          wss.on('error', function error(error) {
-            console.log(error);
-            reject(error);
-          });
         }
       } catch (e) {
         // @ts-ignore
