@@ -41,7 +41,19 @@ export default {
             }
           }
 
-          let socket = io('http://localhost:32857/v1/crypto/price?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiIyYjNkNTQ1ZDI4ZTU1MTY5MjI2YzI1NjNhNTVmMWFlZDcyZGVmZDI5OTM2YSIsImFwcElkIjoiMDQxYTFhNWIxYjEwY2M4NDkzZGYiLCJidW5kbGVJZCI6ImNvbS5ueW53LnNjb3JlIiwiZXhwIjoxNjM5OTIxNjA3LjQ4NCwiaWF0IjoxNjM5NjYyNDA3fQ.SHvJ1aYHf7SFwD17X7C4ORXzufjhJwyuAmfSovIlsV8');
+          const accountToken = await axios({
+            method: 'POST',
+            url: `https://api.nynwstudio.com/api/auth/user/create`,
+            data: {
+              "deviceId": "system_socket_price",
+              "appId": "7ea3826f5d795105",
+              "bundleId": "com.nynw.crypcial.ios.test"
+            }
+          });
+
+          console.log(accountToken);
+
+          let socket = io('http://localhost:32857/v1/crypto/price?token='+accountToken['data']['token']);
           socket.on("connect", async () => {
             let linkToCall = `wss://stream.binance.com:9443/ws/${linkSuffix}`;
             console.log(linkToCall);
