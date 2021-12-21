@@ -34,7 +34,7 @@ export async function list(req: Request, res: Response) {
       ],
     });
     // @ts-ignore
-    let count: any = await cryptoModel.count({
+    let count: any = await cryptoNewModel.count({
       where: filter,
     });
     return res.json({ data: newList, count: count}).status(200);
