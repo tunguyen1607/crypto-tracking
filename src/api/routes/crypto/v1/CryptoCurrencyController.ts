@@ -24,9 +24,7 @@ export async function info(req: Request, res: Response) {
     let cryptoDetail: any = await cryptoModel.findOne({
       where: findQuery,
       raw: true,
-      attributes: ['price', 'symbol', 'description', 'logo'],
     });
-    console.log(cryptoDetail);
     if (!cryptoDetail || !cryptoDetail.symbol) {
       throw new Error('Not found crypto info|400');
     }
