@@ -55,9 +55,6 @@ export default {
               "bundleId": "com.nynw.crypcial.ios.test"
             }
           });
-
-          console.log(accountToken);
-
           let socket = io('http://localhost:32857/v1/crypto/price?token='+accountToken['data']['token']);
           socket.on("connect", async () => {
             let linkToCall = `wss://stream.binance.com:9443/ws/${linkSuffix}`;
@@ -159,7 +156,6 @@ export default {
                   return activeSymbols.indexOf(item) == pos;
                 })
               }
-              currentPrice = object.p;
               objectPrice['price'] = object.p;
               objectPrice['timestamp'] = object.T;
 
@@ -191,6 +187,7 @@ export default {
               objectPrice['symbol'] = symbol;
               if(parseFloat(currentPrice) != parseFloat(object.p)){
                 socket.emit("priceLive", {method: 'system', room: symbol, data: objectPrice});
+                currentPrice = object.p;
               }
               let rs = await setAsync(symbol+'_to_usdt', JSON.stringify(objectPrice));
             });
