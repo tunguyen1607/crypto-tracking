@@ -103,6 +103,11 @@ export default async ({
     name: 'currencyModel',
     model: await require('../models/Currency').default({ sequelize: sequelizeConnection }),
   };
+
+  const cryptoNewModel = {
+    name: 'cryptoNewModel',
+    model: await require('../models/CryptoNew').default({ sequelize: sequelizeConnection }),
+  };
   let bull:any = await bullJobsLoader(longJob);
   let queues = bull.queues;
   let serverAdapter = bull.serverAdapter;
@@ -124,6 +129,7 @@ export default async ({
       cryptoHistoricalTimeModel,
       cryptoCategoryModel,
       cryptoCategoryItemModel,
+      cryptoNewModel,
       currencyModel,
     ],
     queues,
