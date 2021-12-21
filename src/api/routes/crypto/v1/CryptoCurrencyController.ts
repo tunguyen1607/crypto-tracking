@@ -111,7 +111,7 @@ export async function list(req: Request, res: Response) {
 
 export async function historical(req: Request, res: Response) {
   try {
-    const cryptoHistoricalTimeModel = Container.get('cryptoHistoricalTimeModel');
+    const cryptoHistoricalModel = Container.get('cryptoHistoricalModel');
     // @ts-ignore
     let query: any = req.query;
     let {limit, page, cryptoId} = query;
@@ -127,7 +127,7 @@ export async function historical(req: Request, res: Response) {
     let filter = {};
     let offset = (page - 1) * limit;
     // @ts-ignore
-    let historicalList: any = await cryptoHistoricalTimeModel.findAll({
+    let historicalList: any = await cryptoHistoricalModel.findAll({
       offset: offset,
       limit: limit,
       where: filter,
@@ -139,7 +139,7 @@ export async function historical(req: Request, res: Response) {
       ],
     });
     // @ts-ignore
-    let count: any = await cryptoHistoricalTimeModel.count({
+    let count: any = await cryptoHistoricalModel.count({
       where: filter,
     });
     return res.json({ data: historicalList, count: count}).status(200);

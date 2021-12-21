@@ -52,7 +52,7 @@ export default {
           });
           ticker = result.data;
         }
-        let date = timeConverter(priceObject.timestamp, false);
+        let date = timeConverter(Math.ceil(priceObject.timestamp/1000), false);
         // @ts-ignore
         cryptoHistoricalModel.create({
           cryptoId: cryptoDetail.id,
@@ -60,10 +60,10 @@ export default {
           timestamp: Math.ceil(priceObject.timestamp/1000),
           date,
           sourceId: cryptoDetail.sourceId,
-          timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(Math.ceil(ticker.openTime/1000)) : null,
-          timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(Math.ceil(ticker.closeTime/1000)) : null,
-          timeHigh: priceObject && checkValidDate(priceObject.highPriceTimestamp) ? new Date(Math.ceil(priceObject.highPriceTimestamp/1000)) : null,
-          timeLow: priceObject && checkValidDate(priceObject.lowPriceTimestamp) ? new Date(Math.ceil(priceObject.lowPriceTimestamp/1000)) : null,
+          timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(ticker.openTime) : null,
+          timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(ticker.closeTime) : null,
+          timeHigh: priceObject && checkValidDate(priceObject.highPriceTimestamp) ? new Date(priceObject.highPriceTimestamp) : null,
+          timeLow: priceObject && checkValidDate(priceObject.lowPriceTimestamp) ? new Date(priceObject.lowPriceTimestamp) : null,
           priceOpen:  ticker && ticker && ticker.openPrice ? ticker.openPrice : null,
           priceClose: priceObject && priceObject.price ? priceObject.price : null,
           priceLow: ticker && ticker.lowPrice ? ticker.lowPrice : null,
