@@ -21,6 +21,10 @@ export default {
       const publishServiceInstance = Container.get(PublishService);
       const cryptoModel = Container.get('cryptoModel');
       const producerService = Container.get('jobLivePriceBinance');
+      let priceOpen = null;
+      let priceOpenTimestamp = null;
+      let priceClose = null;
+      let priceCloseTimestamp = null;
       try {
         // @ts-ignore
         const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
@@ -97,10 +101,25 @@ export default {
                   jobId: job.id,
                 });
                 priceSymbol = JSON.parse(priceSymbol);
+                if(priceSymbol['closePrice'] && priceSymbol['closePriceTimestamp']){
+                  let dateClose = new Date(objectPrice['closePriceTimestamp']);
+                  if(dateClose && dateClose.getDate() == now.getDate() && dateClose.getMonth() == now.getMonth() && dateClose.getFullYear() == now.getFullYear() && dateClose.getHours() == 23){
+                    priceClose = objectPrice['openPrice'];
+                    priceCloseTimestamp = objectPrice['openPriceTimestamp'];
+                  }
+                }else {
+                  priceClose = objectPrice['price'];
+                  priceCloseTimestamp = objectPrice['timestamp'];
+                }
                 delete priceSymbol['highPrice'];
                 delete priceSymbol['highPriceTimestamp'];
                 delete priceSymbol['lowPrice'];
                 delete priceSymbol['lowPriceTimestamp'];
+                delete priceSymbol['openPrice'];
+                delete priceSymbol['openPriceTimestamp'];
+                delete priceSymbol['closePrice'];
+                delete priceSymbol['closePriceTimestamp'];
+
                 let rs = await setAsync(symbol + '_to_usdt', JSON.stringify(priceSymbol));
                 console.log(rs);
               });
@@ -113,12 +132,25 @@ export default {
             let objectPrice: any = await getAsync(symbol+'_to_usdt');
             if(objectPrice){
               objectPrice = JSON.parse(objectPrice);
+              if(objectPrice['openPrice'] && objectPrice['openPriceTimestamp']){
+                let dateOpen = new Date(objectPrice['openPriceTimestamp']);
+                if(dateOpen && dateOpen.getDate() == now.getDate() && dateOpen.getMonth() == now.getMonth() && dateOpen.getFullYear() == now.getFullYear()){
+                  priceOpen = objectPrice['openPrice'];
+                  priceOpenTimestamp = objectPrice['openPriceTimestamp'];
+                }
+              }
             }else {
               objectPrice = {};
             }
             // @ts-ignore
             wss.on('message', async function incoming(message) {
               let object = JSON.parse(message);
+              if(!priceOpen){
+                priceOpen = object.p;
+                objectPrice['openPrice'] = object.p;
+                priceOpenTimestamp = object.T;
+                objectPrice['openPriceTimestamp'] = object.T;
+              }
               // console.log(object);
               if(activeSymbols.indexOf(symbol) < 0){
                 activeSymbols.push(symbol);
@@ -126,9 +158,7 @@ export default {
                   return activeSymbols.indexOf(item) == pos;
                 })
               }
-              if(parseFloat(objectPrice['price']) != parseFloat(object.p)){
-                socket.emit("priceLive", {method: 'system', room: symbol, data: JSON.parse(await getAsync(symbol+'_to_usdt'))});
-              }
+
               objectPrice['price'] = object.p;
               objectPrice['timestamp'] = object.T;
 
@@ -158,6 +188,9 @@ export default {
                 }
               }
               objectPrice['symbol'] = symbol;
+              if(parseFloat(objectPrice['price']) != parseFloat(object.p)){
+                socket.emit("priceLive", {method: 'system', room: symbol, data: objectPrice});
+              }
               let rs = await setAsync(symbol+'_to_usdt', JSON.stringify(objectPrice));
             });
 

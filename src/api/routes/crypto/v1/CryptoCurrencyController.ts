@@ -112,3 +112,47 @@ export async function list(req: Request, res: Response) {
     return res.json({ error: true, message: 'Something went wrong!' }).status(500);
   }
 }
+
+export async function historical(req: Request, res: Response) {
+  try {
+    const cryptoHistoricalTimeModel = Container.get('cryptoHistoricalTimeModel');
+    // @ts-ignore
+    let query: any = req.query;
+    let {limit, page, cryptoId} = query;
+    if(!page){
+      page = 1;
+    }
+    if(!limit){
+      limit = 100;
+    }
+    if(!cryptoId){
+      throw new Error('not found cryptoId|400')
+    }
+    let filter = {};
+    let offset = (page - 1) * limit;
+    // @ts-ignore
+    let historicalList: any = await cryptoHistoricalTimeModel.findAll({
+      offset: offset,
+      limit: limit,
+      where: filter,
+      raw: true,
+      attributes: ['id', 'cryptoId', 'sourceId', 'date', 'timestamp', 'timeOpen', 'priceOpen', 'timeHigh', 'priceHigh', 'timeLow', 'priceLow', 'timeClose', 'priceClose', 'volume', 'marketCap', 'status'],
+      order: [
+        ['timestamp', 'DESC'],
+        ['date', 'DESC'],
+      ],
+    });
+    // @ts-ignore
+    let count: any = await cryptoHistoricalTimeModel.count({
+      where: filter,
+    });
+    return res.json({ data: historicalList, count: count}).status(200);
+  } catch (error) {
+    if (error.message && error.message.includes('|')) {
+      const [message, code] = error.message.split('|');
+      return res.json({ error: true, message }).status(code);
+    }
+    console.log(error);
+    return res.json({ error: true, message: 'Something went wrong!' }).status(500);
+  }
+}
