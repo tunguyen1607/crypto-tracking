@@ -25,6 +25,7 @@ export default {
       let priceOpenTimestamp = null;
       let priceClose = null;
       let priceCloseTimestamp = null;
+      let currentPrice = null;
       try {
         // @ts-ignore
         const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
@@ -158,7 +159,7 @@ export default {
                   return activeSymbols.indexOf(item) == pos;
                 })
               }
-
+              currentPrice = object.p;
               objectPrice['price'] = object.p;
               objectPrice['timestamp'] = object.T;
 
@@ -188,7 +189,7 @@ export default {
                 }
               }
               objectPrice['symbol'] = symbol;
-              if(parseFloat(objectPrice['price']) != parseFloat(object.p)){
+              if(parseFloat(currentPrice) != parseFloat(object.p)){
                 socket.emit("priceLive", {method: 'system', room: symbol, data: objectPrice});
               }
               let rs = await setAsync(symbol+'_to_usdt', JSON.stringify(objectPrice));
