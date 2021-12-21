@@ -32,12 +32,10 @@ export async function info(req: Request, res: Response) {
     }
     let priceKey = cryptoDetail.symbol.toLowerCase() +'_to_usdt';
     let priceObject = await getAsync(priceKey);
-    console.log(priceKey);
-    console.log(priceObject);
     if(priceObject){
       priceObject = JSON.parse(priceObject);
       cryptoDetail.price = priceObject['price'];
-      cryptoDetail['usdt'] = priceObject;
+      cryptoDetail['quote'] = priceObject;
     }
     return res.json({ data: cryptoDetail }).status(200);
   } catch (error) {
