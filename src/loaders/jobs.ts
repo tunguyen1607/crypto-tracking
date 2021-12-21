@@ -14,11 +14,11 @@ export default async ({ agenda }: { agenda: Agenda }) => {
     'watch-news-coinmarketcap',
     { priority: 'high', concurrency: config.agenda.concurrency },
     // @TODO Could this be a static method? Would it be better?
-    new WatchPriceCryptoBinance().handler
+    new WatchNewsCryptoCoinmarketcap().handler
   );
   await agenda.start();
   await agenda.every('2 hours', 'watch-price-binance');
-  await agenda.every('24 hours', 'watch-news-coinmarketcap');
+  await agenda.every('11:30pm', 'watch-news-coinmarketcap');
   // new WatchPriceCryptoBinance().handler({job: 'test'}, function (res) {
   //   console.log(res);
   // })
