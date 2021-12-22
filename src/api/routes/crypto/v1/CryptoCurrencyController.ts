@@ -89,10 +89,12 @@ export async function list(req: Request, res: Response) {
       let item = cryptoList[i];
       let priceKey = item.symbol.toLowerCase() +'_to_usdt';
       let priceObject = await getAsync(priceKey);
+      let priceHistories = await getAsync(priceKey+'_1h');
       if(priceObject){
         priceObject = JSON.parse(priceObject);
         item.price = priceObject['price'];
         item['quote'] = priceObject;
+        item['recent_1h'] = priceHistories;
       }
       cryptoList[i] = item;
     }

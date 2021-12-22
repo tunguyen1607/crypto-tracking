@@ -26,6 +26,7 @@ export default {
       let priceClose = null;
       let priceCloseTimestamp = null;
       let currentPrice = null;
+      let priceHistories = [];
       try {
         // @ts-ignore
         const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
@@ -62,14 +63,21 @@ export default {
             const wss = new WebSocket(linkToCall);
             let interval = setInterval(async function() {
               activeSymbols.map(async function (symbol) {
+                let priceObject = await getAsync(symbol + '_to_usdt');
                 await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
                   symbol: symbol,
-                  type: '5m',
-                  priceObject: await getAsync(symbol + '_to_usdt'),
+                  type: '3m',
+                  priceObject: priceObject,
                   jobId: job.id,
                 });
+                priceObject = JSON.parse(priceObject);
+                priceHistories.unshift(priceObject.price);
+                priceHistories = priceHistories.slice(0, 20);
+                if(priceHistories && priceHistories.length > 10){
+                  await setAsync(symbol + '_to_usdt_1h', JSON.stringify(priceHistories));
+                }
               })
-            }, 5*60*1000);
+            }, 3*60*1000);
             // or with emit() and custom event names
             let now = new Date();
             let millisTill = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 55, 59, 0).getTime() - now.getTime();
