@@ -21,18 +21,21 @@ export default {
       const publishServiceInstance = Container.get(PublishService);
       const cryptoModel = Container.get('cryptoModel');
       const producerService = Container.get('jobLivePriceBinance');
-      let priceOpen = null;
-      let priceOpenTimestamp = null;
-      let priceClose = null;
-      let priceCloseTimestamp = null;
-      let currentPrice = null;
-      let priceHistories = [];
-      let priceHistories3H = [];
+
       try {
         // @ts-ignore
         const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
         // @ts-ignore
         const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
+
+        let priceOpen = null;
+        let priceOpenTimestamp = null;
+        let priceClose = null;
+        let priceCloseTimestamp = null;
+        let currentPrice = null;
+        let priceHistories = [];
+        let priceHistories3H = [];
+
         let data = job.data;
         let activeSymbols = [];
         if (data.symbols) {
@@ -72,8 +75,8 @@ export default {
                   jobId: job.id,
                 });
                 priceObject = JSON.parse(priceObject);
-                priceHistories.unshift(priceObject.price);
-                priceHistories3H.unshift(priceObject.price);
+                priceHistories.unshift({p: priceObject.price, ts: priceObject.timestamp});
+                priceHistories3H.unshift({p: priceObject.price, ts: priceObject.timestamp});
                 if(priceHistories && priceHistories.length >= 20){
                   priceHistories = priceHistories.slice(0, 20);
                   await setAsync(symbol + '_to_usdt_1h', JSON.stringify(priceHistories));
