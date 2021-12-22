@@ -92,6 +92,7 @@ export async function list(req: Request, res: Response) {
       let priceHistories = await getAsync(priceKey+'_1h');
       if(priceObject){
         priceObject = JSON.parse(priceObject);
+        priceHistories = JSON.parse(priceHistories);
         item.price = priceObject['price'];
         item['quote'] = priceObject;
         item['recent_1h'] = priceHistories;
