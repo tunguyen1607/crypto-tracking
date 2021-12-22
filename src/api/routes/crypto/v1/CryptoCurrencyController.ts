@@ -30,10 +30,16 @@ export async function info(req: Request, res: Response) {
     }
     let priceKey = cryptoDetail.symbol.toLowerCase() +'_to_usdt';
     let priceObject = await getAsync(priceKey);
+    let priceHistories = await getAsync(priceKey+'_1h');
+    let priceHistories3H = await getAsync(priceKey+'_3h');
     if(priceObject){
       priceObject = JSON.parse(priceObject);
+      priceHistories = JSON.parse(priceHistories);
+      priceHistories3H = JSON.parse(priceHistories3H);
       cryptoDetail.price = priceObject['price'];
       cryptoDetail['quote'] = priceObject;
+      cryptoDetail['recent_1h'] = priceHistories;
+      cryptoDetail['recent_3h'] = priceHistories3H;
     }
     return res.json({ data: cryptoDetail }).status(200);
   } catch (error) {
@@ -90,12 +96,15 @@ export async function list(req: Request, res: Response) {
       let priceKey = item.symbol.toLowerCase() +'_to_usdt';
       let priceObject = await getAsync(priceKey);
       let priceHistories = await getAsync(priceKey+'_1h');
+      let priceHistories3H = await getAsync(priceKey+'_3h');
       if(priceObject){
         priceObject = JSON.parse(priceObject);
         priceHistories = JSON.parse(priceHistories);
+        priceHistories3H = JSON.parse(priceHistories3H);
         item.price = priceObject['price'];
         item['quote'] = priceObject;
         item['recent_1h'] = priceHistories;
+        item['recent_3h'] = priceHistories3H;
       }
       cryptoList[i] = item;
     }
