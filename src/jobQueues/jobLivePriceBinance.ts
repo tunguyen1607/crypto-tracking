@@ -27,6 +27,7 @@ export default {
       let priceCloseTimestamp = null;
       let currentPrice = null;
       let priceHistories = [];
+      let priceHistories3H = [];
       try {
         // @ts-ignore
         const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
@@ -72,9 +73,17 @@ export default {
                 });
                 priceObject = JSON.parse(priceObject);
                 priceHistories.unshift(priceObject.price);
-                priceHistories = priceHistories.slice(0, 20);
-                if(priceHistories && priceHistories.length > 10){
+                priceHistories3H.unshift(priceObject.price);
+                if(priceHistories && priceHistories.length >= 20){
+                  priceHistories = priceHistories.slice(0, 20);
                   await setAsync(symbol + '_to_usdt_1h', JSON.stringify(priceHistories));
+                }
+                if(priceHistories3H && priceHistories3H.length >= 60){
+                  priceHistories3H = priceHistories3H.slice(0, 60);
+                  let price3HArr = priceHistories3H.filter(function (item) {
+                      return priceHistories3H.indexOf(item) % 2 === 0;
+                  });
+                  await setAsync(symbol + '_to_usdt_3h', JSON.stringify(price3HArr));
                 }
               })
             }, 3*60*1000);
