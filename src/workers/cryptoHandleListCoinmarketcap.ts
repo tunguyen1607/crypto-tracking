@@ -14,7 +14,7 @@ export default {
     try {
       const result = await axios({
         method: 'GET',
-        url: `https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=100&limit=200&convert=USD`,
+        url: `https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=0&limit=200&convert=USD`,
         headers: {
           'X-CMC_PRO_API_KEY': `5c400230-4a9c-424a-9953-1b65624bbd7a`,
         },
@@ -24,7 +24,7 @@ export default {
         let cryptoItem: any = list[i];
         let body = {
           name: cryptoItem.name,
-          symbol: cryptoItem.symbol,
+          symbol: cryptoItem.symbol.toUpperCase(),
           slug: cryptoItem.slug,
           dateAdded: cryptoItem.date_added,
           lastUpdated: cryptoItem.last_updated,
@@ -46,12 +46,12 @@ export default {
         };
         // @ts-ignore
         let cryptoDetail = await cryptoModel.findOne({
-          where: { symbol: cryptoItem.symbol, slug: cryptoItem.slug },
+          where: { symbol: cryptoItem.symbol.toUpperCase(), slug: cryptoItem.slug },
         });
         if (cryptoDetail) {
           // @ts-ignore
           await cryptoModel.update(body, {
-            where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },
+            where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol.toUpperCase(), slug: cryptoItem.slug },
           });
           body['id'] = cryptoDetail.id;
           body['startTimestampHistorical'] = cryptoDetail.startTimestampHistorical;
@@ -66,13 +66,13 @@ export default {
           await publishServiceInstance.publish('', 'crypto_handle_detail_coinmarketcap', {
             sourceId: cryptoDetail.sourceId,
             id: cryptoDetail.id,
-            symbol: cryptoDetail.symbol,
+            symbol: cryptoDetail.symbol.toUpperCase(),
           });
         }
         await publishServiceInstance.publish('', 'crypto_handle_list_historical_coinmarketcap', {
           sourceId: cryptoDetail.sourceId,
           id: cryptoDetail.id,
-          symbol: cryptoDetail.symbol,
+          symbol: cryptoDetail.symbol.toUpperCase(),
           startTimestampHistorical: cryptoDetail.startTimestampHistorical,
           lastTimestampHistorical: cryptoDetail.lastTimestampHistorical,
         });
