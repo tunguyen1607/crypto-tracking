@@ -46,18 +46,20 @@ export default {
         };
         // @ts-ignore
         let cryptoDetail = await cryptoModel.findOne({
-          where: { symbol: cryptoItem.symbol.toUpperCase(), slug: cryptoItem.slug },
+          where: { slug: cryptoItem.slug },
         });
         if (cryptoDetail) {
-          // @ts-ignore
-          await cryptoModel.update(body, {
-            where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol.toUpperCase(), slug: cryptoItem.slug },
-          });
-          body['id'] = cryptoDetail.id;
-          body['startTimestampHistorical'] = cryptoDetail.startTimestampHistorical;
-          body['lastTimestampHistorical'] = cryptoDetail.lastTimestampHistorical;
-          body['logo'] = cryptoDetail.logo;
-          cryptoDetail = body;
+          if(cryptoDetail.symbol.toLowerCase() == cryptoItem.symbol.toLowerCase()){
+            // @ts-ignore
+            await cryptoModel.update(body, {
+              where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol.toUpperCase(), slug: cryptoItem.slug },
+            });
+            body['id'] = cryptoDetail.id;
+            body['startTimestampHistorical'] = cryptoDetail.startTimestampHistorical;
+            body['lastTimestampHistorical'] = cryptoDetail.lastTimestampHistorical;
+            body['logo'] = cryptoDetail.logo;
+            cryptoDetail = body;
+          }
         } else {
           // @ts-ignore
           cryptoDetail = await cryptoModel.create(body);
@@ -73,8 +75,8 @@ export default {
           sourceId: cryptoDetail.sourceId,
           id: cryptoDetail.id,
           symbol: cryptoDetail.symbol.toUpperCase(),
-          startTimestampHistorical: cryptoDetail.startTimestampHistorical,
-          lastTimestampHistorical: cryptoDetail.lastTimestampHistorical,
+          startTimestampHistorical: null,
+          lastTimestampHistorical: null,
         });
       }
       // @ts-ignore
