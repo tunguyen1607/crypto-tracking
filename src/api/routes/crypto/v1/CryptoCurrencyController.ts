@@ -82,7 +82,7 @@ export async function list(req: Request, res: Response) {
       limit: limit,
       where: filter,
       raw: true,
-      attributes: ['id', 'price', 'symbol', 'description', 'logo', 'dateAdded', 'lastUpdated', 'volume', 'sourceId', 'source', 'slug', 'category', 'marketDominance', 'circulatingSupply', 'maxSupply', 'totalSupply', 'rank', 'marketCap', 'market', 'statusMarket'],
+      attributes: ['id', 'name', 'price', 'symbol', 'description', 'logo', 'dateAdded', 'lastUpdated', 'volume', 'sourceId', 'source', 'slug', 'category', 'marketDominance', 'circulatingSupply', 'maxSupply', 'totalSupply', 'rank', 'marketCap', 'market', 'statusMarket'],
       order: [
         ['rank', 'ASC'],
         ['name', 'ASC'],
