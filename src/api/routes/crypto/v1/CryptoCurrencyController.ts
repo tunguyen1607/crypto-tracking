@@ -101,10 +101,15 @@ export async function list(req: Request, res: Response) {
         let priceHistories = await sMembersAsync(priceKey+'_24h');
         priceObject = JSON.parse(priceObject);
         item.price = parseFloat(priceObject['price']);
-        let priceLast24h = JSON.parse(priceHistories[0]);
+        console.log(item.symbol);
+        console.log(priceHistories);
+        console.log(priceHistories.length);
+        if(priceHistories && priceHistories.length > 0){
+          let priceLast24h = JSON.parse(priceHistories[0]);
+          item['priceChange'] = parseFloat(priceObject['price']) - parseFloat(priceLast24h.p);
+          item['pricePercent'] = (item['priceChange'] / parseFloat(priceLast24h.p)) * 100;
+        }
         item['quote'] = priceObject;
-        item['priceChange'] = parseFloat(priceObject['price']) - parseFloat(priceLast24h.p);
-        item['pricePercent'] = (item['priceChange'] / parseFloat(priceLast24h.p)) * 100;
         item['marketCap'] = parseFloat(item.price) * parseFloat(item.circulatingSupply);
       }
       cryptoList[i] = item;
