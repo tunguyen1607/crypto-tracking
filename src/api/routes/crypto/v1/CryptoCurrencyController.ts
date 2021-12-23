@@ -9,6 +9,8 @@ export async function info(req: Request, res: Response) {
     const RedisInstance = Container.get('redisInstance');
     // @ts-ignore
     const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
+    // @ts-ignore
+    const sMembersAsync = promisify(RedisInstance.smembers).bind(RedisInstance);
     let query: any = req.query;
     if (!query.id && !query.symbol) {
       throw new Error('Not found id or symbol|400');
@@ -30,16 +32,14 @@ export async function info(req: Request, res: Response) {
     }
     let priceKey = cryptoDetail.symbol.toLowerCase() +'_to_usdt';
     let priceObject = await getAsync(priceKey);
-    let priceHistories = await getAsync(priceKey+'_1h');
-    let priceHistories3H = await getAsync(priceKey+'_3h');
     if(priceObject){
       priceObject = JSON.parse(priceObject);
-      priceHistories = JSON.parse(priceHistories);
-      priceHistories3H = JSON.parse(priceHistories3H);
-      cryptoDetail.price = priceObject['price'];
+      cryptoDetail.price = parseFloat(priceObject['price']);
       cryptoDetail['quote'] = priceObject;
-      cryptoDetail['recent_1h'] = priceHistories;
-      cryptoDetail['recent_3h'] = priceHistories3H;
+      let priceHistories = await sMembersAsync(priceKey+'_24h');
+      let priceLast24h = JSON.parse(priceHistories[0]);
+      cryptoDetail['priceChange'] = parseFloat(priceObject['price']) - parseFloat(priceLast24h.p);
+      cryptoDetail['pricePercent'] = (cryptoDetail['priceChange'] / parseFloat(priceLast24h.p)) * 100;
     }
     return res.json({ data: cryptoDetail }).status(200);
   } catch (error) {
@@ -58,6 +58,8 @@ export async function list(req: Request, res: Response) {
     const RedisInstance = Container.get('redisInstance');
     // @ts-ignore
     const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
+    // @ts-ignore
+    const sMembersAsync = promisify(RedisInstance.smembers).bind(RedisInstance);
     let query: any = req.query;
     let {market, marketStatus, limit, page} = query;
     if(!page){
@@ -95,16 +97,14 @@ export async function list(req: Request, res: Response) {
       let item = cryptoList[i];
       let priceKey = item.symbol.toLowerCase() +'_to_usdt';
       let priceObject = await getAsync(priceKey);
-      let priceHistories = await getAsync(priceKey+'_1h');
-      let priceHistories3H = await getAsync(priceKey+'_3h');
       if(priceObject){
+        let priceHistories = await sMembersAsync(priceKey+'_24h');
         priceObject = JSON.parse(priceObject);
-        priceHistories = JSON.parse(priceHistories);
-        priceHistories3H = JSON.parse(priceHistories3H);
-        item.price = priceObject['price'];
+        item.price = parseFloat(priceObject['price']);
+        let priceLast24h = JSON.parse(priceHistories[0]);
         item['quote'] = priceObject;
-        item['recent_1h'] = priceHistories;
-        item['recent_3h'] = priceHistories3H;
+        item['priceChange'] = parseFloat(priceObject['price']) - parseFloat(priceLast24h.p);
+        item['pricePercent'] = (item['priceChange'] / parseFloat(priceLast24h.p)) * 100;
       }
       cryptoList[i] = item;
     }

@@ -59,31 +59,37 @@ export default {
       body = {...body, ...marketData};
       if(id){
         // @ts-ignore
-        await cryptoModel.update(body, { where: { id } });
+        let cryptoDetail = await cryptoModel.findOne({
+          where: { id },
+        });
+        if (cryptoDetail) {
+          if(cryptoDetail.description){
+            delete body['description'];
+          }
+          // @ts-ignore
+          await cryptoModel.update(body, { where: { id } });
+        } else {
+          // @ts-ignore
+          await cryptoModel.create(body);
+        }
       }else {
         // @ts-ignore
         let cryptoDetail = await cryptoModel.findOne({
           where: { symbol: detail[sourceId].symbol, slug: detail[sourceId].slug },
         });
         if (cryptoDetail) {
+          if(cryptoDetail.description){
+            delete body['description'];
+          }
           // @ts-ignore
           await cryptoModel.update(body, {
             where: { sourceId: detail[sourceId].id + '', symbol: detail[sourceId].symbol, slug: detail[sourceId].slug },
           });
         } else {
           // @ts-ignore
-          cryptoDetail = await cryptoModel.create(body);
+          await cryptoModel.create(body);
         }
-        await publishServiceInstance.publish('', 'crypto_handle_list_historical_coinmarketcap', {
-          sourceId: cryptoDetail.sourceId,
-          id: cryptoDetail.id,
-          symbol: cryptoDetail.symbol,
-          startTimestampHistorical: cryptoDetail.startTimestampHistorical,
-          lastTimestampHistorical: cryptoDetail.lastTimestampHistorical,
-        });
       }
-
-      // @ts-ignore
     } catch (e) {
       console.log('crypto_handle_detail_coinmarketcap');
       if (e.response && e.response.statusText) {

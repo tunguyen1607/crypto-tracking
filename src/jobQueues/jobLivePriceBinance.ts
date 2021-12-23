@@ -27,14 +27,18 @@ export default {
         const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
         // @ts-ignore
         const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
+        // @ts-ignore
+        const sRemAsync = promisify(RedisInstance.srem).bind(RedisInstance);
+        // @ts-ignore
+        const sMembersAsync = promisify(RedisInstance.smembers).bind(RedisInstance);
+        // @ts-ignore
+        const sAddAsync = promisify(RedisInstance.sadd).bind(RedisInstance);
 
         let priceOpen = null;
         let priceOpenTimestamp = null;
         let priceClose = null;
         let priceCloseTimestamp = null;
         let currentPrice = null;
-        let priceHistories = [];
-        let priceHistories3H = [];
 
         let data = job.data;
         let activeSymbols = [];
@@ -75,18 +79,12 @@ export default {
                   jobId: job.id,
                 });
                 priceObject = JSON.parse(priceObject);
-                priceHistories.unshift({p: priceObject.price, ts: priceObject.timestamp});
-                priceHistories3H.unshift({p: priceObject.price, ts: priceObject.timestamp});
-                if(priceHistories && priceHistories.length >= 20){
-                  priceHistories = priceHistories.slice(0, 20);
-                  await setAsync(symbol + '_to_usdt_1h', JSON.stringify(priceHistories));
-                }
-                if(priceHistories3H && priceHistories3H.length >= 60){
-                  priceHistories3H = priceHistories3H.slice(0, 60);
-                  let price3HArr = priceHistories3H.filter(function (item) {
-                      return priceHistories3H.indexOf(item) % 2 === 0;
-                  });
-                  await setAsync(symbol + '_to_usdt_3h', JSON.stringify(price3HArr));
+                await sAddAsync(symbol + '_to_usdt_24h', JSON.stringify({p: priceObject.price, ts: priceObject.timestamp}));
+                let price24h = await sMembersAsync(symbol + '_to_usdt_24h');
+                if(price24h.length > 480){
+                  for (let i = 0; i < (price24h.length - 480); i++){
+                    await sRemAsync(symbol + '_to_usdt_24h', price24h[i]);
+                  }
                 }
               })
             }, 3*60*1000);

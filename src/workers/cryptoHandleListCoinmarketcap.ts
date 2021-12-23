@@ -49,6 +49,8 @@ export default {
           where: { symbol: cryptoItem.symbol, slug: cryptoItem.slug },
         });
         if (cryptoDetail) {
+          body['startTimestampHistorical'] = null;
+          body['lastTimestampHistorical'] = null;
           // @ts-ignore
           await cryptoModel.update(body, {
             where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },
@@ -62,13 +64,13 @@ export default {
           // @ts-ignore
           cryptoDetail = await cryptoModel.create(body);
         }
-        if (!cryptoDetail.logo) {
+        // if (!cryptoDetail.logo) {
           await publishServiceInstance.publish('', 'crypto_handle_detail_coinmarketcap', {
             sourceId: cryptoDetail.sourceId,
             id: cryptoDetail.id,
             symbol: cryptoDetail.symbol,
           });
-        }
+        // }
         await publishServiceInstance.publish('', 'crypto_handle_list_historical_coinmarketcap', {
           sourceId: cryptoDetail.sourceId,
           id: cryptoDetail.id,
