@@ -14,7 +14,7 @@ export default {
     try {
       const result = await axios({
         method: 'GET',
-        url: `https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=0&limit=200&convert=USD`,
+        url: `https://pro-api.coinmarketcap.com/v1/cryptocurrency/listings/latest?start=1&limit=200&convert=USD`,
         headers: {
           'X-CMC_PRO_API_KEY': `5c400230-4a9c-424a-9953-1b65624bbd7a`,
         },
