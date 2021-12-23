@@ -96,7 +96,6 @@ export default async ({ sequelize }) => {
         type: Sequelize.STRING,
       },
       notice: {
-        //Market Cap = Current Price x Circulating Supply.
         type: Sequelize.TEXT,
       },
       startTimestampHistorical: {

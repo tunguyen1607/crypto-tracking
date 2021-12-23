@@ -105,6 +105,7 @@ export async function list(req: Request, res: Response) {
         item['quote'] = priceObject;
         item['priceChange'] = parseFloat(priceObject['price']) - parseFloat(priceLast24h.p);
         item['pricePercent'] = (item['priceChange'] / parseFloat(priceLast24h.p)) * 100;
+        item['marketCap'] = parseFloat(item.price) * parseFloat(item.circulatingSupply);
       }
       cryptoList[i] = item;
     }
