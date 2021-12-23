@@ -36,7 +36,7 @@ export default {
       }
       for (let i = 0; i < list['coins'].length; i++) {
         let cryptoItem: any = list['coins'][i];
-        cryptoItem.slug = urlSlug(cryptoItem.name);
+        cryptoItem.slug = urlSlug(cryptoItem.name + ' ' + cryptoItem.symbol);
         cryptoItem.symbol = cryptoItem.symbol.replace(/[^a-zA-Z ]/g, "");
         let body = {
           sourceId: cryptoItem.id,
@@ -61,7 +61,7 @@ export default {
         };
         // @ts-ignore
         let cryptoDetail = await cryptoModel.findOne({
-          where: { symbol: cryptoItem.symbol, slug: cryptoItem.slug },
+          where: { symbol: cryptoItem.symbol.toUpperCase() },
         });
         console.log({ symbol: cryptoItem.symbol, slug: cryptoItem.slug, name: cryptoItem.name })
         if (cryptoDetail) {
