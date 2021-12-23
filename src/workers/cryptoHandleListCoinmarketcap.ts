@@ -75,8 +75,8 @@ export default {
           sourceId: cryptoDetail.sourceId,
           id: cryptoDetail.id,
           symbol: cryptoDetail.symbol.toUpperCase(),
-          startTimestampHistorical: null,
-          lastTimestampHistorical: null,
+          startTimestampHistorical: cryptoDetail.startTimestampHistorical,
+          lastTimestampHistorical: cryptoDetail.lastTimestampHistorical,
         });
       }
       // @ts-ignore
