@@ -65,6 +65,7 @@ export default {
         });
         console.log({ symbol: cryptoItem.symbol, slug: cryptoItem.slug, name: cryptoItem.name })
         if (cryptoDetail) {
+          delete body['slug'];
           // @ts-ignore
           await cryptoModel.update(body, {
             where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },
