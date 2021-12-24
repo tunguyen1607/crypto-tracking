@@ -37,6 +37,12 @@ export default {
       if(priceObject && isStringJson(priceObject)){
         priceObject = JSON.parse(priceObject);
       }
+      if(!ticker){
+        ticker = await getAsync(symbol.toLowerCase()+'_to_usdt_ticker');
+      }
+      if(ticker && isStringJson(ticker)){
+        ticker = JSON.parse(ticker);
+      }
       // @ts-ignore
       await cryptoModel.update({
         price: priceObject.price,

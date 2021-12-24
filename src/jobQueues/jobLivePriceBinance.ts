@@ -49,7 +49,7 @@ export default {
           }
           let linkSuffix = '';
           for (let s = 0; s < symbols.length; s++) {
-            linkSuffix += `${symbols[s].toLowerCase()}usdt@trade`;
+            linkSuffix += `${symbols[s].toLowerCase()}usdt@trade/${symbols[s].toLowerCase()}usdt@ticker`;
             if (s < symbols.length - 1) {
               linkSuffix += '/';
             }
@@ -67,10 +67,12 @@ export default {
           let interval = setInterval(async function () {
             activeSymbols.map(async function (symbol) {
               let priceObject = await getAsync(symbol + '_to_usdt');
+              let priceTicker = await getAsync(symbol + '_to_usdt_ticker');
               await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
                 symbol: symbol,
                 type: '3m',
                 priceObject: priceObject,
+                ticker: priceTicker,
                 jobId: job.id,
               });
               priceObject = JSON.parse(priceObject);
@@ -115,15 +117,12 @@ export default {
                 await cryptoModel.update({jobId: job.id}, {where: {id: data.cryptoId}});
               }
               let priceSymbol = await getAsync(symbol + '_to_usdt');
-              const result = await axios({
-                method: 'GET',
-                url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
-              });
+              let priceTicker = await getAsync(symbol + '_to_usdt_ticker');
               await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
                 symbol: symbol,
                 type: '1day',
                 priceObject: priceSymbol,
-                ticker: result.data,
+                ticker: priceTicker,
                 jobId: job.id,
               });
               priceSymbol = JSON.parse(priceSymbol);
@@ -173,53 +172,79 @@ export default {
           socket.on("connect", async () => {
             wss.on('message', async function incoming(message) {
               let object = JSON.parse(message);
-              if (!priceOpen) {
-                priceOpen = object.p;
-                objectPrice['openPrice'] = object.p;
-                priceOpenTimestamp = object.T;
-                objectPrice['openPriceTimestamp'] = object.T;
-              }
-              // console.log(object);
-              if (activeSymbols.indexOf(symbol) < 0) {
-                activeSymbols.push(symbol);
-                activeSymbols = activeSymbols.filter(function (item, pos) {
-                  return activeSymbols.indexOf(item) == pos;
-                })
-              }
-              objectPrice['price'] = object.p;
-              objectPrice['timestamp'] = object.T;
+              if(object.e == 'trade'){
+                if (!priceOpen) {
+                  priceOpen = object.p;
+                  objectPrice['openPrice'] = object.p;
+                  priceOpenTimestamp = object.T;
+                  objectPrice['openPriceTimestamp'] = object.T;
+                }
+                // console.log(object);
+                if (activeSymbols.indexOf(symbol) < 0) {
+                  activeSymbols.push(symbol);
+                  activeSymbols = activeSymbols.filter(function (item, pos) {
+                    return activeSymbols.indexOf(item) == pos;
+                  })
+                }
+                objectPrice['price'] = object.p;
+                objectPrice['timestamp'] = object.T;
 
-              // @ts-ignore
-              let btcHighPrice = objectPrice['highPrice'];
-              if (!btcHighPrice || isNaN(btcHighPrice)) {
-                objectPrice['highPrice'] = object.p;
-                objectPrice['highPriceTimestamp'] = object.T;
-              } else {
-                if (parseFloat(btcHighPrice) < parseFloat(object.p)) {
-                  // @ts-ignore
+                // @ts-ignore
+                let btcHighPrice = objectPrice['highPrice'];
+                if (!btcHighPrice || isNaN(btcHighPrice)) {
                   objectPrice['highPrice'] = object.p;
                   objectPrice['highPriceTimestamp'] = object.T;
+                } else {
+                  if (parseFloat(btcHighPrice) < parseFloat(object.p)) {
+                    // @ts-ignore
+                    objectPrice['highPrice'] = object.p;
+                    objectPrice['highPriceTimestamp'] = object.T;
+                  }
                 }
-              }
-              // @ts-ignore
-              let btcLowPrice = objectPrice['lowPrice'];
-              if (!btcLowPrice || isNaN(btcLowPrice)) {
                 // @ts-ignore
-                objectPrice['lowPrice'] = object.p;
-                objectPrice['lowPriceTimestamp'] = object.T;
-              } else {
-                if (parseFloat(btcLowPrice) > parseFloat(object.p)) {
+                let btcLowPrice = objectPrice['lowPrice'];
+                if (!btcLowPrice || isNaN(btcLowPrice)) {
                   // @ts-ignore
                   objectPrice['lowPrice'] = object.p;
                   objectPrice['lowPriceTimestamp'] = object.T;
+                } else {
+                  if (parseFloat(btcLowPrice) > parseFloat(object.p)) {
+                    // @ts-ignore
+                    objectPrice['lowPrice'] = object.p;
+                    objectPrice['lowPriceTimestamp'] = object.T;
+                  }
                 }
+                objectPrice['symbol'] = symbol;
+                if (parseFloat(currentPrice) != parseFloat(object.p)) {
+                  socket.emit("priceLive", {method: 'system', room: symbol, data: objectPrice});
+                  currentPrice = object.p;
+                }
+                let rs = await setAsync(symbol + '_to_usdt', JSON.stringify(objectPrice));
               }
-              objectPrice['symbol'] = symbol;
-              if (parseFloat(currentPrice) != parseFloat(object.p)) {
-                socket.emit("priceLive", {method: 'system', room: symbol, data: objectPrice});
-                currentPrice = object.p;
+              if(object.e == '24hrTicker'){
+                await setAsync(symbol + '_to_usdt_ticker', JSON.stringify({
+                  "priceChange": object.p,
+                  "priceChangePercent": object.P,
+                  "weightedAvgPrice": object.w,
+                  "prevClosePrice": object.x,
+                  "lastPrice": object.c,
+                  "lastQty": object.Q,
+                  "bidPrice": object.b,
+                  "bidQty": object.B,
+                  "askPrice": object.a,
+                  "askQty": object.A,
+                  "openPrice": object.o,
+                  "highPrice": object.h,
+                  "lowPrice": object.l,
+                  "volume": object.v,
+                  "quoteVolume": object.q,
+                  "openTime": object.O,
+                  "closeTime": object.C,
+                  "firstId": object.F,
+                  "lastId": object.L,
+                  "count": object.n
+                }));
               }
-              let rs = await setAsync(symbol + '_to_usdt', JSON.stringify(objectPrice));
             });
           });
           socket.on('connect_error', function (err) {
