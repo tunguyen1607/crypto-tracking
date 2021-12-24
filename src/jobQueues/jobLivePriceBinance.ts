@@ -71,10 +71,15 @@ export default {
             const wss = new WebSocket(linkToCall);
             let interval = setInterval(async function() {
               activeSymbols.map(async function (symbol) {
+                const result = await axios({
+                  method: 'GET',
+                  url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
+                });
                 let priceObject = await getAsync(symbol + '_to_usdt');
                 await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
                   symbol: symbol,
                   type: '3m',
+                  ticker: result.data,
                   priceObject: priceObject,
                   jobId: job.id,
                 });
@@ -83,7 +88,7 @@ export default {
                 let price24h = await sMembersAsync(symbol + '_to_usdt_24h');
                 if(price24h.length > 480){
                   for (let i = 0; i < (price24h.length - 480); i++){
-                    await sRemAsync(symbol + '_to_usdt_24h', price24h[i]);
+                    await sRemAsync(symbol + '_to_usdt_24h', price24h[price24h.length - i]);
                   }
                 }
               })
@@ -100,6 +105,7 @@ export default {
                   // @ts-ignore
                   let job = await producerService.add({
                     symbols: symbol.toLowerCase(),
+                    cryptoId: data.cryptoId,
                   });
                   // @ts-ignore
                   await cryptoModel.update({jobId: job.id}, {where: {id: data.cryptoId}});
