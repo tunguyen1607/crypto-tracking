@@ -69,7 +69,7 @@ export default {
           priceLow: ticker && ticker.lowPrice ? ticker.lowPrice : null,
           priceHigh: ticker && ticker.highPrice ? ticker.highPrice : null,
           volume: ticker && ticker.volume ? ticker.volume : null,
-          // marketCap: historicalItem.quote && historicalItem.quote.marketCap ? historicalItem.quote.marketCap : null,
+          marketCap: parseFloat(priceObject.price) * parseFloat(cryptoDetail.circulatingSupply),
         })
       }else {
         // @ts-ignore
@@ -80,7 +80,7 @@ export default {
           datetime: new Date(priceObject.timestamp),
           timestamp: Math.ceil(priceObject.timestamp/1000),
           price: priceObject.price,
-          // volume: ticker.volume,
+          volume: ticker && ticker.volume ? ticker.volume : null,
           status: 1,
           type: type,
         });
