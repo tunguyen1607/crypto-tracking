@@ -104,8 +104,19 @@ export async function list(req: Request, res: Response) {
         console.log(item.symbol);
         console.log(priceHistories.length);
         if(priceHistories && priceHistories.length > 0){
-          console.log(priceHistories[0]);
-          let priceLast24h = JSON.parse(priceHistories[priceHistories.length - 1]);
+          priceHistories = priceHistories.map(function (history) {
+            history = JSON.parse(history);
+            history['date'] = new Date(history.ts)
+            return history;
+          });
+          priceHistories.sort(function(a, b) {
+            return parseFloat(b.ts) - parseFloat(a.ts);
+          });
+          if(item.symbol == 'BTC'){
+            console.log(priceHistories);
+          }
+
+          let priceLast24h = priceHistories[priceHistories.length - 1];
           item['priceChange'] = parseFloat(priceObject['price']) - parseFloat(priceLast24h.p);
           item['priceChangePercent'] = (item['priceChange'] / parseFloat(priceLast24h.p)) * 100;
         }

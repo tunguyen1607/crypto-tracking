@@ -64,35 +64,37 @@ export default {
               "bundleId": "com.nynw.crypcial.ios.test"
             }
           });
+          let interval = setInterval(async function() {
+            activeSymbols.map(async function (symbol) {
+              let priceObject = await getAsync(symbol + '_to_usdt');
+              await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
+                symbol: symbol,
+                type: '3m',
+                priceObject: priceObject,
+                jobId: job.id,
+              });
+              priceObject = JSON.parse(priceObject);
+              await sAddAsync(symbol + '_to_usdt_24h', JSON.stringify({p: priceObject.price, ts: priceObject.timestamp}));
+              let price24h = await sMembersAsync(symbol + '_to_usdt_24h');
+              if(price24h.length > 480){
+                price24h = price24h.map(function (history) {
+                  history = JSON.parse(history);
+                  return history;
+                });
+                price24h.sort(function(a, b) {
+                  return parseFloat(b.ts) - parseFloat(a.ts);
+                });
+                for (let i = 0; i < (price24h.length - 480); i++){
+                  await sRemAsync(symbol + '_to_usdt_24h', JSON.stringify(price24h[price24h.length - i]));
+                }
+              }
+            })
+          }, 3*60*1000);
           let socket = io('http://localhost:32857/v1/crypto/price?token='+accountToken['data']['token']);
           socket.on("connect", async () => {
             let linkToCall = `wss://stream.binance.com:9443/ws/${linkSuffix}`;
             console.log(linkToCall);
             const wss = new WebSocket(linkToCall);
-            let interval = setInterval(async function() {
-              activeSymbols.map(async function (symbol) {
-                const result = await axios({
-                  method: 'GET',
-                  url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
-                });
-                let priceObject = await getAsync(symbol + '_to_usdt');
-                await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
-                  symbol: symbol,
-                  type: '3m',
-                  ticker: result.data,
-                  priceObject: priceObject,
-                  jobId: job.id,
-                });
-                priceObject = JSON.parse(priceObject);
-                await sAddAsync(symbol + '_to_usdt_24h', JSON.stringify({p: priceObject.price, ts: priceObject.timestamp}));
-                let price24h = await sMembersAsync(symbol + '_to_usdt_24h');
-                if(price24h.length > 480){
-                  for (let i = 0; i < (price24h.length - 480); i++){
-                    await sRemAsync(symbol + '_to_usdt_24h', price24h[price24h.length - i]);
-                  }
-                }
-              })
-            }, 3*60*1000);
             // or with emit() and custom event names
             let now = new Date();
             let millisTill = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 55, 59, 0).getTime() - now.getTime();
@@ -224,9 +226,11 @@ export default {
           socket.on('connect_error', function(err)
           {
             console.log("connect failed"+err);
+            reject(err);
           });
           socket.on("error", (mess)=>{
             console.log(mess)
+            reject(mess);
           })
         }
       } catch (e) {
