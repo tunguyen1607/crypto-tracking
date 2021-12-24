@@ -106,7 +106,7 @@ export async function list(req: Request, res: Response) {
         if(priceHistories && priceHistories.length > 0){
           console.log(priceHistories[0]);
           console.log(priceHistories[479]);
-          let priceLast24h = JSON.parse(priceHistories[0]);
+          let priceLast24h = JSON.parse(priceHistories[priceHistories.length]);
           item['priceChange'] = parseFloat(priceObject['price']) - parseFloat(priceLast24h.p);
           item['priceChangePercent'] = (item['priceChange'] / parseFloat(priceLast24h.p)) * 100;
         }
