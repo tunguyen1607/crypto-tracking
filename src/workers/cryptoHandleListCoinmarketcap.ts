@@ -49,10 +49,10 @@ export default {
           where: { slug: cryptoItem.slug },
         });
         if (cryptoDetail) {
-          if(cryptoDetail.symbol == cryptoItem.symbol){
+          if(cryptoDetail.symbol.toLowerCase() == cryptoItem.symbol.toLowerCase()){
             // @ts-ignore
             await cryptoModel.update(body, {
-              where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol.toUpperCase(), slug: cryptoItem.slug },
+              where: { sourceId: cryptoItem.id, slug: cryptoItem.slug },
             });
             body['id'] = cryptoDetail.id;
             body['startTimestampHistorical'] = cryptoDetail.startTimestampHistorical;
