@@ -24,7 +24,7 @@ export default {
         let cryptoItem: any = list[i];
         let body = {
           name: cryptoItem.name,
-          symbol: cryptoItem.symbol.toUpperCase(),
+          symbol: cryptoItem.symbol,
           slug: cryptoItem.slug,
           dateAdded: cryptoItem.date_added,
           lastUpdated: cryptoItem.last_updated,
@@ -49,7 +49,7 @@ export default {
           where: { slug: cryptoItem.slug },
         });
         if (cryptoDetail) {
-          if(cryptoDetail.symbol.toLowerCase() == cryptoItem.symbol.toLowerCase()){
+          if(cryptoDetail.symbol == cryptoItem.symbol){
             // @ts-ignore
             await cryptoModel.update(body, {
               where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol.toUpperCase(), slug: cryptoItem.slug },
@@ -68,13 +68,13 @@ export default {
           await publishServiceInstance.publish('', 'crypto_handle_detail_coinmarketcap', {
             sourceId: cryptoDetail.sourceId,
             id: cryptoDetail.id,
-            symbol: cryptoDetail.symbol.toUpperCase(),
+            symbol: cryptoDetail.symbol,
           });
         }
         await publishServiceInstance.publish('', 'crypto_handle_list_historical_coinmarketcap', {
           sourceId: cryptoDetail.sourceId,
           id: cryptoDetail.id,
-          symbol: cryptoDetail.symbol.toUpperCase(),
+          symbol: cryptoDetail.symbol,
           startTimestampHistorical: cryptoDetail.startTimestampHistorical,
           lastTimestampHistorical: cryptoDetail.lastTimestampHistorical,
         });

@@ -112,7 +112,7 @@ export async function list(req: Request, res: Response) {
           priceHistories.sort(function(a, b) {
             return parseFloat(b.ts) - parseFloat(a.ts);
           });
-          if(item.symbol == 'BTC'){
+          if(item.symbol == 'btc'){
             console.log(priceHistories);
           }
 
