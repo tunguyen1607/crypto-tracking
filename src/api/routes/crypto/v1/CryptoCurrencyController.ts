@@ -39,7 +39,7 @@ export async function info(req: Request, res: Response) {
       let priceHistories = await sMembersAsync(priceKey+'_24h');
       let priceLast24h = JSON.parse(priceHistories[0]);
       cryptoDetail['priceChange'] = parseFloat(priceObject['price']) - parseFloat(priceLast24h.p);
-      cryptoDetail['pricePercent'] = (cryptoDetail['priceChange'] / parseFloat(priceLast24h.p)) * 100;
+      cryptoDetail['priceChangePercent'] = (cryptoDetail['priceChange'] / parseFloat(priceLast24h.p)) * 100;
     }
     return res.json({ data: cryptoDetail }).status(200);
   } catch (error) {
@@ -102,12 +102,24 @@ export async function list(req: Request, res: Response) {
         priceObject = JSON.parse(priceObject);
         item.price = parseFloat(priceObject['price']);
         console.log(item.symbol);
-        console.log(priceHistories);
         console.log(priceHistories.length);
         if(priceHistories && priceHistories.length > 0){
-          let priceLast24h = JSON.parse(priceHistories[0]);
+          priceHistories = priceHistories.map(function (history) {
+            history = JSON.parse(history);
+            history['date'] = new Date(history.ts)
+            return history;
+          });
+          priceHistories.sort(function(a, b) {
+            return parseFloat(b.ts) - parseFloat(a.ts);
+          });
+          if(item.symbol == 'BTC'){
+            console.log(priceHistories[priceHistories.length - 1]);
+            console.log(priceHistories[0]);
+          }
+
+          let priceLast24h = priceHistories[priceHistories.length - 1];
           item['priceChange'] = parseFloat(priceObject['price']) - parseFloat(priceLast24h.p);
-          item['pricePercent'] = (item['priceChange'] / parseFloat(priceLast24h.p)) * 100;
+          item['priceChangePercent'] = (item['priceChange'] / parseFloat(priceLast24h.p)) * 100;
         }
         item['quote'] = priceObject;
         item['marketCap'] = parseFloat(item.price) * parseFloat(item.circulatingSupply);
