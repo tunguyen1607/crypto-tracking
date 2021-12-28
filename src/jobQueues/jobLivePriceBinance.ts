@@ -83,7 +83,7 @@ export default {
                 let price24h = await sMembersAsync(symbol + '_to_usdt_24h');
                 if(price24h.length > 480){
                   for (let i = 0; i < (price24h.length - 480); i++){
-                    await sRemAsync(symbol + '_to_usdt_24h', price24h[i]);
+                    await sRemAsync(symbol + '_to_usdt_24h', JSON.stringify(price24h[i]));
                   }
                 }
               })
