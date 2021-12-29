@@ -182,3 +182,34 @@ export async function historical(req: Request, res: Response) {
     return res.json({ error: true, message: 'Something went wrong!' }).status(500);
   }
 }
+
+export async function chart(req: Request, res: Response) {
+  try {
+    const cryptoHistoricalTimeModel = Container.get('cryptoHistoricalTimeModel');
+    // @ts-ignore
+    let query: any = req.query;
+    let {cryptoId, range} = query;
+    if(!cryptoId){
+      throw new Error('not found cryptoId|400')
+    }
+    let filter = {};
+    // @ts-ignore
+    let historicalList: any = await cryptoHistoricalTimeModel.findAll({
+      where: filter,
+      raw: true,
+      attributes: ['id', 'cryptoId', 'sourceId', 'date', 'timestamp', 'timeOpen', 'priceOpen', 'timeHigh', 'priceHigh', 'timeLow', 'priceLow', 'timeClose', 'priceClose', 'volume', 'marketCap', 'status'],
+      order: [
+        ['timestamp', 'DESC'],
+        ['date', 'DESC'],
+      ],
+    });
+    return res.json({ data: historicalList}).status(200);
+  } catch (error) {
+    if (error.message && error.message.includes('|')) {
+      const [message, code] = error.message.split('|');
+      return res.json({ error: true, message }).status(code);
+    }
+    console.log(error);
+    return res.json({ error: true, message: 'Something went wrong!' }).status(500);
+  }
+}
