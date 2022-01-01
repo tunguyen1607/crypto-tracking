@@ -14,6 +14,7 @@ export default {
     let interval = null;
     socket.on('latest', function (message) {
       console.log(message);
+      console.log(message.method);
       if(message.method){
         switch (message.method) {
           case 'subscribe':
