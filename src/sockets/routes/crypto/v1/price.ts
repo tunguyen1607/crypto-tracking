@@ -28,7 +28,7 @@ export default {
                 socket.join(item);
               })
             }
-            console.log(socket.rooms);
+            console.log(message.symbols);
             // if (interval) {
             //   clearInterval(interval);
             // }
