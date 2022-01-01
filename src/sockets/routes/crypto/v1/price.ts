@@ -1,5 +1,6 @@
 import path from 'path';
 import middlewares from '../../../middlewares';
+import { isStringJson } from '../../../../helpers/object';
 import {Container} from "typedi";
 import {promisify} from "util";
 
@@ -13,7 +14,9 @@ export default {
     let watchList = [];
     let interval = null;
     socket.on('latest', function (message) {
-      console.log(message);
+      if(isStringJson(message)){
+        message = JSON.parse(message);
+      }
       console.log(message.method);
       if(message.method){
         switch (message.method) {
