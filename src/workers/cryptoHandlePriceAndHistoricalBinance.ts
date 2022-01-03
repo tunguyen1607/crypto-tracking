@@ -74,7 +74,7 @@ export default {
           priceClose: priceObject && priceObject.price ? priceObject.price : null,
           priceLow: ticker && ticker.lowPrice ? ticker.lowPrice : null,
           priceHigh: ticker && ticker.highPrice ? ticker.highPrice : null,
-          volume: ticker && ticker.volume ? ticker.volume : null,
+          volume: ticker && ticker.count ? parseFloat(priceObject.price) * parseInt(ticker.count) : null,
           marketCap: parseFloat(priceObject.price) * parseFloat(cryptoDetail.circulatingSupply),
         })
       }else {
@@ -86,7 +86,8 @@ export default {
           datetime: new Date(priceObject.timestamp),
           timestamp: Math.ceil(priceObject.timestamp/1000),
           price: priceObject.price,
-          volume: ticker && ticker.volume ? ticker.volume : null,
+          volume: ticker && ticker.count ? parseFloat(priceObject.price) * parseInt(ticker.count) : null,
+          marketCap: parseFloat(priceObject.price) * parseFloat(cryptoDetail.circulatingSupply),
           status: 1,
           type: type,
         });

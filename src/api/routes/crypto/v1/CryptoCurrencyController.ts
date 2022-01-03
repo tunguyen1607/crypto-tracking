@@ -115,7 +115,6 @@ export async function list(req: Request, res: Response) {
           if(item.symbol == 'BTC'){
             console.log(priceHistories[priceHistories.length - 1]);
             console.log(priceHistories[0]);
-            console.log(priceHistories);
           }
 
           let priceLast24h = priceHistories[priceHistories.length - 1];
@@ -196,8 +195,10 @@ export async function chart(req: Request, res: Response) {
     if(!range){
       range = '1d';
     }
+    let filter = {};
     switch (range) {
       case '1h':
+
         break;
       case '1d':
         break;
@@ -214,12 +215,10 @@ export async function chart(req: Request, res: Response) {
       case 'all':
         break;
     }
-    let filter = {};
     // @ts-ignore
     let historicalList: any = await cryptoHistoricalTimeModel.findAll({
       where: filter,
       raw: true,
-      attributes: ['id', 'cryptoId', 'sourceId', 'date', 'timestamp', 'timeOpen', 'priceOpen', 'timeHigh', 'priceHigh', 'timeLow', 'priceLow', 'timeClose', 'priceClose', 'volume', 'marketCap', 'status'],
       order: [
         ['timestamp', 'DESC'],
         ['date', 'DESC'],
