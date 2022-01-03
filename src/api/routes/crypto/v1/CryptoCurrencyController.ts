@@ -115,6 +115,7 @@ export async function list(req: Request, res: Response) {
           if(item.symbol == 'BTC'){
             console.log(priceHistories[priceHistories.length - 1]);
             console.log(priceHistories[0]);
+            console.log(priceHistories);
           }
 
           let priceLast24h = priceHistories[priceHistories.length - 1];
@@ -191,6 +192,27 @@ export async function chart(req: Request, res: Response) {
     let {cryptoId, range} = query;
     if(!cryptoId){
       throw new Error('not found cryptoId|400')
+    }
+    if(!range){
+      range = '1d';
+    }
+    switch (range) {
+      case '1h':
+        break;
+      case '1d':
+        break;
+      case '7d':
+        break;
+      case '1m':
+        break;
+      case '3m':
+        break;
+      case '1y':
+        break;
+      case 'ytd':
+        break;
+      case 'all':
+        break;
     }
     let filter = {};
     // @ts-ignore
