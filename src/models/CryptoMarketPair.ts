@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 export default async ({ sequelize }) => {
   let CryptoExchange = sequelize.define(
-    'CryptoExchange',
+    'CryptoMarketPair',
     {
       // attributes
       symbol: {
@@ -19,6 +19,12 @@ export default async ({ sequelize }) => {
       price: {
         type: Sequelize.FLOAT,
       },
+      volume: {
+        type: Sequelize.FLOAT,
+      },
+      quoteVolume: {
+        type: Sequelize.FLOAT,
+      },
       config: {
         type: Sequelize.JSONB,
       },
@@ -27,6 +33,9 @@ export default async ({ sequelize }) => {
       },
       market: {
         type: Sequelize.STRING,
+      },
+      lastUpdate: {
+        type: Sequelize.INTEGER,
       },
       statusMarket: {
         type: Sequelize.STRING,
