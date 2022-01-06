@@ -1,7 +1,7 @@
 import Sequelize from 'sequelize';
 export default async ({ sequelize }) => {
-  let CryptoExchange = sequelize.define(
-    'CryptoMarketPair',
+  let CryptoMarketPairHistoricalTime = sequelize.define(
+    'CryptoMarketPairHistoricalTime',
     {
       // attributes
       symbol: {
@@ -50,6 +50,6 @@ export default async ({ sequelize }) => {
       timestamps: true,
     },
   );
-  await CryptoExchange.sync({ force: false });
-  return CryptoExchange;
+  await CryptoMarketPairHistoricalTime.sync({ force: false });
+  return CryptoMarketPairHistoricalTime;
 };

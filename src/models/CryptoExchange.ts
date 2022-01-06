@@ -1,37 +1,34 @@
 import Sequelize from 'sequelize';
 export default async ({ sequelize }) => {
-  let CryptoMarketPair = sequelize.define(
-    'CryptoMarketPair',
+  let CryptoExchange = sequelize.define(
+    'CryptoExchange',
     {
       // attributes
-      symbol: {
+      name: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      baseAsset: {
+      year_established: {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      quoteAsset: {
+      country: {
         type: Sequelize.STRING,
         allowNull: false,
-      },
-      price: {
-        type: Sequelize.FLOAT,
-      },
-      volume: {
-        type: Sequelize.FLOAT,
-      },
-      quoteVolume: {
-        type: Sequelize.FLOAT,
-      },
-      config: {
-        type: Sequelize.JSONB,
       },
       status: {
         type: Sequelize.INTEGER,
       },
-      market: {
+      url: {
+        type: Sequelize.STRING,
+      },
+      image: {
+        type: Sequelize.STRING,
+      },
+      has_trading_incentive: {
+        type: Sequelize.STRING,
+      },
+      description: {
         type: Sequelize.STRING,
       },
       lastUpdate: {
@@ -46,6 +43,6 @@ export default async ({ sequelize }) => {
       timestamps: true,
     },
   );
-  await CryptoMarketPair.sync({ force: false });
-  return CryptoMarketPair;
+  await CryptoExchange.sync({ force: false });
+  return CryptoExchange;
 };
