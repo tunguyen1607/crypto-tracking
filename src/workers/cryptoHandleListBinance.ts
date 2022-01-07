@@ -5,7 +5,7 @@ import {promisify} from "util";
 import BinanceService from '../services/binance';
 
 export default {
-  queueName: 'crypto_handle_list_binance',
+  queueName: 'binance_handle_list_pair',
   status: true,
   run: async function(message, cb) {
     const Logger = Container.get('logger');
@@ -19,7 +19,8 @@ export default {
     // @ts-ignore
     const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
     try {
-      const result:any = binanceServiceInstance.exchangeInfo();
+      const result:any = await binanceServiceInstance.exchangeInfo();
+      console.log(result)
       let listCrypto: any = result.data['symbols'];
       for (let i = 0; i < listCrypto.length; i++){
         let cryptoItem: any = listCrypto[i];
@@ -45,29 +46,6 @@ export default {
             status,
             market: 'binance',
             statusMarket: cryptoItem.status
-          });
-        }
-
-        let body = {
-          symbol: cryptoItem.baseAsset,
-          statusMarket: cryptoItem.status,
-          market: 'binance',
-          status,
-        };
-        // @ts-ignore
-        let cryptoDetail = await cryptoModel.findOne({
-          where: { symbol: cryptoItem.baseAsset },
-        });
-        if (cryptoDetail) {
-          // @ts-ignore
-          await cryptoModel.update(body, {
-            where: { id: cryptoDetail.id },
-          });
-        }else {
-          console.log(cryptoItem.symbol);
-          await publishServiceInstance.publish('', 'crypto_handle_detail_coinmarketcap', {
-            symbol: body.symbol,
-            marketData : body,
           });
         }
       }
