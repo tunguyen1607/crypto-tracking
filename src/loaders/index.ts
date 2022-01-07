@@ -79,6 +79,21 @@ export default async ({
     model: await require('../models/CryptoExchange').default({ sequelize: sequelizeConnection }),
   };
 
+  const CryptoMarketPair = {
+    name: 'CryptoPairModel',
+    model: await require('../models/CryptoMarketPair').default({ sequelize: sequelizeConnection }),
+  };
+
+  const CryptoMarketPairHistorical = {
+    name: 'CryptoPairHistoricalModel',
+    model: await require('../models/CryptoMarketPairHistorical').default({ sequelize: sequelizeConnection }),
+  };
+
+  const CryptoMarketPairHistoricalTime = {
+    name: 'CryptoPairHistoricalTimeModel',
+    model: await require('../models/CryptoMarketPairHistoricalTime').default({ sequelize: sequelizeConnection }),
+  };
+
   const cryptoHistoricalModel = {
     name: 'cryptoHistoricalModel',
     model: await require('../models/CryptoHistorical').default({ sequelize: sequelizeConnection }),

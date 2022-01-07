@@ -6,7 +6,7 @@ import {checkValidDate, timeConverter} from "../helpers/date";
 import {isStringJson} from "../helpers/object";
 
 export default {
-  queueName: 'crypto_handle_market_pair_historical_binance',
+  queueName: 'binance_market_pair_historical',
   status: true,
   run: async function(message, cb) {
     let object = JSON.parse(message.content.toString());

@@ -20,7 +20,7 @@ export default {
       const RedisInstance = Container.get('redisInstance');
       const publishServiceInstance = Container.get(PublishService);
       const cryptoModel = Container.get('cryptoModel');
-      const producerService = Container.get('jobLivePriceBinance');
+      const producerService = Container.get('jobLiveMarketPairBinance');
 
       try {
         // @ts-ignore
@@ -41,9 +41,10 @@ export default {
         let currentPrice = null;
 
         let data = job.data;
+        console.log(data);
         let activeSymbols = [];
         if (data.pair) {
-          let symbol = data.pair;
+          let symbol = data.pair.toLowerCase().trim();
           // get access token from base account
           const accountToken = await axios({
             method: 'POST',
@@ -54,10 +55,11 @@ export default {
               "bundleId": "com.nynw.crypcial.ios.test"
             }
           });
+          console.log(symbol);
           let interval = setInterval(async function () {
             let priceObject = await getAsync('binance:trade:'+symbol);
             let priceTicker = await getAsync('binance:ticker:'+symbol);
-            await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
+            await publishServiceInstance.publish('', 'binance_market_pair_historical', {
               symbol: symbol,
               type: '3m',
               priceObject: priceObject,
@@ -166,13 +168,6 @@ export default {
                   priceOpenTimestamp = object.T;
                   objectPrice['openPriceTimestamp'] = object.T;
                 }
-                // console.log(object);
-                if (activeSymbols.indexOf(symbol) < 0) {
-                  activeSymbols.push(symbol);
-                  activeSymbols = activeSymbols.filter(function (item, pos) {
-                    return activeSymbols.indexOf(item) == pos;
-                  })
-                }
                 objectPrice['price'] = object.p;
                 objectPrice['timestamp'] = object.T;
 
@@ -246,7 +241,10 @@ export default {
             reject(error);
           });
 
+        }else {
+          return resolve(true)
         }
+
       } catch (e) {
         // @ts-ignore
         Logger.error('🔥 Error with Email Sequence Job: %o', e);

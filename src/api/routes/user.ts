@@ -3,6 +3,7 @@ import middlewares from '../middlewares';
 import { Container } from 'typedi';
 import publish from '../../services/publish';
 import producer from '../../services/producer';
+import {promisify} from "util";
 const route = Router();
 
 export default (app: Router) => {
@@ -14,10 +15,15 @@ export default (app: Router) => {
 
   route.get('/test', async (req: Request, res: Response) => {
     const logger = Container.get('logger');
-    const campaignModel = Container.get('campaignModel');
+    const RedisInstance = Container.get('redisInstance');
     // @ts-ignore
-    let rs = await campaignModel.findAll();
-    return res.json({ rs: rs }).status(200);
+    const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
+    // @ts-ignore
+    const sMembersAsync = promisify(RedisInstance.smembers).bind(RedisInstance);
+    let priceKey = 'binance:trade:btcusdt';
+    let priceObject = await getAsync(priceKey);
+    let price24H = await sMembersAsync('binance:24hPrice:btcusdt');
+    return res.json({ rs: priceObject, hours: price24H }).status(200);
   });
 
   route.get('/testProducer', async (req: Request, res: Response) => {
@@ -36,7 +42,7 @@ export default (app: Router) => {
 
   route.get('/testProducerBull', async (req: Request, res: Response) => {
     const logger = Container.get('logger');
-    const producerService = Container.get('jobLivePriceBinance');
+    const producerService = Container.get('jobLiveMarketPairBinance');
     // @ts-ignore
     let rs = await producerService.add(req.query);
     return res.json({ rs: rs }).status(200);
