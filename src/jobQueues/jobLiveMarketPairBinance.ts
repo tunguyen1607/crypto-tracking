@@ -19,7 +19,7 @@ export default {
       const Logger = Container.get('logger');
       const RedisInstance = Container.get('redisInstance');
       const publishServiceInstance = Container.get(PublishService);
-      const cryptoModel = Container.get('cryptoModel');
+      const cryptoModel = Container.get('CryptoPairModel');
       const producerService = Container.get('jobLiveMarketPairBinance');
 
       try {
@@ -42,9 +42,10 @@ export default {
 
         let data = job.data;
         console.log(data);
+        let {symbol, quoteAsset, baseAsset, exchangeId, marketPairId} = data;
         let activeSymbols = [];
-        if (data.pair) {
-          let symbol = data.pair.toLowerCase().trim();
+        if (symbol) {
+          symbol = symbol.toLowerCase().trim();
           // get access token from base account
           const accountToken = await axios({
             method: 'POST',
@@ -104,7 +105,7 @@ export default {
                   cryptoId: data.cryptoId,
                 });
                 // @ts-ignore
-                await cryptoModel.update({jobId: job.id}, {where: {id: data.cryptoId}});
+                await cryptoModel.update({jobId: job.id}, {where: {id: marketPairId}});
               }
               let priceSymbol = await getAsync('binance:trade:'+symbol);
               let priceTicker = await getAsync('binance:ticker:'+symbol);
@@ -114,6 +115,9 @@ export default {
                 priceObject: priceSymbol,
                 ticker: priceTicker,
                 jobId: job.id,
+                quoteAsset,
+                baseAsset,
+                exchangeId,
               });
               priceSymbol = JSON.parse(priceSymbol);
               if (priceSymbol['closePrice'] && priceSymbol['closePriceTimestamp']) {

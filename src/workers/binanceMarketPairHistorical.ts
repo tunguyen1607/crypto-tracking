@@ -13,15 +13,15 @@ export default {
     const Logger = Container.get('logger');
     const RedisInstance = Container.get('redisInstance');
     const cryptoModel = Container.get('cryptoModel');
-    const cryptoHistoricalModel = Container.get('cryptoHistoricalModel');
-    const cryptoHistoricalTimeModel = Container.get('cryptoHistoricalTimeModel');
+    const cryptoHistoricalModel = Container.get('CryptoPairHistoricalModel');
+    const cryptoHistoricalTimeModel = Container.get('CryptoPairHistoricalTimeModel');
     const publishServiceInstance = Container.get(PublishService);
     // @ts-ignore
     const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
     // @ts-ignore
     const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
     try {
-      let { symbol, type, priceObject, ticker, jobId } = object;
+      let { symbol, quoteAsset, baseAsset, marketPairId, exchangeId, type, priceObject, ticker, jobId } = object;
       if(!symbol){
         throw new Error('not found symbol');
       }
@@ -61,11 +61,15 @@ export default {
         let date = timeConverter(Math.ceil(priceObject.timestamp/1000), false);
         // @ts-ignore
         cryptoHistoricalModel.create({
-          cryptoId: cryptoDetail.id,
-          status: 1,
+          marketPairId,
+          symbol,
+          quoteAsset,
+          baseAsset,
           timestamp: Math.ceil(priceObject.timestamp/1000),
           date,
-          sourceId: cryptoDetail.sourceId,
+          exchangeId,
+          priceChange: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
+          priceChangePercent: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
           timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(ticker.openTime) : null,
           timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(ticker.closeTime) : null,
           timeHigh: priceObject && checkValidDate(priceObject.highPriceTimestamp) ? new Date(priceObject.highPriceTimestamp) : null,
@@ -74,21 +78,26 @@ export default {
           priceClose: priceObject && priceObject.price ? priceObject.price : null,
           priceLow: ticker && ticker.lowPrice ? ticker.lowPrice : null,
           priceHigh: ticker && ticker.highPrice ? ticker.highPrice : null,
-          volume: ticker && ticker.count ? parseFloat(priceObject.price) * parseInt(ticker.count) : null,
-          marketCap: parseFloat(priceObject.price) * parseFloat(cryptoDetail.circulatingSupply),
+          volume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
+          quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
+          market: 'binance',
         })
       }else {
         // @ts-ignore
         await cryptoHistoricalTimeModel.create({
-          cryptoId: cryptoDetail.id,
-          symbol: cryptoDetail.symbol,
-          sourceId: cryptoDetail.sourceId,
+          marketPairId,
+          symbol,
+          quoteAsset,
+          baseAsset,
+          exchangeId,
+          priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
+          pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
           datetime: new Date(priceObject.timestamp),
           timestamp: Math.ceil(priceObject.timestamp/1000),
           price: priceObject.price,
-          volume: ticker && ticker.count ? parseFloat(priceObject.price) * parseInt(ticker.count) : null,
-          marketCap: parseFloat(priceObject.price) * parseFloat(cryptoDetail.circulatingSupply),
-          status: 1,
+          volume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
+          quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
+          market: 'binance',
           type: type,
         });
       }

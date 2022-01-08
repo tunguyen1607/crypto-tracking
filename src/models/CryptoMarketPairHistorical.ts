@@ -8,6 +8,20 @@ export default async ({ sequelize }) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      marketPairId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      exchangeId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      timestamp: {
+        type: Sequelize.INTEGER
+      },
+      date: {
+        type: Sequelize.DATE
+      },
       baseAsset: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -19,33 +33,51 @@ export default async ({ sequelize }) => {
       price: {
         type: Sequelize.FLOAT,
       },
+      priceChange: {
+        type: Sequelize.FLOAT,
+      },
+      priceChangePercent: {
+        type: Sequelize.FLOAT,
+      },
       volume: {
         type: Sequelize.FLOAT,
       },
       quoteVolume: {
         type: Sequelize.FLOAT,
       },
-      config: {
-        type: Sequelize.JSONB,
+      timeOpen: {
+        type: Sequelize.DATE,
       },
-      status: {
-        type: Sequelize.INTEGER,
+      priceOpen: {
+        type: Sequelize.FLOAT,
+      },
+      timeClose: {
+        type: Sequelize.DATE,
+      },
+      priceClose: {
+        type: Sequelize.FLOAT,
+      },
+      timeHigh: {
+        type: Sequelize.DATE,
+      },
+      priceHigh: {
+        type: Sequelize.FLOAT,
+      },
+      timeLow: {
+        type: Sequelize.DATE,
+      },
+      priceLow: {
+        type: Sequelize.FLOAT,
       },
       market: {
         type: Sequelize.STRING,
       },
-      lastUpdate: {
-        type: Sequelize.INTEGER,
-      },
-      statusMarket: {
-        type: Sequelize.STRING,
-      }
     },
     {
       // options
       timestamps: true,
     },
   );
-  await CryptoMarketPairHistorical.sync({ force: false });
+  await CryptoMarketPairHistorical.sync({ force: true });
   return CryptoMarketPairHistorical;
 };

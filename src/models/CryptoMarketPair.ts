@@ -12,11 +12,20 @@ export default async ({ sequelize }) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      jobId: {
+        type: Sequelize.FLOAT,
+      },
       quoteAsset: {
         type: Sequelize.STRING,
         allowNull: false,
       },
       price: {
+        type: Sequelize.FLOAT,
+      },
+      priceChange: {
+        type: Sequelize.FLOAT,
+      },
+      priceChangePercent: {
         type: Sequelize.FLOAT,
       },
       volume: {

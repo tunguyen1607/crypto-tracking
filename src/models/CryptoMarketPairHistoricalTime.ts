@@ -8,9 +8,19 @@ export default async ({ sequelize }) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      marketPairId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
       exchangeId: {
         type: Sequelize.INTEGER,
         allowNull: false,
+      },
+      datetime: {
+        type: Sequelize.DATE,
+      },
+      timestamp: {
+        type: Sequelize.INTEGER,
       },
       baseAsset: {
         type: Sequelize.STRING,
@@ -23,33 +33,30 @@ export default async ({ sequelize }) => {
       price: {
         type: Sequelize.FLOAT,
       },
+      priceChange24h: {
+        type: Sequelize.FLOAT,
+      },
+      pricePercent24h: {
+        type: Sequelize.FLOAT,
+      },
       volume: {
         type: Sequelize.FLOAT,
       },
       quoteVolume: {
         type: Sequelize.FLOAT,
       },
-      config: {
-        type: Sequelize.JSONB,
-      },
-      status: {
-        type: Sequelize.INTEGER,
-      },
       market: {
         type: Sequelize.STRING,
       },
-      lastUpdate: {
-        type: Sequelize.INTEGER,
-      },
-      statusMarket: {
+      type: {
         type: Sequelize.STRING,
-      }
+      },
     },
     {
       // options
       timestamps: true,
     },
   );
-  await CryptoMarketPairHistoricalTime.sync({ force: false });
+  await CryptoMarketPairHistoricalTime.sync({ force: true });
   return CryptoMarketPairHistoricalTime;
 };
