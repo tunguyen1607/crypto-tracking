@@ -54,7 +54,7 @@ export default {
         if(!ticker){
           const result = await axios({
             method: 'GET',
-            url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
+            url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}`,
           });
           ticker = result.data;
         }
