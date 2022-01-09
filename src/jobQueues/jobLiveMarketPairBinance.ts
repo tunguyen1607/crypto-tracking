@@ -72,6 +72,8 @@ export default {
               marketPairId
             });
             priceObject = JSON.parse(priceObject);
+            console.log('binance:trade:'+symbol);
+            console.log(priceObject);
             await sAddAsync('binance:24hPrice:'+symbol, JSON.stringify({
               p: priceObject.price,
               ts: priceObject.timestamp

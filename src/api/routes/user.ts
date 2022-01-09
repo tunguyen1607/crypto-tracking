@@ -20,9 +20,9 @@ export default (app: Router) => {
     const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
     // @ts-ignore
     const sMembersAsync = promisify(RedisInstance.smembers).bind(RedisInstance);
-    let priceKey = 'binance:trade:btcusdt';
+    let priceKey = 'binance:trade:sysbtc';
     let priceObject = await getAsync(priceKey);
-    let price24H = await sMembersAsync('binance:24hPrice:btcusdt');
+    let price24H = await sMembersAsync('binance:24hPrice:sysbtc');
     return res.json({ rs: priceObject, hours: price24H }).status(200);
   });
 
