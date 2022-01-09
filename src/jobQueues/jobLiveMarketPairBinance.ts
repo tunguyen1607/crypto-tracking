@@ -72,23 +72,23 @@ export default {
               marketPairId
             });
             priceObject = JSON.parse(priceObject);
-            console.log('binance:trade:'+symbol);
-            console.log(priceObject);
-            await sAddAsync('binance:24hPrice:'+symbol, JSON.stringify({
-              p: priceObject.price,
-              ts: priceObject.timestamp
-            }));
-            let price24h = await sMembersAsync('binance:24hPrice:'+symbol);
-            if (price24h.length > 480) {
-              price24h = price24h.map(function (history) {
-                history = JSON.parse(history);
-                return history;
-              });
-              price24h.sort(function (a, b) {
-                return parseFloat(b.ts) - parseFloat(a.ts);
-              });
-              for (let i = 0; i < (price24h.length - 480); i++) {
-                await sRemAsync('binance:24hPrice:'+symbol, JSON.stringify(price24h[price24h.length - i - 1]));
+            if(priceObject){
+              await sAddAsync('binance:24hPrice:'+symbol, JSON.stringify({
+                p: priceObject.price,
+                ts: priceObject.timestamp
+              }));
+              let price24h = await sMembersAsync('binance:24hPrice:'+symbol);
+              if (price24h.length > 480) {
+                price24h = price24h.map(function (history) {
+                  history = JSON.parse(history);
+                  return history;
+                });
+                price24h.sort(function (a, b) {
+                  return parseFloat(b.ts) - parseFloat(a.ts);
+                });
+                for (let i = 0; i < (price24h.length - 480); i++) {
+                  await sRemAsync('binance:24hPrice:'+symbol, JSON.stringify(price24h[price24h.length - i - 1]));
+                }
               }
             }
           }, 3 * 60 * 1000);
@@ -162,7 +162,20 @@ export default {
               }
             }
           } else {
-            objectPrice = {};
+            const result = await axios({
+              method: 'GET',
+              url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}USDT`,
+            });
+            let ticker: any = result.data;
+            objectPrice = {
+              symbol,
+              price: ticker.lastPrice,
+              timestamp: ticker.closeTime,
+              openPrice: ticker.openPrice,
+              openPriceTimestamp: ticker.openTime,
+              highPrice: ticker.highPrice,
+              lowPrice: ticker.lowPrice,
+            };
           }
           // @ts-ignore
           let socket = io('http://localhost:32857/v1/crypto/price?token=' + accountToken['data']['token']);
