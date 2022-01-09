@@ -212,6 +212,18 @@ export default {
                 let rs = await setAsync('binance:trade:'+symbol, JSON.stringify(objectPrice));
               }
               if(object.e == '24hrTicker'){
+                if(!objectPrice){
+                  objectPrice = {
+                    symbol,
+                    price: object.c,
+                    timestamp: object.C,
+                    openPrice: object.o,
+                    openPriceTimestamp: object.O,
+                    highPrice: object.h,
+                    lowPrice: object.l,
+                  }
+                  await setAsync('binance:trade:'+symbol, JSON.stringify(objectPrice));
+                }
                 await setAsync('binance:ticker:'+symbol, JSON.stringify({
                   "priceChange": object.p,
                   "priceChangePercent": object.P,
