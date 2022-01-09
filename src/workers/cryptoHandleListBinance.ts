@@ -21,7 +21,6 @@ export default {
     const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
     try {
       const result:any = await binanceServiceInstance.exchangeInfo();
-      console.log(result)
       let listCrypto: any = result.data['symbols'];
       for (let i = 0; i < listCrypto.length; i++){
         let cryptoItem: any = listCrypto[i];
@@ -55,21 +54,24 @@ export default {
             statusMarket: cryptoItem.status
           });
 
-          // @ts-ignore
-          let job = await producerService.add({
-            symbol: cryptoItem.symbol,
-            quoteAsset: cryptoItem.quoteAsset,
-            baseAsset: cryptoItem.baseAsset,
-            exchangeId: cryptoExchangeItem.id,
-            marketPairId: cryptoMarketItem.id,
-          });
+          if(i<300){
+            // @ts-ignore
+            let job = await producerService.add({
+              symbol: cryptoItem.symbol,
+              quoteAsset: cryptoItem.quoteAsset,
+              baseAsset: cryptoItem.baseAsset,
+              exchangeId: cryptoExchangeItem.id,
+              marketPairId: cryptoMarketItem.id,
+            });
 
-          // @ts-ignore
-          await cryptoPairModel.update({
-            jobId: job.id,
-          }, {
-            where: {id: cryptoMarketItem.id}
-          });
+            // @ts-ignore
+            await cryptoPairModel.update({
+              jobId: job.id,
+            }, {
+              where: {id: cryptoMarketItem.id}
+            });
+          }
+
         }
       }
     } catch (e) {
