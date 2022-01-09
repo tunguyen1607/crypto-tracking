@@ -12,7 +12,7 @@ export default {
     let object = JSON.parse(message.content.toString());
     const Logger = Container.get('logger');
     const RedisInstance = Container.get('redisInstance');
-    const cryptoModel = Container.get('cryptoModel');
+    const cryptoPairModel = Container.get('CryptoPairModel');
     const cryptoHistoricalModel = Container.get('CryptoPairHistoricalModel');
     const cryptoHistoricalTimeModel = Container.get('CryptoPairHistoricalTimeModel');
     const publishServiceInstance = Container.get(PublishService);
@@ -27,24 +27,24 @@ export default {
       }
 
       // @ts-ignore
-      let cryptoDetail = await cryptoModel.findOne({where: {symbol: symbol.toUpperCase()}});
+      let cryptoDetail = await cryptoPairModel.findOne({where: {symbol: symbol.toUpperCase()}});
       if(!cryptoDetail){
         throw new Error('not found crypto with symbol '+symbol);
       }
       if(!priceObject){
-        priceObject = await getAsync(symbol.toLowerCase()+'_to_usdt');
+        priceObject = await getAsync('binance:trade:'+symbol.toLowerCase());
       }
       if(priceObject && isStringJson(priceObject)){
         priceObject = JSON.parse(priceObject);
       }
       if(!ticker){
-        ticker = await getAsync(symbol.toLowerCase()+'_to_usdt_ticker');
+        ticker = await getAsync('binance:ticker:'+symbol.toLowerCase());
       }
       if(ticker && isStringJson(ticker)){
         ticker = JSON.parse(ticker);
       }
       // @ts-ignore
-      await cryptoModel.update({
+      await cryptoPairModel.update({
         price: priceObject.price,
         lastTimeUpdatePrice: Math.ceil(priceObject.timestamp/1000),
         jobId
