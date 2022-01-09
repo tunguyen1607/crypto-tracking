@@ -78,6 +78,6 @@ export default async ({ sequelize }) => {
       timestamps: true,
     },
   );
-  await CryptoMarketPairHistorical.sync({ force: true });
+  await CryptoMarketPairHistorical.sync({ force: false });
   return CryptoMarketPairHistorical;
 };

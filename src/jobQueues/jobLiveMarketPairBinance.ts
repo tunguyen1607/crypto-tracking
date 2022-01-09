@@ -66,6 +66,10 @@ export default {
               priceObject: priceObject,
               ticker: priceTicker,
               jobId: job.id,
+              quoteAsset,
+              baseAsset,
+              exchangeId,
+              marketPairId
             });
             priceObject = JSON.parse(priceObject);
             await sAddAsync('binance:24hPrice:'+symbol, JSON.stringify({
@@ -96,52 +100,50 @@ export default {
           if (millisTill < 0) {
             millisTill += 86400000; // it's after 10am, try 10am tomorrow.
           }
-          setTimeout(function () {
-            activeSymbols.map(async function (symbol) {
-              if (data.cryptoId) {
-                // @ts-ignore
-                let job = await producerService.add({
-                  symbols: symbol.toLowerCase(),
-                  cryptoId: data.cryptoId,
-                });
-                // @ts-ignore
-                await cryptoModel.update({jobId: job.id}, {where: {id: marketPairId}});
-              }
-              let priceSymbol = await getAsync('binance:trade:'+symbol);
-              let priceTicker = await getAsync('binance:ticker:'+symbol);
-              await publishServiceInstance.publish('', 'crypto_handle_price_and_historical_binance', {
-                symbol: symbol,
-                type: '1day',
-                priceObject: priceSymbol,
-                ticker: priceTicker,
-                jobId: job.id,
-                quoteAsset,
-                baseAsset,
-                exchangeId,
+          setTimeout(async function () {
+            if (marketPairId) {
+              // @ts-ignore
+              let job = await producerService.add({
+                symbol, quoteAsset, baseAsset, exchangeId, marketPairId
               });
-              priceSymbol = JSON.parse(priceSymbol);
-              if (priceSymbol['closePrice'] && priceSymbol['closePriceTimestamp']) {
-                let dateClose = new Date(objectPrice['closePriceTimestamp']);
-                if (dateClose && dateClose.getDate() == now.getDate() && dateClose.getMonth() == now.getMonth() && dateClose.getFullYear() == now.getFullYear() && dateClose.getHours() == 23) {
-                  priceClose = objectPrice['openPrice'];
-                  priceCloseTimestamp = objectPrice['openPriceTimestamp'];
-                }
-              } else {
-                priceClose = objectPrice['price'];
-                priceCloseTimestamp = objectPrice['timestamp'];
-              }
-              delete priceSymbol['highPrice'];
-              delete priceSymbol['highPriceTimestamp'];
-              delete priceSymbol['lowPrice'];
-              delete priceSymbol['lowPriceTimestamp'];
-              delete priceSymbol['openPrice'];
-              delete priceSymbol['openPriceTimestamp'];
-              delete priceSymbol['closePrice'];
-              delete priceSymbol['closePriceTimestamp'];
-
-              let rs = await setAsync('binance:trade:'+symbol, JSON.stringify(priceSymbol));
-              console.log(rs);
+              // @ts-ignore
+              await cryptoModel.update({jobId: job.id}, {where: {id: marketPairId}});
+            }
+            let priceSymbol = await getAsync('binance:trade:'+symbol);
+            let priceTicker = await getAsync('binance:ticker:'+symbol);
+            await publishServiceInstance.publish('', 'binance_market_pair_historical', {
+              symbol,
+              type: '1day',
+              priceObject: priceSymbol,
+              ticker: priceTicker,
+              jobId: job.id,
+              quoteAsset,
+              baseAsset,
+              exchangeId,
+              marketPairId
             });
+            priceSymbol = JSON.parse(priceSymbol);
+            if (priceSymbol['closePrice'] && priceSymbol['closePriceTimestamp']) {
+              let dateClose = new Date(objectPrice['closePriceTimestamp']);
+              if (dateClose && dateClose.getDate() == now.getDate() && dateClose.getMonth() == now.getMonth() && dateClose.getFullYear() == now.getFullYear() && dateClose.getHours() == 23) {
+                priceClose = objectPrice['openPrice'];
+                priceCloseTimestamp = objectPrice['openPriceTimestamp'];
+              }
+            } else {
+              priceClose = objectPrice['price'];
+              priceCloseTimestamp = objectPrice['timestamp'];
+            }
+            delete priceSymbol['highPrice'];
+            delete priceSymbol['highPriceTimestamp'];
+            delete priceSymbol['lowPrice'];
+            delete priceSymbol['lowPriceTimestamp'];
+            delete priceSymbol['openPrice'];
+            delete priceSymbol['openPriceTimestamp'];
+            delete priceSymbol['closePrice'];
+            delete priceSymbol['closePriceTimestamp'];
+
+            let rs = await setAsync('binance:trade:'+symbol, JSON.stringify(priceSymbol));
+            console.log(rs);
             wss.terminate();
             clearInterval(interval);
 

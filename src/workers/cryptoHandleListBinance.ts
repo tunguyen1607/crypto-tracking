@@ -10,9 +10,10 @@ export default {
   run: async function(message, cb) {
     const Logger = Container.get('logger');
     const RedisInstance = Container.get('redisInstance');
-    const cryptoModel = Container.get('cryptoModel');
     const cryptoPairModel = Container.get('CryptoPairModel');
+    const cryptoExchangeModel = Container.get('cryptoExchangeModel');
     const publishServiceInstance = Container.get(PublishService);
+    const producerService = Container.get('jobLiveMarketPairBinance');
     const binanceServiceInstance = Container.get(BinanceService);
     // @ts-ignore
     const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
@@ -36,9 +37,15 @@ export default {
           }
         });
 
+        // @ts-ignore
+        let cryptoExchangeItem = await cryptoExchangeModel.findOne({
+          where: {
+            slug: 'binance',
+          }
+        });
         if(!cryptoMarketItem){
           // @ts-ignore
-          await cryptoPairModel.create({
+          cryptoMarketItem = await cryptoPairModel.create({
             symbol: cryptoItem.symbol,
             baseAsset: cryptoItem.baseAsset,
             quoteAsset: cryptoItem.quoteAsset,
@@ -46,6 +53,22 @@ export default {
             status,
             market: 'binance',
             statusMarket: cryptoItem.status
+          });
+
+          // @ts-ignore
+          let job = await producerService.add({
+            symbol: cryptoItem.symbol,
+            quoteAsset: cryptoItem.quoteAsset,
+            baseAsset: cryptoItem.baseAsset,
+            exchangeId: cryptoExchangeItem.id,
+            marketPairId: cryptoMarketItem.id,
+          });
+
+          // @ts-ignore
+          await cryptoPairModel.update({
+            jobId: job.id,
+          }, {
+            where: {id: cryptoMarketItem.id}
           });
         }
       }
