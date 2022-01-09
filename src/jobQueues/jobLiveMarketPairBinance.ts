@@ -176,6 +176,7 @@ export default {
               highPrice: ticker.highPrice,
               lowPrice: ticker.lowPrice,
             };
+            await setAsync('binance:trade:'+symbol, JSON.stringify(objectPrice));
           }
           // @ts-ignore
           let socket = io('http://localhost:32857/v1/crypto/price?token=' + accountToken['data']['token']);
