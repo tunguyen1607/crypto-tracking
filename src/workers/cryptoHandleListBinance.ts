@@ -53,25 +53,23 @@ export default {
             market: 'binance',
             statusMarket: cryptoItem.status
           });
+        }
+        if(i<300){
+          // @ts-ignore
+          let job = await producerService.add({
+            symbol: cryptoItem.symbol,
+            quoteAsset: cryptoItem.quoteAsset,
+            baseAsset: cryptoItem.baseAsset,
+            exchangeId: cryptoExchangeItem.id,
+            marketPairId: cryptoMarketItem.id,
+          });
 
-          if(i<300){
-            // @ts-ignore
-            let job = await producerService.add({
-              symbol: cryptoItem.symbol,
-              quoteAsset: cryptoItem.quoteAsset,
-              baseAsset: cryptoItem.baseAsset,
-              exchangeId: cryptoExchangeItem.id,
-              marketPairId: cryptoMarketItem.id,
-            });
-
-            // @ts-ignore
-            await cryptoPairModel.update({
-              jobId: job.id,
-            }, {
-              where: {id: cryptoMarketItem.id}
-            });
-          }
-
+          // @ts-ignore
+          await cryptoPairModel.update({
+            jobId: job.id,
+          }, {
+            where: {id: cryptoMarketItem.id}
+          });
         }
       }
     } catch (e) {
