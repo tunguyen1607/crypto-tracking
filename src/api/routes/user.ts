@@ -29,7 +29,7 @@ export default (app: Router) => {
   route.get('/testProducer', async (req: Request, res: Response) => {
     const logger = Container.get('logger');
     const producerService = Container.get(publish);
-    let rs = await producerService.publish('', 'binance_handle_list_pair', req.query);
+    let rs = await producerService.publish('', 'crypto_handle_exchange_coinmarketcap', req.query);
     return res.json({ rs: rs }).status(200);
   });
 

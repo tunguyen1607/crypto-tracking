@@ -24,7 +24,7 @@ export default {
     try {
       const result = await axios({
         method: 'GET',
-        url: `https://pro-api.coinmarketcap.com/v1/exchange/map`,
+        url: `https://pro-api.coinmarketcap.com/v1/exchange/map?aux=first_historical_data,last_historical_data,is_active,status`,
         headers: {
           'X-CMC_PRO_API_KEY': `5c400230-4a9c-424a-9953-1b65624bbd7a`,
         },
@@ -68,6 +68,7 @@ export default {
           where: { sourceId: exchangeDetail.id + '', slug: exchangeItem.slug },
         });
         if (cryptoDetail) {
+          console.log({ sourceId: exchangeItem.id + '', slug: exchangeItem.slug, status: exchangeDetail.status });
           // @ts-ignore
           await cryptoExchangeModel.update(bodyExchange, {
             where: { sourceId: exchangeItem.id + '', slug: exchangeItem.slug },

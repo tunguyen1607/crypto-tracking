@@ -3,6 +3,73 @@ import { Container } from 'typedi';
 import { promisify } from 'util';
 import {Joi} from "celebrate";
 
+export async function exchangeDetail(req: Request, res: Response) {
+  try {
+    const cryptoExchangeModel = Container.get('cryptoExchangeModel');
+    let query: any = req.query;
+    if (!query.id && !query.slug) {
+      throw new Error('Not found id or slug|400');
+    }
+    let findQuery = {};
+    if (query.id) {
+      findQuery['id'] = query.id;
+    }
+    if (query.slug) {
+      findQuery['slug'] = query.slug.toLowerCase();
+    }
+    // @ts-ignore
+    let cryptoDetail: any = await cryptoExchangeModel.findOne({
+      where: findQuery,
+      raw: true,
+    });
+    if (!cryptoDetail || !cryptoDetail.name) {
+      throw new Error('Not found exchange info|400');
+    }
+    return res.json({ data: cryptoDetail }).status(200);
+  } catch (error) {
+    if (error.message && error.message.includes('|')) {
+      const [message, code] = error.message.split('|');
+      return res.json({ error: true, message }).status(code);
+    }
+    console.log(error);
+    return res.json({ error: true, message: 'Something went wrong!' }).status(500);
+  }
+}
+
+export async function exchangeList(req: Request, res: Response) {
+  try {
+    const cryptoExchangeModel = Container.get('cryptoExchangeModel');
+    let query: any = req.query;
+    let {status, limit, page} = query;
+    if(!page){
+      page = 1;
+    }
+    if(!limit){
+      limit = 100;
+    }
+    let filter = {};
+    let offset = (page - 1) * limit;
+    if(status){
+      filter['status'] = status;
+    }
+    // @ts-ignore
+    let exchangeList: any = await cryptoExchangeModel.findAll({
+      where: filter,
+      offset,
+      limit,
+      raw: true,
+    });
+    return res.json({ data: exchangeList }).status(200);
+  } catch (error) {
+    if (error.message && error.message.includes('|')) {
+      const [message, code] = error.message.split('|');
+      return res.json({ error: true, message }).status(code);
+    }
+    console.log(error);
+    return res.json({ error: true, message: 'Something went wrong!' }).status(500);
+  }
+}
+
 export async function pairDetail(req: Request, res: Response) {
   try {
     const cryptoPairModel = Container.get('CryptoPairModel');

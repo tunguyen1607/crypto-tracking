@@ -7,6 +7,8 @@ export default route => {
   route.get('/info', [cryptoCurrencyController.info]);
   route.get('/list', [cryptoCurrencyController.list]);
   route.get('/historical', [cryptoCurrencyController.historical]);
+  route.get('/exchange', [cryptoMarketController.exchangeDetail]);
+  route.get('/exchanges', [cryptoMarketController.exchangeList]);
   route.get('/pair', [cryptoMarketController.pairDetail]);
   route.get('/pairs', [cryptoMarketController.pairList]);
   route.get('/news', [cryptoNewController.list]);
