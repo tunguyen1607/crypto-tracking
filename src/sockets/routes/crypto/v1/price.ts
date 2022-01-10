@@ -1,21 +1,15 @@
 import path from 'path';
 import middlewares from '../../../middlewares';
 import { isStringJson } from '../../../../helpers/object';
-import {Container} from "typedi";
-import {promisify} from "util";
 
 export default {
   router: (socket, io) => {
-    const RedisInstance = Container.get('redisInstance');
-    // @ts-ignore
-    const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
-    // @ts-ignore
-    const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
+
     let watchList = [];
-    console.log(socket.id);
-    socket.send(socket.id);
+    // either with send()
     let interval = setInterval(async function () {
       socket.emit("hello", "world");
+      socket.send("Hello!");
     }, 2000);
     socket.on('latest', function (message) {
       if(isStringJson(message)){
