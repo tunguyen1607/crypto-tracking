@@ -6,6 +6,7 @@ export default {
   router: (socket, io) => {
 
     let watchList = [];
+    console.log(socket.id);
     // either with send()
     let interval = setInterval(async function () {
       socket.emit("hello", "world");
