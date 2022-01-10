@@ -12,11 +12,14 @@ export default {
     // @ts-ignore
     const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
     let watchList = [];
-    let interval = null;
+    let interval = setInterval(async function () {
+      socket.emit("hello", "world");
+    }, 2000);
     socket.on('latest', function (message) {
       if(isStringJson(message)){
         message = JSON.parse(message);
       }
+      socket.emit("latest", message);
       console.log(message);
       console.log(message.method);
       if(message.method){
