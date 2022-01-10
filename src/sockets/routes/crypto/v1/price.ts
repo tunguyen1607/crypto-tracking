@@ -17,6 +17,7 @@ export default {
       if(isStringJson(message)){
         message = JSON.parse(message);
       }
+      console.log(message);
       console.log(message.method);
       if(message.method){
         switch (message.method) {
@@ -31,7 +32,6 @@ export default {
                 socket.join(item);
               })
             }
-            console.log(message.symbols);
             // if (interval) {
             //   clearInterval(interval);
             // }
