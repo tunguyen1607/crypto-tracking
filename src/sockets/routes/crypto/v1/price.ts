@@ -12,7 +12,8 @@ export default {
     // @ts-ignore
     const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
     let watchList = [];
-    console.log(socket);
+    console.log(socket.id);
+    socket.send(socket.id);
     let interval = setInterval(async function () {
       socket.emit("hello", "world");
     }, 2000);
