@@ -55,7 +55,6 @@ export default {
       }
     });
     socket.on('priceLive', function (message) {
-      console.log(message.room);
       socket.broadcast.to(message.room).emit('latest', JSON.stringify(message.data));
     })
   },
