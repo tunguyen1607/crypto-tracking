@@ -121,7 +121,7 @@ export async function list(req: Request, res: Response) {
       cryptoList[i] = item;
     }
     let end = Date.now();
-    console.log(end - start)
+    // console.log(end - start)
     return res.json({ data: cryptoList, count: count}).status(200);
   } catch (error) {
     if (error.message && error.message.includes('|')) {
