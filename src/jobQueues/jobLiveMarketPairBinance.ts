@@ -220,7 +220,7 @@ export default {
                 }
                 objectPrice['symbol'] = symbol;
                 if (parseFloat(currentPrice) != parseFloat(object.p)) {
-                  socket.emit("priceLive", {method: 'system', room: symbol, data: objectPrice});
+                  socket.emit("priceLive", {method: 'system', room: 'binance:'+symbol, data: objectPrice});
                   currentPrice = object.p;
                 }
                 let rs = await setAsync('binance:trade:'+symbol, JSON.stringify(objectPrice));
