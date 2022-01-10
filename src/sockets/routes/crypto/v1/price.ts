@@ -28,7 +28,7 @@ export default {
             if (message.symbols && Array.isArray(message.symbols)) {
               watchList = [...message.symbols];
               watchList.forEach(function (item) {
-                socket.join('binance:'+item);
+                socket.join(item);
               })
             }
             console.log(message.symbols);
