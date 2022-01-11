@@ -247,16 +247,15 @@ export async function chart(req: Request, res: Response) {
     }
     let filter = {};
     switch (range) {
-      case '1h':
-
-        break;
-      case '1d':
-        break;
-      case '7d':
-        break;
       case '1m':
         break;
       case '3m':
+        break;
+      case '5m':
+        break;
+      case '15m':
+        break;
+      case '1h':
         break;
       case '1y':
         break;

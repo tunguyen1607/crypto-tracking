@@ -41,7 +41,6 @@ export default {
         let currentPrice = null;
 
         let data = job.data;
-        console.log(data);
         let {symbol, quoteAsset, baseAsset, exchangeId, marketPairId} = data;
         let activeSymbols = [];
         if (symbol) {
@@ -62,7 +61,7 @@ export default {
             let priceTicker = await getAsync('binance:ticker:'+symbol);
             await publishServiceInstance.publish('', 'binance_market_pair_historical', {
               symbol: symbol,
-              type: '3m',
+              type: '1m',
               priceObject: priceObject,
               ticker: priceTicker,
               jobId: job.id,
@@ -91,7 +90,7 @@ export default {
                 }
               }
             }
-          }, 3 * 60 * 1000);
+          }, 60 * 1000);
           let linkSuffix = `${symbol.toLowerCase()}@trade/${symbol.toLowerCase()}@ticker`;
           let linkToCall = `wss://stream.binance.com:9443/ws/${linkSuffix}`;
           console.log(linkToCall);
