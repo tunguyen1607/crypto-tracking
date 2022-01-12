@@ -32,21 +32,6 @@ export default {
                 socket.join(item);
               })
             }
-            // if (interval) {
-            //   clearInterval(interval);
-            // }
-            // if (watchList.length > 0) {
-            //   interval = setInterval(function () {
-            //     watchList.forEach(async function (item) {
-            //       let priceObject = await getAsync(item + '_to_usdt');
-            //       if (priceObject) {
-            //         priceObject = JSON.parse(priceObject);
-            //         priceObject['symbol'] = item;
-            //       }
-            //       socket.to(item).emit('latest', JSON.stringify(priceObject))
-            //     })
-            //   }, 1000)
-            // }
             break;
           default:
             clearInterval(interval);
