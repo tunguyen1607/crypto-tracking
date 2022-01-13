@@ -16,6 +16,10 @@ export default async ({ sequelize }) => {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
+      exchangeName: {
+        type: Sequelize.INTEGER,
+        allowNull: true,
+      },
       datetime: {
         type: Sequelize.DATE,
       },
@@ -39,7 +43,7 @@ export default async ({ sequelize }) => {
       pricePercent24h: {
         type: Sequelize.FLOAT,
       },
-      volume: {
+      baseVolume: {
         type: Sequelize.FLOAT,
       },
       quoteVolume: {

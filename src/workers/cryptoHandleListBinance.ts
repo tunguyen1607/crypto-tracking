@@ -51,7 +51,13 @@ export default {
             config: cryptoItem,
             status,
             market: 'binance',
-            statusMarket: cryptoItem.status
+            marketUrl: `https://www.binance.com/en/trade/${cryptoItem.baseAsset.toUpperCase()}_${cryptoItem.quoteAsset.toUpperCase()}`,
+            statusMarket: cryptoItem.status,
+            exchangeId: cryptoExchangeItem.id,
+            exchangeName: cryptoExchangeItem.name,
+            exchangeSlug: cryptoExchangeItem.slug,
+            category: 'spot',
+            feeType: 'percentage'
           });
         }
         if(i<300){

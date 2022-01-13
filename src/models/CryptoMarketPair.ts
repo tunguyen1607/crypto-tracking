@@ -8,6 +8,30 @@ export default async ({ sequelize }) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      exchangeId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      exchangeName: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      exchangeNotice: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      exchangeSlug: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      category: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      feeType: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
       baseAsset: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -28,10 +52,13 @@ export default async ({ sequelize }) => {
       priceChangePercent: {
         type: Sequelize.FLOAT,
       },
-      volume: {
+      baseVolume: {
         type: Sequelize.FLOAT,
       },
       quoteVolume: {
+        type: Sequelize.FLOAT,
+      },
+      usdVolume: {
         type: Sequelize.FLOAT,
       },
       config: {
@@ -42,6 +69,15 @@ export default async ({ sequelize }) => {
       },
       market: {
         type: Sequelize.STRING,
+      },
+      marketUrl: {
+        type: Sequelize.STRING,
+      },
+      marketScore: {
+        type: Sequelize.STRING,
+      },
+      marketReputation: {
+        type: Sequelize.FLOAT,
       },
       lastUpdate: {
         type: Sequelize.INTEGER,
@@ -55,6 +91,6 @@ export default async ({ sequelize }) => {
       timestamps: true,
     },
   );
-  await CryptoMarketPair.sync({ force: false });
+  await CryptoMarketPair.sync({ force: true });
   return CryptoMarketPair;
 };
