@@ -109,7 +109,7 @@ export async function pairDetail(req: Request, res: Response) {
       let priceLast24h = JSON.parse(priceHistories[0]);
       cryptoDetail['priceChange'] = parseFloat(priceObject['price']) - parseFloat(priceLast24h.p);
       cryptoDetail['priceChangePercent'] = (cryptoDetail['priceChange'] / parseFloat(priceLast24h.p)) * 100;
-      cryptoDetail['volume'] = parseFloat(priceTicker['volume'])
+      cryptoDetail['baseVolume'] = parseFloat(priceTicker['volume'])
       cryptoDetail['quoteVolume'] = parseFloat(priceTicker['quoteVolume'])
     }
     return res.json({ data: cryptoDetail }).status(200);
@@ -170,7 +170,7 @@ export async function pairList(req: Request, res: Response) {
         item.price = parseFloat(priceObject['lastPrice']);
         item['priceChange'] = parseFloat(priceObject['priceChange']);
         item['priceChangePercent'] = parseFloat(priceObject['priceChangePercent']);
-        item['volume'] = parseFloat(priceObject['volume'])
+        item['baseVolume'] = parseFloat(priceObject['volume'])
         item['quoteVolume'] = parseFloat(priceObject['quoteVolume'])
         item['quote'] = priceObject;
       }
