@@ -83,23 +83,135 @@ export default {
           market: 'binance',
         })
       }else {
-        // @ts-ignore
-        await cryptoHistoricalTimeModel.create({
-          marketPairId,
-          symbol,
-          quoteAsset,
-          baseAsset,
-          exchangeId,
-          priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
-          pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
-          datetime: new Date(priceObject.timestamp),
-          timestamp: Math.ceil(priceObject.timestamp/1000),
-          price: priceObject.price,
-          volume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
-          quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
-          market: 'binance',
-          type: type,
-        });
+        let timeHistory = new Date(priceObject.timestamp);
+        if(timeHistory.getMinutes() % 3 == 0){
+          // @ts-ignore
+          await cryptoHistoricalTimeModel.create({
+            marketPairId,
+            symbol,
+            quoteAsset,
+            baseAsset,
+            exchangeId,
+            priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
+            pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
+            datetime: new Date(priceObject.timestamp),
+            timestamp: Math.ceil(priceObject.timestamp/1000),
+            price: priceObject.price,
+            volume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
+            quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
+            market: 'binance',
+            type: '3m',
+          });
+        }else if(timeHistory.getMinutes() % 5 == 0) {
+          // @ts-ignore
+          await cryptoHistoricalTimeModel.create({
+            marketPairId,
+            symbol,
+            quoteAsset,
+            baseAsset,
+            exchangeId,
+            priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
+            pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
+            datetime: new Date(priceObject.timestamp),
+            timestamp: Math.ceil(priceObject.timestamp/1000),
+            price: priceObject.price,
+            volume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
+            quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
+            market: 'binance',
+            type: '5m',
+          });
+        }else if(timeHistory.getMinutes() % 10 == 0) {
+          // @ts-ignore
+          await cryptoHistoricalTimeModel.create({
+            marketPairId,
+            symbol,
+            quoteAsset,
+            baseAsset,
+            exchangeId,
+            priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
+            pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
+            datetime: new Date(priceObject.timestamp),
+            timestamp: Math.ceil(priceObject.timestamp/1000),
+            price: priceObject.price,
+            volume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
+            quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
+            market: 'binance',
+            type: '10m',
+          });
+        }else if(timeHistory.getMinutes() % 15 == 0) {
+          // @ts-ignore
+          await cryptoHistoricalTimeModel.create({
+            marketPairId,
+            symbol,
+            quoteAsset,
+            baseAsset,
+            exchangeId,
+            priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
+            pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
+            datetime: new Date(priceObject.timestamp),
+            timestamp: Math.ceil(priceObject.timestamp/1000),
+            price: priceObject.price,
+            volume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
+            quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
+            market: 'binance',
+            type: '15m',
+          });
+        }else if(timeHistory.getMinutes() % 30 == 0) {
+          // @ts-ignore
+          await cryptoHistoricalTimeModel.create({
+            marketPairId,
+            symbol,
+            quoteAsset,
+            baseAsset,
+            exchangeId,
+            priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
+            pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
+            datetime: new Date(priceObject.timestamp),
+            timestamp: Math.ceil(priceObject.timestamp/1000),
+            price: priceObject.price,
+            volume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
+            quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
+            market: 'binance',
+            type: '30m',
+          });
+        }else if(timeHistory.getMinutes().toString() == '00') {
+          // @ts-ignore
+          await cryptoHistoricalTimeModel.create({
+            marketPairId,
+            symbol,
+            quoteAsset,
+            baseAsset,
+            exchangeId,
+            priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
+            pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
+            datetime: new Date(priceObject.timestamp),
+            timestamp: Math.ceil(priceObject.timestamp/1000),
+            price: priceObject.price,
+            volume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
+            quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
+            market: 'binance',
+            type: '1h',
+          });
+        }else {
+          // @ts-ignore
+          await cryptoHistoricalTimeModel.create({
+            marketPairId,
+            symbol,
+            quoteAsset,
+            baseAsset,
+            exchangeId,
+            priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
+            pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
+            datetime: new Date(priceObject.timestamp),
+            timestamp: Math.ceil(priceObject.timestamp/1000),
+            price: priceObject.price,
+            volume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
+            quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
+            market: 'binance',
+            type: type,
+          });
+        }
+
       }
     } catch (e) {
       // @ts-ignore

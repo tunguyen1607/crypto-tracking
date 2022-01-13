@@ -42,7 +42,6 @@ export default {
 
         let data = job.data;
         let {symbol, quoteAsset, baseAsset, exchangeId, marketPairId} = data;
-        let activeSymbols = [];
         if (symbol) {
           symbol = symbol.toLowerCase().trim();
           // get access token from base account
