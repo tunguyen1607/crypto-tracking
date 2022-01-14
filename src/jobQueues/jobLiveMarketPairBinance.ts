@@ -21,6 +21,8 @@ export default {
       const publishServiceInstance = Container.get(PublishService);
       const cryptoModel = Container.get('CryptoPairModel');
       const producerService = Container.get('jobLiveMarketPairBinance');
+      let data = job.data;
+
       try {
         let countMinutes = 0;
         // @ts-ignore
@@ -40,7 +42,6 @@ export default {
         let priceCloseTimestamp = null;
         let currentPrice = null;
 
-        let data = job.data;
         let {symbol, quoteAsset, baseAsset, exchangeId, marketPairId} = data;
         if (symbol) {
           symbol = symbol.toLowerCase().trim();
@@ -285,8 +286,13 @@ export default {
         }
 
       } catch (e) {
+        let {symbol, quoteAsset, baseAsset, exchangeId, marketPairId} = data;
         // @ts-ignore
-        Logger.error('🔥 Error with Email Sequence Job: %o', e);
+        let job = await producerService.add({
+          symbol, quoteAsset, baseAsset, exchangeId, marketPairId
+        });
+        // @ts-ignore
+        Logger.error('🔥 Error jobLiveMarketPairBinance: %o', e);
       }
     });
   },
