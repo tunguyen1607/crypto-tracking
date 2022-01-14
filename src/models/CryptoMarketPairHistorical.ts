@@ -31,43 +31,43 @@ export default async ({ sequelize }) => {
         allowNull: false,
       },
       price: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       priceChange: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       priceChangePercent: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       volume: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       quoteVolume: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       timeOpen: {
         type: Sequelize.DATE,
       },
       priceOpen: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       timeClose: {
         type: Sequelize.DATE,
       },
       priceClose: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       timeHigh: {
         type: Sequelize.DATE,
       },
       priceHigh: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       timeLow: {
         type: Sequelize.DATE,
       },
       priceLow: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       market: {
         type: Sequelize.STRING,

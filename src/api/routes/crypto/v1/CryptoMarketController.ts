@@ -104,14 +104,12 @@ export async function pairDetail(req: Request, res: Response) {
       priceObject = JSON.parse(priceObject);
       cryptoDetail.price = parseFloat(priceObject['price']);
       cryptoDetail['quote'] = priceObject;
-      let priceHistories = await sMembersAsync('binance:24hPrice:'+cryptoDetail.symbol.toLowerCase());
-      let priceLast24h = JSON.parse(priceHistories[0]);
-      cryptoDetail['priceChange'] = parseFloat(priceObject['price']) - parseFloat(priceLast24h.p);
-      cryptoDetail['priceChangePercent'] = (cryptoDetail['priceChange'] / parseFloat(priceLast24h.p)) * 100;
       if(priceTicker){
         priceTicker = JSON.parse(priceTicker);
-        cryptoDetail['baseVolume'] = parseFloat(priceTicker['volume']);
-        cryptoDetail['quoteVolume'] = parseFloat(priceTicker['quoteVolume']);
+        cryptoDetail['priceChange'] = priceTicker['priceChange'];
+        cryptoDetail['priceChangePercent'] = priceTicker['priceChangePercent'];
+        cryptoDetail['baseVolume'] = priceTicker['volume'];
+        cryptoDetail['quoteVolume'] = priceTicker['quoteVolume'];
       }
     }
     return res.json({ data: cryptoDetail }).status(200);
@@ -168,12 +166,12 @@ export async function pairList(req: Request, res: Response) {
       let priceObject = await getAsync(priceKey);
       if(priceObject){
         priceObject = JSON.parse(priceObject);
-        priceObject['price'] = parseFloat(priceObject['lastPrice']);
-        item.price = parseFloat(priceObject['lastPrice']);
-        item['priceChange'] = parseFloat(priceObject['priceChange']);
-        item['priceChangePercent'] = parseFloat(priceObject['priceChangePercent']);
-        item['baseVolume'] = parseFloat(priceObject['volume'])
-        item['quoteVolume'] = parseFloat(priceObject['quoteVolume'])
+        priceObject['price'] = priceObject['lastPrice'];
+        item.price = priceObject['lastPrice'];
+        item['priceChange'] = priceObject['priceChange'];
+        item['priceChangePercent'] = priceObject['priceChangePercent'];
+        item['baseVolume'] = priceObject['volume'];
+        item['quoteVolume'] = priceObject['quoteVolume'];
         item['quote'] = priceObject;
       }
       cryptoList[i] = item;

@@ -44,22 +44,22 @@ export default async ({ sequelize }) => {
         allowNull: false,
       },
       price: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       priceChange: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       priceChangePercent: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       baseVolume: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       quoteVolume: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       usdVolume: {
-        type: Sequelize.FLOAT,
+        type: Sequelize.STRING,
       },
       config: {
         type: Sequelize.JSONB,
