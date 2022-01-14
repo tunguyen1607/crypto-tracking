@@ -21,8 +21,8 @@ export default {
       const publishServiceInstance = Container.get(PublishService);
       const cryptoModel = Container.get('CryptoPairModel');
       const producerService = Container.get('jobLiveMarketPairBinance');
-
       try {
+        let countMinutes = 0;
         // @ts-ignore
         const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
         // @ts-ignore
@@ -58,6 +58,7 @@ export default {
           let interval = setInterval(async function () {
             let priceObject = await getAsync('binance:trade:'+symbol);
             let priceTicker = await getAsync('binance:ticker:'+symbol);
+            countMinutes++;
             await publishServiceInstance.publish('', 'binance_market_pair_historical', {
               symbol: symbol,
               type: '1m',
@@ -69,6 +70,12 @@ export default {
               exchangeId,
               marketPairId
             });
+            if(countMinutes % 400 == 0){
+              await publishServiceInstance.publish('', 'cleanUp_market_pair_historical', {
+                exchangeId,
+                marketPairId,
+              });
+            }
             priceObject = JSON.parse(priceObject);
             if(priceObject){
               await sAddAsync('binance:24hPrice:'+symbol, JSON.stringify({

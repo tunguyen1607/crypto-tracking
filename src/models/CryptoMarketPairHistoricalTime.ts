@@ -37,6 +37,24 @@ export default async ({ sequelize }) => {
       price: {
         type: Sequelize.FLOAT,
       },
+      timeOpen: {
+        type: Sequelize.DATE,
+      },
+      priceOpen: {
+        type: Sequelize.FLOAT,
+      },
+      timeClose: {
+        type: Sequelize.DATE,
+      },
+      priceClose: {
+        type: Sequelize.FLOAT,
+      },
+      priceHigh: {
+        type: Sequelize.FLOAT,
+      },
+      priceLow: {
+        type: Sequelize.FLOAT,
+      },
       priceChange24h: {
         type: Sequelize.FLOAT,
       },
@@ -61,6 +79,6 @@ export default async ({ sequelize }) => {
       timestamps: true,
     },
   );
-  await CryptoMarketPairHistoricalTime.sync({ force: false });
+  await CryptoMarketPairHistoricalTime.sync({ force: true });
   return CryptoMarketPairHistoricalTime;
 };
