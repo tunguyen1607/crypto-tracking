@@ -21,11 +21,11 @@ export default {
     // @ts-ignore
     const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
     try {
-      let { symbol, quoteAsset, baseAsset, marketPairId, exchangeId, type, priceObject, ticker, jobId } = object;
+      let { symbol, quoteAsset, baseAsset, marketPairId, exchangeId, type, priceObject, ticker, jobId, timestamp } = object;
       if(!symbol){
         throw new Error('not found symbol');
       }
-
+      symbol = symbol.toUpperCase();
       // @ts-ignore
       let cryptoDetail = await cryptoPairModel.findOne({where: {symbol: symbol.toUpperCase()}});
       if(!cryptoDetail){
@@ -46,10 +46,10 @@ export default {
       // @ts-ignore
       await cryptoPairModel.update({
         price: priceObject.price,
-        lastTimeUpdatePrice: Math.ceil(priceObject.timestamp/1000),
+        lastTimeUpdatePrice: Math.ceil(timestamp/1000),
         jobId
       }, {where: {id: cryptoDetail.id}});
-      let timeHistory = new Date(priceObject.timestamp);
+      let timeHistory = new Date(timestamp);
       if(type == '1day'){
         if(!ticker){
           const result = await axios({
@@ -58,14 +58,14 @@ export default {
           });
           ticker = result.data;
         }
-        let date = timeConverter(Math.ceil(priceObject.timestamp/1000), false);
+        let date = timeConverter(Math.ceil(timestamp/1000), false);
         // @ts-ignore
         cryptoHistoricalModel.create({
           marketPairId,
           symbol,
           quoteAsset,
           baseAsset,
-          timestamp: Math.ceil(priceObject.timestamp/1000),
+          timestamp: Math.ceil(timestamp/1000),
           date,
           exchangeId,
           priceChange: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
@@ -90,8 +90,8 @@ export default {
           exchangeId,
           priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
           pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
-          datetime: new Date(priceObject.timestamp),
-          timestamp: Math.ceil(priceObject.timestamp/1000),
+          datetime: new Date(timestamp),
+          timestamp: Math.ceil(timestamp/1000),
           timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(ticker.openTime) : null,
           timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(ticker.closeTime) : null,
           priceOpen:  ticker && ticker && ticker.openPrice ? ticker.openPrice : null,
@@ -115,8 +115,8 @@ export default {
             exchangeId,
             priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
             pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
-            datetime: new Date(priceObject.timestamp),
-            timestamp: Math.ceil(priceObject.timestamp/1000),
+            datetime: new Date(timestamp),
+            timestamp: Math.ceil(timestamp/1000),
             timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(ticker.openTime) : null,
             timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(ticker.closeTime) : null,
             priceOpen:  ticker && ticker && ticker.openPrice ? ticker.openPrice : null,
@@ -140,8 +140,8 @@ export default {
             exchangeId,
             priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
             pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
-            datetime: new Date(priceObject.timestamp),
-            timestamp: Math.ceil(priceObject.timestamp/1000),
+            datetime: new Date(timestamp),
+            timestamp: Math.ceil(timestamp/1000),
             timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(ticker.openTime) : null,
             timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(ticker.closeTime) : null,
             priceOpen:  ticker && ticker && ticker.openPrice ? ticker.openPrice : null,
@@ -166,8 +166,8 @@ export default {
             exchangeId,
             priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
             pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
-            datetime: new Date(priceObject.timestamp),
-            timestamp: Math.ceil(priceObject.timestamp/1000),
+            datetime: new Date(timestamp),
+            timestamp: Math.ceil(timestamp/1000),
             timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(ticker.openTime) : null,
             timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(ticker.closeTime) : null,
             priceOpen:  ticker && ticker && ticker.openPrice ? ticker.openPrice : null,
@@ -183,6 +183,7 @@ export default {
         }
 
         if(timeHistory.getMinutes() % 5 == 0) {
+          console.log(timeHistory.getMinutes() % 5);
           // @ts-ignore
           await cryptoHistoricalTimeModel.create({
             marketPairId,
@@ -192,8 +193,8 @@ export default {
             exchangeId,
             priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
             pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
-            datetime: new Date(priceObject.timestamp),
-            timestamp: Math.ceil(priceObject.timestamp/1000),
+            datetime: new Date(timestamp),
+            timestamp: Math.ceil(timestamp/1000),
             timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(ticker.openTime) : null,
             timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(ticker.closeTime) : null,
             priceOpen:  ticker && ticker && ticker.openPrice ? ticker.openPrice : null,
@@ -218,8 +219,8 @@ export default {
             exchangeId,
             priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
             pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
-            datetime: new Date(priceObject.timestamp),
-            timestamp: Math.ceil(priceObject.timestamp/1000),
+            datetime: new Date(timestamp),
+            timestamp: Math.ceil(timestamp/1000),
             timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(ticker.openTime) : null,
             timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(ticker.closeTime) : null,
             priceOpen:  ticker && ticker && ticker.openPrice ? ticker.openPrice : null,
@@ -244,8 +245,8 @@ export default {
             exchangeId,
             priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
             pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
-            datetime: new Date(priceObject.timestamp),
-            timestamp: Math.ceil(priceObject.timestamp/1000),
+            datetime: new Date(timestamp),
+            timestamp: Math.ceil(timestamp/1000),
             timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(ticker.openTime) : null,
             timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(ticker.closeTime) : null,
             priceOpen:  ticker && ticker && ticker.openPrice ? ticker.openPrice : null,
@@ -271,8 +272,8 @@ export default {
               exchangeId,
               priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
               pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
-              datetime: new Date(priceObject.timestamp),
-              timestamp: Math.ceil(priceObject.timestamp/1000),
+              datetime: new Date(timestamp),
+              timestamp: Math.ceil(timestamp/1000),
               timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(ticker.openTime) : null,
               timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(ticker.closeTime) : null,
               priceOpen:  ticker && ticker && ticker.openPrice ? ticker.openPrice : null,
@@ -297,8 +298,8 @@ export default {
               exchangeId,
               priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
               pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
-              datetime: new Date(priceObject.timestamp),
-              timestamp: Math.ceil(priceObject.timestamp/1000),
+              datetime: new Date(timestamp),
+              timestamp: Math.ceil(timestamp/1000),
               timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(ticker.openTime) : null,
               timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(ticker.closeTime) : null,
               priceOpen:  ticker && ticker && ticker.openPrice ? ticker.openPrice : null,
@@ -323,8 +324,8 @@ export default {
               exchangeId,
               priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
               pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
-              datetime: new Date(priceObject.timestamp),
-              timestamp: Math.ceil(priceObject.timestamp/1000),
+              datetime: new Date(timestamp),
+              timestamp: Math.ceil(timestamp/1000),
               timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(ticker.openTime) : null,
               timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(ticker.closeTime) : null,
               priceOpen:  ticker && ticker && ticker.openPrice ? ticker.openPrice : null,
@@ -349,8 +350,8 @@ export default {
               exchangeId,
               priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
               pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
-              datetime: new Date(priceObject.timestamp),
-              timestamp: Math.ceil(priceObject.timestamp/1000),
+              datetime: new Date(timestamp),
+              timestamp: Math.ceil(timestamp/1000),
               timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(ticker.openTime) : null,
               timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(ticker.closeTime) : null,
               priceOpen:  ticker && ticker && ticker.openPrice ? ticker.openPrice : null,
@@ -374,8 +375,8 @@ export default {
             exchangeId,
             priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
             pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
-            datetime: new Date(priceObject.timestamp),
-            timestamp: Math.ceil(priceObject.timestamp/1000),
+            datetime: new Date(timestamp),
+            timestamp: Math.ceil(timestamp/1000),
             timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(ticker.openTime) : null,
             timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(ticker.closeTime) : null,
             priceOpen:  ticker && ticker && ticker.openPrice ? ticker.openPrice : null,
@@ -399,8 +400,8 @@ export default {
           exchangeId,
           priceChange24h: ticker && parseFloat(ticker.priceChange) ? parseFloat(ticker.priceChange) : null,
           pricePercent24h: ticker && parseFloat(ticker.priceChangePercent) ? parseFloat(ticker.priceChangePercent) : null,
-          datetime: new Date(priceObject.timestamp),
-          timestamp: Math.ceil(priceObject.timestamp/1000),
+          datetime: new Date(timestamp),
+          timestamp: Math.ceil(timestamp/1000),
           timeOpen: ticker && checkValidDate(ticker.openTime) ? new Date(ticker.openTime) : null,
           timeClose: ticker && checkValidDate(ticker.closeTime) ? new Date(ticker.closeTime) : null,
           priceOpen:  ticker && ticker && ticker.openPrice ? ticker.openPrice : null,

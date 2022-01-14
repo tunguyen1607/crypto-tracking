@@ -9,16 +9,10 @@ export default {
   status: true,
   run: async function(message, cb) {
     const Logger = Container.get('logger');
-    const RedisInstance = Container.get('redisInstance');
     const cryptoPairModel = Container.get('CryptoPairModel');
     const cryptoExchangeModel = Container.get('cryptoExchangeModel');
-    const publishServiceInstance = Container.get(PublishService);
     const producerService = Container.get('jobLiveMarketPairBinance');
     const binanceServiceInstance = Container.get(BinanceService);
-    // @ts-ignore
-    const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
-    // @ts-ignore
-    const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
     try {
       const result:any = await binanceServiceInstance.exchangeInfo();
       let listCrypto: any = result.data['symbols'];

@@ -54,7 +54,6 @@ export default {
               "bundleId": "com.nynw.crypcial.ios.test"
             }
           });
-          console.log(symbol);
           let interval = setInterval(async function () {
             let priceObject = await getAsync('binance:trade:'+symbol);
             let priceTicker = await getAsync('binance:ticker:'+symbol);
@@ -68,7 +67,8 @@ export default {
               quoteAsset,
               baseAsset,
               exchangeId,
-              marketPairId
+              marketPairId,
+              timestamp: Date.now()
             });
             if(countMinutes % 400 == 0){
               await publishServiceInstance.publish('', 'cleanUp_market_pair_historical', {
@@ -150,7 +150,6 @@ export default {
             delete priceSymbol['closePriceTimestamp'];
 
             let rs = await setAsync('binance:trade:'+symbol, JSON.stringify(priceSymbol));
-            console.log(rs);
             wss.terminate();
             clearInterval(interval);
 
