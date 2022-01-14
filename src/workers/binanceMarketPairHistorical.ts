@@ -29,7 +29,7 @@ export default {
       // @ts-ignore
       let cryptoDetail = await cryptoPairModel.findOne({where: {symbol: symbol.toUpperCase()}});
       if(!cryptoDetail){
-        throw new Error('not found crypto with symbol '+symbol);
+        throw new Error('not found market pair with symbol '+symbol);
       }
       if(!priceObject){
         priceObject = await getAsync('binance:trade:'+symbol.toLowerCase());
