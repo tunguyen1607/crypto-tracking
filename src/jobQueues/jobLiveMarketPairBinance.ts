@@ -181,6 +181,7 @@ export default {
               lowPrice: ticker.lowPrice,
             };
             await setAsync('binance:trade:'+symbol, JSON.stringify(objectPrice));
+            await setAsync('binance:ticker:'+symbol, JSON.stringify(ticker));
           }
           // @ts-ignore
           let socket = io('http://localhost:32857/v1/crypto/price?token=' + accountToken['data']['token']);

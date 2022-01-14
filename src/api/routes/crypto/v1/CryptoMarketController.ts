@@ -102,15 +102,17 @@ export async function pairDetail(req: Request, res: Response) {
     let priceTicker = await getAsync('binance:ticker:'+cryptoDetail.symbol.toLowerCase());
     if(priceObject){
       priceObject = JSON.parse(priceObject);
-      priceTicker = JSON.parse(priceTicker);
       cryptoDetail.price = parseFloat(priceObject['price']);
       cryptoDetail['quote'] = priceObject;
       let priceHistories = await sMembersAsync('binance:24hPrice:'+cryptoDetail.symbol.toLowerCase());
       let priceLast24h = JSON.parse(priceHistories[0]);
       cryptoDetail['priceChange'] = parseFloat(priceObject['price']) - parseFloat(priceLast24h.p);
       cryptoDetail['priceChangePercent'] = (cryptoDetail['priceChange'] / parseFloat(priceLast24h.p)) * 100;
-      cryptoDetail['baseVolume'] = parseFloat(priceTicker['volume'])
-      cryptoDetail['quoteVolume'] = parseFloat(priceTicker['quoteVolume'])
+      if(priceTicker){
+        priceTicker = JSON.parse(priceTicker);
+        cryptoDetail['baseVolume'] = parseFloat(priceTicker['volume']);
+        cryptoDetail['quoteVolume'] = parseFloat(priceTicker['quoteVolume']);
+      }
     }
     return res.json({ data: cryptoDetail }).status(200);
   } catch (error) {
