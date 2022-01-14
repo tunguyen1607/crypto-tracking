@@ -183,7 +183,6 @@ export default {
         }
 
         if(timeHistory.getMinutes() % 5 == 0) {
-          console.log(timeHistory.getMinutes() % 5);
           // @ts-ignore
           await cryptoHistoricalTimeModel.create({
             marketPairId,

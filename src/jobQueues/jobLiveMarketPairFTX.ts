@@ -11,7 +11,7 @@ function sleep(ms) {
 }
 
 export default {
-  queueName: 'jobLiveMarketPairBinance',
+  queueName: 'jobLiveMarketPairFTX',
   status: true,
   prefetch: process.env.LIVE_PRICE_CONCURRENCY || 30,
   run: async function (job) {
@@ -20,7 +20,7 @@ export default {
       const RedisInstance = Container.get('redisInstance');
       const publishServiceInstance = Container.get(PublishService);
       const cryptoModel = Container.get('CryptoPairModel');
-      const producerService = Container.get('jobLiveMarketPairBinance');
+      const producerService = Container.get('jobLiveMarketPairFTX');
       let data = job.data;
 
       try {
@@ -56,11 +56,10 @@ export default {
             }
           });
           let interval = setInterval(async function () {
-            let priceObject = await getAsync('binance:trade:'+symbol);
-            let priceTicker = await getAsync('binance:ticker:'+symbol);
+            let priceObject = await getAsync('ftx:trade:'+symbol);
+            let priceTicker = await getAsync('ftx:ticker:'+symbol);
             countMinutes++;
-            console.log(countMinutes);
-            await publishServiceInstance.publish('', 'binance_market_pair_historical', {
+            await publishServiceInstance.publish('', 'ftx_market_pair_historical', {
               symbol: symbol,
               type: '1m',
               priceObject: priceObject,
@@ -77,15 +76,14 @@ export default {
                 exchangeId,
                 marketPairId,
               });
-              countMinutes = 0;
             }
             priceObject = JSON.parse(priceObject);
             if(priceObject){
-              await sAddAsync('binance:24hPrice:'+symbol, JSON.stringify({
+              await sAddAsync('ftx:24hPrice:'+symbol, JSON.stringify({
                 p: priceObject.price,
                 ts: priceObject.timestamp
               }));
-              let price24h = await sMembersAsync('binance:24hPrice:'+symbol);
+              let price24h = await sMembersAsync('ftx:24hPrice:'+symbol);
               if (price24h.length > 480) {
                 price24h = price24h.map(function (history) {
                   history = JSON.parse(history);
@@ -95,13 +93,13 @@ export default {
                   return parseFloat(b.ts) - parseFloat(a.ts);
                 });
                 for (let i = 0; i < (price24h.length - 480); i++) {
-                  await sRemAsync('binance:24hPrice:'+symbol, JSON.stringify(price24h[price24h.length - i - 1]));
+                  await sRemAsync('ftx:24hPrice:'+symbol, JSON.stringify(price24h[price24h.length - i - 1]));
                 }
               }
             }
           }, 60 * 1000);
           let linkSuffix = `${symbol.toLowerCase()}@trade/${symbol.toLowerCase()}@ticker`;
-          let linkToCall = `wss://stream.binance.com:9443/ws/${linkSuffix}`;
+          let linkToCall = `wss://stream.ftx.com:9443/ws/${linkSuffix}`;
           console.log(linkToCall);
           const wss = new WebSocket(linkToCall);
           // or with emit() and custom event names
@@ -119,9 +117,9 @@ export default {
               // @ts-ignore
               await cryptoModel.update({jobId: job.id}, {where: {id: marketPairId}});
             }
-            let priceSymbol = await getAsync('binance:trade:'+symbol);
-            let priceTicker = await getAsync('binance:ticker:'+symbol);
-            await publishServiceInstance.publish('', 'binance_market_pair_historical', {
+            let priceSymbol = await getAsync('ftx:trade:'+symbol);
+            let priceTicker = await getAsync('ftx:ticker:'+symbol);
+            await publishServiceInstance.publish('', 'ftx_market_pair_historical', {
               symbol,
               type: '1day',
               priceObject: priceSymbol,
@@ -152,13 +150,13 @@ export default {
             delete priceSymbol['closePrice'];
             delete priceSymbol['closePriceTimestamp'];
 
-            let rs = await setAsync('binance:trade:'+symbol, JSON.stringify(priceSymbol));
+            let rs = await setAsync('ftx:trade:'+symbol, JSON.stringify(priceSymbol));
             wss.terminate();
             clearInterval(interval);
 
             return resolve(true);
           }, millisTill);
-          let objectPrice: any = await getAsync('binance:trade:'+symbol);
+          let objectPrice: any = await getAsync('ftx:trade:'+symbol);
           if (objectPrice) {
             objectPrice = JSON.parse(objectPrice);
             if (objectPrice['openPrice'] && objectPrice['openPriceTimestamp']) {
@@ -171,7 +169,7 @@ export default {
           } else {
             const result = await axios({
               method: 'GET',
-              url: `https://api.binance.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}`,
+              url: `https://api.ftx.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}`,
             });
             let ticker: any = result.data;
             objectPrice = {
@@ -183,8 +181,8 @@ export default {
               highPrice: ticker.highPrice,
               lowPrice: ticker.lowPrice,
             };
-            await setAsync('binance:trade:'+symbol, JSON.stringify(objectPrice));
-            await setAsync('binance:ticker:'+symbol, JSON.stringify(ticker));
+            await setAsync('ftx:trade:'+symbol, JSON.stringify(objectPrice));
+            await setAsync('ftx:ticker:'+symbol, JSON.stringify(ticker));
           }
           // @ts-ignore
           let socket = io('http://localhost:32857/v1/crypto/price?token=' + accountToken['data']['token']);
@@ -228,10 +226,10 @@ export default {
                 }
                 objectPrice['symbol'] = symbol;
                 if (parseFloat(currentPrice) != parseFloat(object.p)) {
-                  socket.emit("priceLive", {method: 'system', room: 'binance:'+symbol, data: objectPrice});
+                  socket.emit("priceLive", {method: 'system', room: 'ftx:'+symbol, data: objectPrice});
                   currentPrice = object.p;
                 }
-                let rs = await setAsync('binance:trade:'+symbol, JSON.stringify(objectPrice));
+                let rs = await setAsync('ftx:trade:'+symbol, JSON.stringify(objectPrice));
               }
               if(object.e == '24hrTicker'){
                 if(!objectPrice){
@@ -244,9 +242,9 @@ export default {
                     highPrice: object.h,
                     lowPrice: object.l,
                   }
-                  await setAsync('binance:trade:'+symbol, JSON.stringify(objectPrice));
+                  await setAsync('ftx:trade:'+symbol, JSON.stringify(objectPrice));
                 }
-                await setAsync('binance:ticker:'+symbol, JSON.stringify({
+                await setAsync('ftx:ticker:'+symbol, JSON.stringify({
                   "priceChange": object.p,
                   "priceChangePercent": object.P,
                   "weightedAvgPrice": object.w,
@@ -294,7 +292,7 @@ export default {
           symbol, quoteAsset, baseAsset, exchangeId, marketPairId
         });
         // @ts-ignore
-        Logger.error('🔥 Error jobLiveMarketPairBinance: %o', e);
+        Logger.error('🔥 Error jobLiveMarketPairFTX: %o', e);
       }
     });
   },

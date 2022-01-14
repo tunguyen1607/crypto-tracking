@@ -97,9 +97,9 @@ export async function pairDetail(req: Request, res: Response) {
     if (!cryptoDetail || !cryptoDetail.symbol) {
       throw new Error('Not found crypto info|400');
     }
-    let priceKey = 'binance:trade:'+cryptoDetail.symbol.toLowerCase();
+    let priceKey = cryptoDetail.market+':trade:'+cryptoDetail.symbol.toLowerCase();
     let priceObject = await getAsync(priceKey);
-    let priceTicker = await getAsync('binance:ticker:'+cryptoDetail.symbol.toLowerCase());
+    let priceTicker = await getAsync(cryptoDetail.market+':ticker:'+cryptoDetail.symbol.toLowerCase());
     if(priceObject){
       priceObject = JSON.parse(priceObject);
       cryptoDetail.price = parseFloat(priceObject['price']);
@@ -162,7 +162,7 @@ export async function pairList(req: Request, res: Response) {
     let start = Date.now();
     for (let i = 0; i < cryptoList.length; i++){
       let item = cryptoList[i];
-      let priceKey = 'binance:ticker:'+item.symbol.toLowerCase();
+      let priceKey = item.market+':ticker:'+item.symbol.toLowerCase();
       let priceObject = await getAsync(priceKey);
       if(priceObject){
         priceObject = JSON.parse(priceObject);
