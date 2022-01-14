@@ -39,7 +39,7 @@ export default async ({ sequelize }) => {
       priceChangePercent: {
         type: Sequelize.STRING,
       },
-      volume: {
+      baseVolume: {
         type: Sequelize.STRING,
       },
       quoteVolume: {
@@ -78,6 +78,6 @@ export default async ({ sequelize }) => {
       timestamps: true,
     },
   );
-  await CryptoMarketPairHistorical.sync({ force: false });
+  await CryptoMarketPairHistorical.sync({ force: true });
   return CryptoMarketPairHistorical;
 };

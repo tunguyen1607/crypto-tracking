@@ -191,28 +191,37 @@ export async function pairList(req: Request, res: Response) {
 
 export async function historical(req: Request, res: Response) {
   try {
-    const cryptoHistoricalModel = Container.get('cryptoHistoricalModel');
+    const cryptoMarketPairHistorical = Container.get('CryptoPairHistoricalTimeModel');
     // @ts-ignore
     let query: any = req.query;
-    let {limit, page, cryptoId} = query;
+    let {limit, page, marketPairId, symbol, exchangeId} = query;
     if(!page){
       page = 1;
     }
     if(!limit){
       limit = 100;
     }
-    if(!cryptoId){
-      throw new Error('not found cryptoId|400')
+    if(!exchangeId){
+      throw new Error('not found exchangeId|400')
+    }
+    if(!marketPairId || !symbol){
+      throw new Error('not found pairId or symbol|400')
     }
     let filter = {};
+    if(marketPairId){
+      filter['marketPairId'] = marketPairId
+    }
+    if(symbol){
+      filter['symbol'] = symbol
+    }
     let offset = (page - 1) * limit;
     // @ts-ignore
-    let historicalList: any = await cryptoHistoricalModel.findAll({
+    let historicalList: any = await cryptoMarketPairHistorical.findAll({
       offset: offset,
       limit: limit,
       where: filter,
       raw: true,
-      attributes: ['id', 'cryptoId', 'sourceId', 'date', 'timestamp', 'timeOpen', 'priceOpen', 'timeHigh', 'priceHigh', 'timeLow', 'priceLow', 'timeClose', 'priceClose', 'volume', 'marketCap', 'status'],
+      attributes: ['id', 'marketPairId', 'exchangeId', 'date', 'timestamp', 'timeOpen', 'priceOpen', 'timeHigh', 'priceHigh', 'timeLow', 'priceLow', 'timeClose', 'priceClose', 'baseVolume', 'baseAsset', 'quoteAsset'],
       order: [
         ['timestamp', 'DESC'],
         ['date', 'DESC'],
@@ -235,43 +244,35 @@ export async function historical(req: Request, res: Response) {
 
 export async function chart(req: Request, res: Response) {
   try {
-    const cryptoHistoricalTimeModel = Container.get('cryptoHistoricalTimeModel');
+    const cryptoPairHistoricalTimeModel = Container.get('CryptoPairHistoricalTimeModel');
     // @ts-ignore
     let query: any = req.query;
-    let {cryptoId, range} = query;
-    if(!cryptoId){
+    let {symbol, exchangeId, range} = query;
+    if(!symbol){
       throw new Error('not found cryptoId|400')
     }
     if(!range){
-      range = '1d';
+      range = '4h';
     }
-    let filter = {};
-    switch (range) {
-      case '1m':
-        break;
-      case '3m':
-        break;
-      case '5m':
-        break;
-      case '15m':
-        break;
-      case '1h':
-        break;
-      case '1y':
-        break;
-      case 'ytd':
-        break;
-      case 'all':
-        break;
+    let typeArr = [
+      '1d', '1w', '1M', '3m', '5m', '15m', '30m', '4h', '6h', '8h', '12h', '1h', '1m'
+    ];
+    let filter = {
+      symbol,
+      exchangeId
+    };
+    if(typeArr.indexOf(range) < 0){
+      throw new Error('wrong type range|400')
     }
     // @ts-ignore
-    let historicalList: any = await cryptoHistoricalTimeModel.findAll({
+    let historicalList: any = await cryptoPairHistoricalTimeModel.findAll({
       where: filter,
       raw: true,
       order: [
         ['timestamp', 'DESC'],
-        ['date', 'DESC'],
+        ['datetime', 'DESC'],
       ],
+      limit: 400
     });
     return res.json({ data: historicalList}).status(200);
   } catch (error) {

@@ -11,5 +11,7 @@ export default route => {
   route.get('/exchanges', [cryptoMarketController.exchangeList]);
   route.get('/pair', [cryptoMarketController.pairDetail]);
   route.get('/pairs', [cryptoMarketController.pairList]);
+  route.get('/pairs/chart', [cryptoMarketController.chart]);
+  route.get('/pairs/historical', [cryptoMarketController.historical]);
   route.get('/news', [cryptoNewController.list]);
 };
