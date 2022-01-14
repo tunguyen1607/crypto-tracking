@@ -16,10 +16,6 @@ export default async ({ sequelize }) => {
         type: Sequelize.INTEGER,
         allowNull: false,
       },
-      exchangeName: {
-        type: Sequelize.INTEGER,
-        allowNull: true,
-      },
       datetime: {
         type: Sequelize.DATE,
       },
