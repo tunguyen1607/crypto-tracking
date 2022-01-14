@@ -20,8 +20,10 @@ export default {
       for(let i = 0; i < typeArr.length; i++){
         // @ts-ignore
         let countHistoricalType = await cryptoHistoricalTimeModel.count({where: {marketPairId, exchangeId, type: typeArr[i]}});
+        console.log('count '+typeArr[i] + marketPairId +' is '+countHistoricalType);
         if(countHistoricalType > 400){
           let leftover = countHistoricalType - 400;
+          console.log('leftover '+leftover);
           // @ts-ignore
           await cryptoHistoricalTimeModel.destroy({
             where: {marketPairId, exchangeId, type: typeArr[i]},
