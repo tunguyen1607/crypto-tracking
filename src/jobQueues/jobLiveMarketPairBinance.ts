@@ -201,27 +201,22 @@ export default {
                 objectPrice['price'] = object.p;
                 objectPrice['timestamp'] = object.T;
 
-                // @ts-ignore
                 let btcHighPrice = objectPrice['highPrice'];
                 if (!btcHighPrice || isNaN(btcHighPrice)) {
                   objectPrice['highPrice'] = object.p;
                   objectPrice['highPriceTimestamp'] = object.T;
                 } else {
                   if (parseFloat(btcHighPrice) < parseFloat(object.p)) {
-                    // @ts-ignore
                     objectPrice['highPrice'] = object.p;
                     objectPrice['highPriceTimestamp'] = object.T;
                   }
                 }
-                // @ts-ignore
                 let btcLowPrice = objectPrice['lowPrice'];
                 if (!btcLowPrice || isNaN(btcLowPrice)) {
-                  // @ts-ignore
                   objectPrice['lowPrice'] = object.p;
                   objectPrice['lowPriceTimestamp'] = object.T;
                 } else {
                   if (parseFloat(btcLowPrice) > parseFloat(object.p)) {
-                    // @ts-ignore
                     objectPrice['lowPrice'] = object.p;
                     objectPrice['lowPriceTimestamp'] = object.T;
                   }
