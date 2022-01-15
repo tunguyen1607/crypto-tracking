@@ -73,7 +73,7 @@ export default {
               timestamp: Date.now()
             });
             if(countMinutes % 400 == 0){
-              await publishServiceInstance.publish('', 'cleanUp_market_pair_historical', {
+              await publishServiceInstance.publish('', 'crypto_clean_up_market_pair_historical', {
                 exchangeId,
                 marketPairId,
               });
@@ -121,7 +121,7 @@ export default {
             }
             let priceSymbol = await getAsync('binance:trade:'+symbol);
             let priceTicker = await getAsync('binance:ticker:'+symbol);
-            await publishServiceInstance.publish('', 'binance_market_pair_historical', {
+            await publishServiceInstance.publish('', 'crypto_binance_market_pair_historical', {
               symbol,
               type: '1day',
               priceObject: priceSymbol,

@@ -5,7 +5,7 @@ import {promisify} from "util";
 import BinanceService from '../services/binance';
 
 export default {
-  queueName: 'binance_handle_list_pair',
+  queueName: 'crypto_binance_handle_list_pair',
   status: true,
   run: async function(message, cb) {
     const Logger = Container.get('logger');

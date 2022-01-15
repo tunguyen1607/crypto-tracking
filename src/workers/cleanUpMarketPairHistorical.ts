@@ -3,7 +3,7 @@ import PublishService from '../services/publish';
 import {promisify} from "util";
 
 export default {
-  queueName: 'cleanUp_market_pair_historical',
+  queueName: 'crypto_clean_up_market_pair_historical',
   status: true,
   run: async function(message, cb) {
     let object = JSON.parse(message.content.toString());
