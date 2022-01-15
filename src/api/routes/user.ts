@@ -42,7 +42,7 @@ export default (app: Router) => {
 
   route.get('/testProducerBull', async (req: Request, res: Response) => {
     const logger = Container.get('logger');
-    const producerService = Container.get('jobLiveMarketPairBinance');
+    const producerService = Container.get('jobLiveMarketPairFTX');
     // @ts-ignore
     let rs = await producerService.add(req.query);
     return res.json({ rs: rs }).status(200);

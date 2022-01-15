@@ -12,7 +12,7 @@ function sleep(ms) {
 
 export default {
   queueName: 'jobLiveMarketPairBinance',
-  status: true,
+  status: false,
   prefetch: process.env.LIVE_PRICE_CONCURRENCY || 30,
   run: async function (job) {
     return new Promise(async function (resolve, reject) {
@@ -264,9 +264,6 @@ export default {
                   "quoteVolume": object.q,
                   "openTime": object.O,
                   "closeTime": object.C,
-                  "firstId": object.F,
-                  "lastId": object.L,
-                  "count": object.n
                 }));
               }
             });

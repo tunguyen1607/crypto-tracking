@@ -24,6 +24,7 @@ export default (longJob = true) => {
           let workQueue = new Queue(worker.queueName, REDIS_URL);
           bullAdapters.push(new BullAdapter(workQueue));
           if(longJob){
+            console.log(REDIS_URL)
             workQueue.process(worker.prefetch ? parseInt(worker.prefetch) : 1, worker.run);
             workQueue.on('failed', async function (job, error) {
               console.log(error);

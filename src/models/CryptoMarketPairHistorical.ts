@@ -30,9 +30,6 @@ export default async ({ sequelize }) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
-      price: {
-        type: Sequelize.STRING,
-      },
       priceChange: {
         type: Sequelize.STRING,
       },
@@ -78,6 +75,6 @@ export default async ({ sequelize }) => {
       timestamps: true,
     },
   );
-  await CryptoMarketPairHistorical.sync({ force: true });
+  await CryptoMarketPairHistorical.sync({ force: false });
   return CryptoMarketPairHistorical;
 };

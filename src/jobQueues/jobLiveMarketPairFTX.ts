@@ -5,6 +5,7 @@ import axios from 'axios';
 import {promisify} from "util";
 import WebSocket from 'ws';
 import io from 'socket.io-client';
+import jobLiveMarketPairBinance from "./jobLiveMarketPairBinance";
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -14,15 +15,14 @@ export default {
   queueName: 'jobLiveMarketPairFTX',
   status: true,
   prefetch: process.env.LIVE_PRICE_CONCURRENCY || 30,
-  run: async function (job) {
+  run: function (job) {
     return new Promise(async function (resolve, reject) {
       const Logger = Container.get('logger');
       const RedisInstance = Container.get('redisInstance');
       const publishServiceInstance = Container.get(PublishService);
-      const cryptoModel = Container.get('CryptoPairModel');
+      const CryptoPairModel = Container.get('CryptoPairModel');
       const producerService = Container.get('jobLiveMarketPairFTX');
       let data = job.data;
-
       try {
         let countMinutes = 0;
         // @ts-ignore
@@ -36,13 +36,8 @@ export default {
         // @ts-ignore
         const sAddAsync = promisify(RedisInstance.sadd).bind(RedisInstance);
 
-        let priceOpen = null;
-        let priceOpenTimestamp = null;
-        let priceClose = null;
-        let priceCloseTimestamp = null;
-        let currentPrice = null;
-
         let {symbol, quoteAsset, baseAsset, exchangeId, marketPairId} = data;
+        console.log(data);
         if (symbol) {
           symbol = symbol.toLowerCase().trim();
           // get access token from base account
@@ -55,218 +50,20 @@ export default {
               "bundleId": "com.nynw.crypcial.ios.test"
             }
           });
-          let interval = setInterval(async function () {
-            let priceObject = await getAsync('ftx:trade:'+symbol);
-            let priceTicker = await getAsync('ftx:ticker:'+symbol);
-            countMinutes++;
-            await publishServiceInstance.publish('', 'ftx_market_pair_historical', {
-              symbol: symbol,
-              type: '1m',
-              priceObject: priceObject,
-              ticker: priceTicker,
-              jobId: job.id,
-              quoteAsset,
-              baseAsset,
-              exchangeId,
-              marketPairId,
-              timestamp: Date.now()
-            });
-            if(countMinutes % 400 == 0){
-              await publishServiceInstance.publish('', 'cleanUp_market_pair_historical', {
-                exchangeId,
-                marketPairId,
-              });
-            }
-            priceObject = JSON.parse(priceObject);
-            if(priceObject){
-              await sAddAsync('ftx:24hPrice:'+symbol, JSON.stringify({
-                p: priceObject.price,
-                ts: priceObject.timestamp
-              }));
-              let price24h = await sMembersAsync('ftx:24hPrice:'+symbol);
-              if (price24h.length > 480) {
-                price24h = price24h.map(function (history) {
-                  history = JSON.parse(history);
-                  return history;
-                });
-                price24h.sort(function (a, b) {
-                  return parseFloat(b.ts) - parseFloat(a.ts);
-                });
-                for (let i = 0; i < (price24h.length - 480); i++) {
-                  await sRemAsync('ftx:24hPrice:'+symbol, JSON.stringify(price24h[price24h.length - i - 1]));
-                }
-              }
-            }
-          }, 60 * 1000);
-          let linkSuffix = `${symbol.toLowerCase()}@trade/${symbol.toLowerCase()}@ticker`;
-          let linkToCall = `wss://stream.ftx.com:9443/ws/${linkSuffix}`;
+          let linkToCall = `wss://ftx.com/ws/`;
           console.log(linkToCall);
           const wss = new WebSocket(linkToCall);
-          // or with emit() and custom event names
-          let now = new Date();
-          let millisTill = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 55, 59, 0).getTime() - now.getTime();
-          if (millisTill < 0) {
-            millisTill += 86400000; // it's after 10am, try 10am tomorrow.
-          }
-          setTimeout(async function () {
-            if (marketPairId) {
-              // @ts-ignore
-              let job = await producerService.add({
-                symbol, quoteAsset, baseAsset, exchangeId, marketPairId
-              });
-              // @ts-ignore
-              await cryptoModel.update({jobId: job.id}, {where: {id: marketPairId}});
-            }
-            let priceSymbol = await getAsync('ftx:trade:'+symbol);
-            let priceTicker = await getAsync('ftx:ticker:'+symbol);
-            await publishServiceInstance.publish('', 'ftx_market_pair_historical', {
-              symbol,
-              type: '1day',
-              priceObject: priceSymbol,
-              ticker: priceTicker,
-              jobId: job.id,
-              quoteAsset,
-              baseAsset,
-              exchangeId,
-              marketPairId
-            });
-            priceSymbol = JSON.parse(priceSymbol);
-            if (priceSymbol['closePrice'] && priceSymbol['closePriceTimestamp']) {
-              let dateClose = new Date(objectPrice['closePriceTimestamp']);
-              if (dateClose && dateClose.getDate() == now.getDate() && dateClose.getMonth() == now.getMonth() && dateClose.getFullYear() == now.getFullYear() && dateClose.getHours() == 23) {
-                priceClose = objectPrice['openPrice'];
-                priceCloseTimestamp = objectPrice['openPriceTimestamp'];
-              }
-            } else {
-              priceClose = objectPrice['price'];
-              priceCloseTimestamp = objectPrice['timestamp'];
-            }
-            delete priceSymbol['highPrice'];
-            delete priceSymbol['highPriceTimestamp'];
-            delete priceSymbol['lowPrice'];
-            delete priceSymbol['lowPriceTimestamp'];
-            delete priceSymbol['openPrice'];
-            delete priceSymbol['openPriceTimestamp'];
-            delete priceSymbol['closePrice'];
-            delete priceSymbol['closePriceTimestamp'];
-
-            let rs = await setAsync('ftx:trade:'+symbol, JSON.stringify(priceSymbol));
-            wss.terminate();
-            clearInterval(interval);
-
-            return resolve(true);
-          }, millisTill);
           let objectPrice: any = await getAsync('ftx:trade:'+symbol);
-          if (objectPrice) {
-            objectPrice = JSON.parse(objectPrice);
-            if (objectPrice['openPrice'] && objectPrice['openPriceTimestamp']) {
-              let dateOpen = new Date(objectPrice['openPriceTimestamp']);
-              if (dateOpen && dateOpen.getDate() == now.getDate() && dateOpen.getMonth() == now.getMonth() && dateOpen.getFullYear() == now.getFullYear()) {
-                priceOpen = objectPrice['openPrice'];
-                priceOpenTimestamp = objectPrice['openPriceTimestamp'];
-              }
-            }
-          } else {
-            const result = await axios({
-              method: 'GET',
-              url: `https://api.ftx.com/api/v3/ticker/24hr?symbol=${symbol.toUpperCase()}`,
-            });
-            let ticker: any = result.data;
-            objectPrice = {
-              symbol,
-              price: ticker.lastPrice,
-              timestamp: ticker.closeTime,
-              openPrice: ticker.openPrice,
-              openPriceTimestamp: ticker.openTime,
-              highPrice: ticker.highPrice,
-              lowPrice: ticker.lowPrice,
-            };
-            await setAsync('ftx:trade:'+symbol, JSON.stringify(objectPrice));
-            await setAsync('ftx:ticker:'+symbol, JSON.stringify(ticker));
-          }
           // @ts-ignore
           let socket = io('http://localhost:32857/v1/crypto/price?token=' + accountToken['data']['token']);
           socket.on("connect", async () => {
+            wss.on('open', function open() {
+              console.log('connected');
+              wss.send(JSON.stringify({'op': 'subscribe', 'channel': 'trades', 'market': 'BTC/USD'}));;
+            });
             wss.on('message', async function incoming(message) {
               let object = JSON.parse(message);
-              if(object.e == 'trade'){
-                if (!priceOpen) {
-                  priceOpen = object.p;
-                  objectPrice['openPrice'] = object.p;
-                  priceOpenTimestamp = object.T;
-                  objectPrice['openPriceTimestamp'] = object.T;
-                }
-                objectPrice['price'] = object.p;
-                objectPrice['timestamp'] = object.T;
-
-                // @ts-ignore
-                let btcHighPrice = objectPrice['highPrice'];
-                if (!btcHighPrice || isNaN(btcHighPrice)) {
-                  objectPrice['highPrice'] = object.p;
-                  objectPrice['highPriceTimestamp'] = object.T;
-                } else {
-                  if (parseFloat(btcHighPrice) < parseFloat(object.p)) {
-                    // @ts-ignore
-                    objectPrice['highPrice'] = object.p;
-                    objectPrice['highPriceTimestamp'] = object.T;
-                  }
-                }
-                // @ts-ignore
-                let btcLowPrice = objectPrice['lowPrice'];
-                if (!btcLowPrice || isNaN(btcLowPrice)) {
-                  // @ts-ignore
-                  objectPrice['lowPrice'] = object.p;
-                  objectPrice['lowPriceTimestamp'] = object.T;
-                } else {
-                  if (parseFloat(btcLowPrice) > parseFloat(object.p)) {
-                    // @ts-ignore
-                    objectPrice['lowPrice'] = object.p;
-                    objectPrice['lowPriceTimestamp'] = object.T;
-                  }
-                }
-                objectPrice['symbol'] = symbol;
-                if (parseFloat(currentPrice) != parseFloat(object.p)) {
-                  socket.emit("priceLive", {method: 'system', room: 'ftx:'+symbol, data: objectPrice});
-                  currentPrice = object.p;
-                }
-                let rs = await setAsync('ftx:trade:'+symbol, JSON.stringify(objectPrice));
-              }
-              if(object.e == '24hrTicker'){
-                if(!objectPrice){
-                  objectPrice = {
-                    symbol,
-                    price: object.c,
-                    timestamp: object.C,
-                    openPrice: object.o,
-                    openPriceTimestamp: object.O,
-                    highPrice: object.h,
-                    lowPrice: object.l,
-                  }
-                  await setAsync('ftx:trade:'+symbol, JSON.stringify(objectPrice));
-                }
-                await setAsync('ftx:ticker:'+symbol, JSON.stringify({
-                  "priceChange": object.p,
-                  "priceChangePercent": object.P,
-                  "weightedAvgPrice": object.w,
-                  "prevClosePrice": object.x,
-                  "lastPrice": object.c,
-                  "lastQty": object.Q,
-                  "bidPrice": object.b,
-                  "bidQty": object.B,
-                  "askPrice": object.a,
-                  "askQty": object.A,
-                  "openPrice": object.o,
-                  "highPrice": object.h,
-                  "lowPrice": object.l,
-                  "volume": object.v,
-                  "quoteVolume": object.q,
-                  "openTime": object.O,
-                  "closeTime": object.C,
-                  "firstId": object.F,
-                  "lastId": object.L,
-                  "count": object.n
-                }));
-              }
+              console.log(object);
             });
           });
           socket.on('connect_error', function (err) {
@@ -288,7 +85,7 @@ export default {
       } catch (e) {
         let {symbol, quoteAsset, baseAsset, exchangeId, marketPairId} = data;
         // @ts-ignore
-        let job = await producerService.add({
+        await producerService.add({
           symbol, quoteAsset, baseAsset, exchangeId, marketPairId
         });
         // @ts-ignore
