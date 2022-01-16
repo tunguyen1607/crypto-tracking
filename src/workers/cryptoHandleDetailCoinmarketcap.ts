@@ -89,7 +89,7 @@ export default {
         console.log({ symbol: symbol, slug: slug ? slug : detail[sourceId].slug });
         // @ts-ignore
         let cryptoDetail = await cryptoMarketModel.findOne({
-          where: { symbol: detail[sourceId].symbol, slug: slug ? slug : detail[sourceId].slug },
+          where: { symbol: symbol, slug: slug ? slug : detail[sourceId].slug },
         });
         if (cryptoDetail) {
           if(cryptoDetail.description){
