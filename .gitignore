@@ -23,6 +23,7 @@ dist/
 target/
 dist/
 build/
+resource/
 
 # JetBrains IDE
 .idea/
