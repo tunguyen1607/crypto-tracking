@@ -15,8 +15,9 @@ export default ({ amqpConn }: { amqpConn: amqp.Connection }) => {
       }
       let promiseArr = [];
       for (var i = 0; i < files.length; i++) {
-        let worker = require(files[i]).default;
-        if (worker.status) {
+        let worker: any = await import(files[i]);
+        worker = worker.default;
+        if (worker && worker.status) {
           amqpConn.createChannel(function(err, ch) {
             if (err) {
               LoggerInstance.error('[AMQP] error ' + err.message);

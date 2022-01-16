@@ -61,7 +61,7 @@ export async function list(req: Request, res: Response) {
     // @ts-ignore
     const sMembersAsync = promisify(RedisInstance.smembers).bind(RedisInstance);
     let query: any = req.query;
-    let {market, marketStatus, limit, page} = query;
+    let {limit, page} = query;
     if(!page){
       page = 1;
     }
@@ -70,19 +70,13 @@ export async function list(req: Request, res: Response) {
     }
     let filter = {};
     let offset = (page - 1) * limit;
-    if(market){
-      filter['market'] = market;
-    }
-    if(marketStatus){
-      filter['marketStatus'] = marketStatus;
-    }
     // @ts-ignore
     let cryptoList: any = await cryptoMarketModel.findAll({
       offset: offset,
       limit: limit,
       where: filter,
       raw: true,
-      attributes: ['id', 'name', 'price', 'symbol', 'description', 'logo', 'dateAdded', 'lastUpdated', 'volume', 'sourceId', 'source', 'slug', 'category', 'marketDominance', 'circulatingSupply', 'maxSupply', 'totalSupply', 'rank', 'marketCap', 'market', 'statusMarket'],
+      attributes: ['id', 'name', 'price', 'symbol', 'description', 'logo', 'dateAdded', 'lastUpdated', 'volume', 'sourceId', 'source', 'slug', 'category', 'marketDominance', 'circulatingSupply', 'maxSupply', 'totalSupply', 'rank', 'marketCap'],
       order: [
         ['rank', 'ASC'],
         ['name', 'ASC'],

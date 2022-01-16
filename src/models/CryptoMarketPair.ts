@@ -38,14 +38,14 @@ export default async ({ sequelize }) => {
       },
       baseAsset: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       jobId: {
         type: Sequelize.FLOAT,
       },
       quoteAsset: {
         type: Sequelize.STRING,
-        allowNull: false,
+        allowNull: true,
       },
       price: {
         type: Sequelize.STRING,
@@ -84,7 +84,7 @@ export default async ({ sequelize }) => {
         type: Sequelize.FLOAT,
       },
       lastUpdate: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.DATE,
       },
       statusMarket: {
         type: Sequelize.STRING,
