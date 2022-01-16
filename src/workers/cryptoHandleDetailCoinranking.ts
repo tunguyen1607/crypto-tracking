@@ -13,7 +13,7 @@ export default {
     console.log('receive message ', JSON.stringify(object));
     const publishServiceInstance = Container.get(PublishService);
     const awsServiceInstance = Container.get(AWSService);
-    const cryptoModel = Container.get('cryptoModel');
+    const cryptoMarketModel = Container.get('cryptoMarketModel');
     try {
       let { id, sourceId, symbol } = object;
       const result = await axios({
@@ -52,20 +52,20 @@ export default {
       };
       if(id){
         // @ts-ignore
-        await cryptoModel.update(body, { where: { id } });
+        await cryptoMarketModel.update(body, { where: { id } });
       }else {
         // @ts-ignore
-        let cryptoDetail = await cryptoModel.findOne({
+        let cryptoDetail = await cryptoMarketModel.findOne({
           where: { symbol: detail['coin'].symbol, slug: urlSlug(detail['coin'].name) },
         });
         if (cryptoDetail) {
           // @ts-ignore
-          await cryptoModel.update(body, {
+          await cryptoMarketModel.update(body, {
             where: { sourceId: detail['coin'].id + '', symbol: detail['coin'].symbol, slug: urlSlug(detail['coin'].name) },
           });
         } else {
           // @ts-ignore
-          await cryptoModel.create(body);
+          await cryptoMarketModel.create(body);
         }
       }
 

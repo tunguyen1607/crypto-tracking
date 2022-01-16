@@ -5,12 +5,12 @@ import { Job } from 'bull';
 export default class WatchPriceCryptoBinance {
   public async handler(job, done): Promise<void> {
     const Logger = Container.get('logger');
-    const cryptoModel = Container.get('cryptoModel');
+    const cryptoMarketModel = Container.get('cryptoMarketModel');
     const RedisInstance = Container.get('redisInstance');
     const producerService = Container.get('jobLivePriceBinance');
     try {
       // @ts-ignore
-      let listCryptoMarkets = await cryptoModel.findAll({
+      let listCryptoMarkets = await cryptoMarketModel.findAll({
         where: {
           market: 'binance',
           statusMarket: 'TRADING'
@@ -43,7 +43,7 @@ export default class WatchPriceCryptoBinance {
             cryptoId: cryptoDetail.id
           });
           // @ts-ignore
-          await cryptoModel.update({jobId: job.id}, {where: {id: cryptoDetail.id}});
+          await cryptoMarketModel.update({jobId: job.id}, {where: {id: cryptoDetail.id}});
           console.log('send symbol '+cryptoDetail.symbol+ ' with job '+job.id);
         }
       }

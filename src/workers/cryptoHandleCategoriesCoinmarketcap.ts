@@ -11,7 +11,7 @@ export default {
     console.log('receive message ', JSON.stringify(object));
     const cryptoCategoryModel = Container.get('cryptoCategoryModel');
     const cryptoCategoryItemModel = Container.get('cryptoCategoryItemModel');
-    const cryptoModel = Container.get('cryptoModel');
+    const cryptoMarketModel = Container.get('cryptoMarketModel');
     try {
       const result = await axios({
         method: 'GET',
@@ -95,12 +95,12 @@ export default {
             fullyDilutedMarketCap: cryptoItem.quote.USD.fully_diluted_market_cap,
           };
           // @ts-ignore
-          let cryptoDetail = await cryptoModel.findOne({
+          let cryptoDetail = await cryptoMarketModel.findOne({
             where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },
           });
           if (cryptoDetail) {
             // @ts-ignore
-            await cryptoModel.update(bodyCrypto, {
+            await cryptoMarketModel.update(bodyCrypto, {
               where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },
             });
             bodyCrypto['id'] = cryptoDetail.id;
@@ -108,7 +108,7 @@ export default {
           } else {
             console.log({ sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug });
             // @ts-ignore
-            cryptoDetail = await cryptoModel.create(bodyCrypto);
+            cryptoDetail = await cryptoMarketModel.create(bodyCrypto);
           }
           // @ts-ignore
           let cateItemDetail = await cryptoCategoryItemModel.findOne({

@@ -13,9 +13,9 @@ export default {
     console.log('receive message ', JSON.stringify(object));
     const publishServiceInstance = Container.get(PublishService);
     const awsServiceInstance = Container.get(AWSService);
-    const cryptoModel = Container.get('cryptoModel');
+    const cryptoMarketModel = Container.get('cryptoMarketModel');
     try {
-      let { id, sourceId, symbol, marketData } = object;
+      let { id, sourceId, symbol, marketData, marketPairId, marketPair, slug } = object;
       let queryText = '';
       if(sourceId){
         queryText = `id=${sourceId}`;
@@ -38,8 +38,8 @@ export default {
       }
       let body = {
         sourceId: detail[sourceId].id,
-        symbol: detail[sourceId].symbol,
-        slug: detail[sourceId].slug,
+        symbol: symbol,
+        slug: slug ? slug : detail[sourceId].slug,
         name: detail[sourceId].name,
         logo: await awsServiceInstance.reuploadImage(detail[sourceId].logo),
         tags: detail[sourceId].tags,
@@ -54,40 +54,66 @@ export default {
         status: detail[sourceId].status == 'active' ? 1 : 0,
         dateAdded: detail[sourceId].date_added,
         description: detail[sourceId].description,
-        source: 'coinmarketcap'
+        source: 'coinmarketcap',
+        lastUpdated: new Date(),
       };
       body = {...body, ...marketData};
       if(id){
         // @ts-ignore
-        let cryptoDetail = await cryptoModel.findOne({
+        let cryptoDetail = await cryptoMarketModel.findOne({
           where: { id },
         });
         if (cryptoDetail) {
           if(cryptoDetail.description){
             delete body['description'];
           }
+          if(cryptoDetail.marketPairIds && marketPairId){
+            body['marketPairIds'] = [...cryptoDetail.marketPairIds, ...[marketPairId]].filter((v, i, a) => a.indexOf(v) === i);
+          }
+          if(cryptoDetail.marketPairs && marketPair){
+            body['marketPairs'] = [...cryptoDetail.marketPairs, ...[marketPair]].filter((v, i, a) => a.indexOf(v) === i);
+          }
           // @ts-ignore
-          await cryptoModel.update(body, { where: { id } });
+          await cryptoMarketModel.update(body, { where: { id } });
         } else {
+          if(marketPairId){
+            body['marketPairIds'] = [marketPairId];
+          }
+          if(marketPair){
+            body['marketPairs'] = [marketPair];
+          }
           // @ts-ignore
-          await cryptoModel.create(body);
+          await cryptoMarketModel.create(body);
         }
       }else {
+        console.log({ symbol: symbol, slug: slug ? slug : detail[sourceId].slug });
         // @ts-ignore
-        let cryptoDetail = await cryptoModel.findOne({
-          where: { symbol: detail[sourceId].symbol, slug: detail[sourceId].slug },
+        let cryptoDetail = await cryptoMarketModel.findOne({
+          where: { symbol: detail[sourceId].symbol, slug: slug ? slug : detail[sourceId].slug },
         });
         if (cryptoDetail) {
           if(cryptoDetail.description){
             delete body['description'];
           }
+          if(cryptoDetail.marketPairIds && marketPairId){
+            body['marketPairIds'] = [...cryptoDetail.marketPairIds, ...[marketPairId]].filter((v, i, a) => a.indexOf(v) === i);
+          }
+          if(cryptoDetail.marketPairs && marketPair){
+            body['marketPairs'] = [...cryptoDetail.marketPairs, ...[marketPair]].filter((v, i, a) => a.indexOf(v) === i);
+          }
           // @ts-ignore
-          await cryptoModel.update(body, {
+          await cryptoMarketModel.update(body, {
             where: { sourceId: detail[sourceId].id + '', symbol: detail[sourceId].symbol, slug: detail[sourceId].slug },
           });
         } else {
+          if(marketPairId){
+            body['marketPairIds'] = [marketPairId];
+          }
+          if(marketPair){
+            body['marketPairs'] = [marketPair];
+          }
           // @ts-ignore
-          await cryptoModel.create(body);
+          await cryptoMarketModel.create(body);
         }
       }
     } catch (e) {

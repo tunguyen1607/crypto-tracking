@@ -5,7 +5,7 @@ import {Joi} from "celebrate";
 
 export async function info(req: Request, res: Response) {
   try {
-    const cryptoModel = Container.get('cryptoModel');
+    const cryptoMarketModel = Container.get('cryptoMarketModel');
     const RedisInstance = Container.get('redisInstance');
     // @ts-ignore
     const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
@@ -23,7 +23,7 @@ export async function info(req: Request, res: Response) {
       findQuery['symbol'] = query.symbol.toUpperCase();
     }
     // @ts-ignore
-    let cryptoDetail: any = await cryptoModel.findOne({
+    let cryptoDetail: any = await cryptoMarketModel.findOne({
       where: findQuery,
       raw: true,
     });
@@ -54,7 +54,7 @@ export async function info(req: Request, res: Response) {
 
 export async function list(req: Request, res: Response) {
   try {
-    const cryptoModel = Container.get('cryptoModel');
+    const cryptoMarketModel = Container.get('cryptoMarketModel');
     const RedisInstance = Container.get('redisInstance');
     // @ts-ignore
     const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
@@ -77,7 +77,7 @@ export async function list(req: Request, res: Response) {
       filter['marketStatus'] = marketStatus;
     }
     // @ts-ignore
-    let cryptoList: any = await cryptoModel.findAll({
+    let cryptoList: any = await cryptoMarketModel.findAll({
       offset: offset,
       limit: limit,
       where: filter,
@@ -89,7 +89,7 @@ export async function list(req: Request, res: Response) {
       ],
     });
     // @ts-ignore
-    let count: any = await cryptoModel.count({
+    let count: any = await cryptoMarketModel.count({
       where: filter,
     });
     let start = Date.now();

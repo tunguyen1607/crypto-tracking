@@ -6,12 +6,12 @@ import publish from "../services/publish";
 export default class WatchPriceCryptoBinance {
   public async handler(job, done): Promise<void> {
     const Logger = Container.get('logger');
-    const cryptoModel = Container.get('cryptoModel');
+    const cryptoMarketModel = Container.get('cryptoMarketModel');
     const producerService = Container.get(publish);
 
     try {
       // @ts-ignore
-      let listCrypto = await cryptoModel.findAll({
+      let listCrypto = await cryptoMarketModel.findAll({
         where: {
           status: 1,
           source: 'coinmarketcap'

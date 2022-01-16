@@ -2,6 +2,7 @@ import { Container } from 'typedi';
 import PublishService from '../services/publish';
 import axios from 'axios';
 import {promisify} from "util";
+import {urlSlug} from "../helpers/crawler";
 import BinanceService from '../services/binance';
 
 export default {
@@ -13,6 +14,7 @@ export default {
     const cryptoExchangeModel = Container.get('cryptoExchangeModel');
     const producerService = Container.get('jobLiveMarketPairBinance');
     const binanceServiceInstance = Container.get(BinanceService);
+    const publishServiceInstance = Container.get(PublishService);
     try {
       const result:any = await binanceServiceInstance.exchangeInfo();
       let listCrypto: any = result.data['symbols'];
@@ -40,6 +42,7 @@ export default {
           // @ts-ignore
           cryptoMarketItem = await cryptoPairModel.create({
             symbol: cryptoItem.symbol,
+            marketPair: cryptoItem.symbol,
             baseAsset: cryptoItem.baseAsset,
             quoteAsset: cryptoItem.quoteAsset,
             config: cryptoItem,
@@ -51,19 +54,31 @@ export default {
             exchangeName: cryptoExchangeItem.name,
             exchangeSlug: cryptoExchangeItem.slug,
             category: 'spot',
-            feeType: 'percentage'
+            feeType: 'percentage',
           });
         }
-        if(i<300){
+        if(cryptoItem.quoteAsset == "USDT"){
           // @ts-ignore
           let job = await producerService.add({
             symbol: cryptoItem.symbol,
+            marketPair: cryptoItem.symbol,
             quoteAsset: cryptoItem.quoteAsset,
             baseAsset: cryptoItem.baseAsset,
             exchangeId: cryptoExchangeItem.id,
             marketPairId: cryptoMarketItem.id,
           });
 
+          await publishServiceInstance.publish('', 'crypto_handle_detail_coinmarketcap', {
+            symbol: cryptoItem.baseAsset,
+            marketPairId: cryptoMarketItem.id,
+            marketPair: cryptoItem.baseAsset + '/' + cryptoItem.quoteAsset,
+            slug: urlSlug(cryptoExchangeItem.slug + ' ' + cryptoItem.baseAsset.toLowerCase()),
+            marketData: {
+              exchangeId:  cryptoExchangeItem.id,
+              exchangeName: cryptoExchangeItem.name,
+              exchangeSlug: cryptoExchangeItem.slug,
+            }
+          });
           // @ts-ignore
           await cryptoPairModel.update({
             jobId: job.id,

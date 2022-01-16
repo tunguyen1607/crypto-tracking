@@ -12,7 +12,7 @@ export default {
     let object = JSON.parse(message.content.toString());
     const Logger = Container.get('logger');
     const RedisInstance = Container.get('redisInstance');
-    const cryptoModel = Container.get('cryptoModel');
+    const cryptoMarketModel = Container.get('cryptoMarketModel');
     const cryptoHistoricalModel = Container.get('cryptoHistoricalModel');
     const cryptoHistoricalTimeModel = Container.get('cryptoHistoricalTimeModel');
     const publishServiceInstance = Container.get(PublishService);
@@ -27,7 +27,7 @@ export default {
       }
 
       // @ts-ignore
-      let cryptoDetail = await cryptoModel.findOne({where: {symbol: symbol.toUpperCase()}});
+      let cryptoDetail = await cryptoMarketModel.findOne({where: {symbol: symbol.toUpperCase()}});
       if(!cryptoDetail){
         throw new Error('not found crypto with symbol '+symbol);
       }
@@ -44,7 +44,7 @@ export default {
         ticker = JSON.parse(ticker);
       }
       // @ts-ignore
-      await cryptoModel.update({
+      await cryptoMarketModel.update({
         price: priceObject.price,
         lastTimeUpdatePrice: Math.ceil(priceObject.timestamp/1000),
         jobId

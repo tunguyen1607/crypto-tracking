@@ -8,6 +8,10 @@ export default async ({ sequelize }) => {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      marketPair: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
       exchangeId: {
         type: Sequelize.INTEGER,
         allowNull: false,

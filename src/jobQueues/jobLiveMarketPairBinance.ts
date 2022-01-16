@@ -12,14 +12,14 @@ function sleep(ms) {
 
 export default {
   queueName: 'jobLiveMarketPairBinance',
-  status: false,
+  status: true,
   prefetch: process.env.LIVE_PRICE_CONCURRENCY || 30,
   run: async function (job) {
     return new Promise(async function (resolve, reject) {
       const Logger = Container.get('logger');
       const RedisInstance = Container.get('redisInstance');
       const publishServiceInstance = Container.get(PublishService);
-      const cryptoModel = Container.get('CryptoPairModel');
+      const cryptoMarketModel = Container.get('CryptoPairModel');
       const producerService = Container.get('jobLiveMarketPairBinance');
       let data = job.data;
 
@@ -117,7 +117,7 @@ export default {
                 symbol, quoteAsset, baseAsset, exchangeId, marketPairId
               });
               // @ts-ignore
-              await cryptoModel.update({jobId: job.id}, {where: {id: marketPairId}});
+              await cryptoMarketModel.update({jobId: job.id}, {where: {id: marketPairId}});
             }
             let priceSymbol = await getAsync('binance:trade:'+symbol);
             let priceTicker = await getAsync('binance:ticker:'+symbol);

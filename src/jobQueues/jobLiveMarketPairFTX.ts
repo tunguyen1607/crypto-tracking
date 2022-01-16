@@ -60,7 +60,7 @@ export default {
             wss.on('open', function open() {
               console.log('connected');
               wss.send(JSON.stringify({'op': 'subscribe', 'channel': 'trades', 'market': 'BTC/USD'}));
-              wss.send(JSON.stringify({'op': 'subscribe', 'channel': 'ticker', 'market': 'BTC/USD'}));
+              // wss.send(JSON.stringify({'op': 'subscribe', 'channel': 'ticker', 'market': 'BTC/USD'}));
             });
             wss.on('message', async function incoming(message) {
               let object = JSON.parse(message);

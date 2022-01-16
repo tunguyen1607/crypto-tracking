@@ -9,7 +9,7 @@ export default {
     let object = JSON.parse(message.content.toString());
     console.log('receive message ', JSON.stringify(object));
     const publishServiceInstance = Container.get(PublishService);
-    const cryptoModel = Container.get('cryptoModel');
+    const cryptoMarketModel = Container.get('cryptoMarketModel');
 
     try {
       const result = await axios({
@@ -45,25 +45,26 @@ export default {
           fullyDilutedMarketCap: cryptoItem.quote.USD.fully_diluted_market_cap,
         };
         // @ts-ignore
-        let cryptoDetail = await cryptoModel.findOne({
+        let cryptoDetail = await cryptoMarketModel.findOne({
           where: { slug: cryptoItem.slug },
         });
         if (cryptoDetail) {
           if(cryptoDetail.symbol.toLowerCase() == cryptoItem.symbol.toLowerCase()){
             // @ts-ignore
-            await cryptoModel.update(body, {
+            await cryptoMarketModel.update(body, {
               where: { sourceId: cryptoItem.id, slug: cryptoItem.slug },
             });
             body['id'] = cryptoDetail.id;
-            body['startTimestampHistorical'] = cryptoDetail.startTimestampHistorical;
-            body['lastTimestampHistorical'] = cryptoDetail.lastTimestampHistorical;
+            // body['startTimestampHistorical'] = cryptoDetail.startTimestampHistorical;
+            // body['lastTimestampHistorical'] = cryptoDetail.lastTimestampHistorical;
             body['logo'] = cryptoDetail.logo;
             cryptoDetail = body;
           }
-        } else {
-          // @ts-ignore
-          cryptoDetail = await cryptoModel.create(body);
         }
+        // else {
+        //   // @ts-ignore
+        //   cryptoDetail = await cryptoMarketModel.create(body);
+        // }
         if (!cryptoDetail.logo) {
           await publishServiceInstance.publish('', 'crypto_handle_detail_coinmarketcap', {
             sourceId: cryptoDetail.sourceId,
@@ -71,13 +72,13 @@ export default {
             symbol: cryptoDetail.symbol,
           });
         }
-        await publishServiceInstance.publish('', 'crypto_handle_list_historical_coinmarketcap', {
-          sourceId: cryptoDetail.sourceId,
-          id: cryptoDetail.id,
-          symbol: cryptoDetail.symbol,
-          startTimestampHistorical: cryptoDetail.startTimestampHistorical,
-          lastTimestampHistorical: cryptoDetail.lastTimestampHistorical,
-        });
+        // await publishServiceInstance.publish('', 'crypto_handle_list_historical_coinmarketcap', {
+        //   sourceId: cryptoDetail.sourceId,
+        //   id: cryptoDetail.id,
+        //   symbol: cryptoDetail.symbol,
+        //   startTimestampHistorical: cryptoDetail.startTimestampHistorical,
+        //   lastTimestampHistorical: cryptoDetail.lastTimestampHistorical,
+        // });
       }
       // @ts-ignore
     } catch (e) {

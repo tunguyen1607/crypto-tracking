@@ -13,7 +13,7 @@ export default {
     console.log('receive message ', JSON.stringify(object));
     const publishServiceInstance = Container.get(PublishService);
     const awsServiceInstance = Container.get(AWSService);
-    const cryptoModel = Container.get('cryptoModel');
+    const cryptoMarketModel = Container.get('cryptoMarketModel');
     try {
       let { offset, limit } = object;
       if(!offset){
@@ -60,14 +60,14 @@ export default {
           totalSupply: cryptoItem.totalSupply
         };
         // @ts-ignore
-        let cryptoDetail = await cryptoModel.findOne({
+        let cryptoDetail = await cryptoMarketModel.findOne({
           where: { symbol: cryptoItem.symbol.toUpperCase() },
         });
         console.log({ symbol: cryptoItem.symbol, slug: cryptoItem.slug, name: cryptoItem.name })
         if (cryptoDetail) {
           delete body['slug'];
           // @ts-ignore
-          await cryptoModel.update(body, {
+          await cryptoMarketModel.update(body, {
             where: { sourceId: cryptoItem.id + '', symbol: cryptoItem.symbol, slug: cryptoItem.slug },
           });
           body['id'] = cryptoDetail.id;
@@ -77,12 +77,12 @@ export default {
           cryptoDetail = body;
         } else {
           // @ts-ignore
-          cryptoDetail = await cryptoModel.findOne({
+          cryptoDetail = await cryptoMarketModel.findOne({
             where: { slug: cryptoItem.slug },
           });
           if(!cryptoDetail){
             // @ts-ignore
-            cryptoDetail = await cryptoModel.create(body);
+            cryptoDetail = await cryptoMarketModel.create(body);
           }
         }
         if (!cryptoDetail.logo) {

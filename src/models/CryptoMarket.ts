@@ -1,13 +1,37 @@
 import Sequelize from 'sequelize';
 export default async ({ sequelize }) => {
   // @ts-ignore
-  let Crypto = sequelize.define(
-    'Crypto',
+  let CryptoMarket = sequelize.define(
+    'CryptoMarket',
     {
       // attributes
       symbol: {
         type: Sequelize.STRING,
         allowNull: false,
+      },
+      marketPairs: {
+        type: Sequelize.JSONB,
+        allowNull: false,
+      },
+      marketPairIds: {
+        type: Sequelize.JSONB,
+        allowNull: false,
+      },
+      exchangeId: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+      },
+      exchangeName: {
+        type: Sequelize.STRING,
+        allowNull: false,
+      },
+      exchangeNotice: {
+        type: Sequelize.STRING,
+        allowNull: true,
+      },
+      exchangeSlug: {
+        type: Sequelize.STRING,
+        allowNull: true,
       },
       name: {
         type: Sequelize.STRING,
@@ -98,26 +122,11 @@ export default async ({ sequelize }) => {
       notice: {
         type: Sequelize.TEXT,
       },
-      startTimestampHistorical: {
-        type: Sequelize.INTEGER,
-      },
-      lastTimestampHistorical: {
-        type: Sequelize.INTEGER,
-      },
       status: {
         type: Sequelize.INTEGER,
       },
       market: {
         type: Sequelize.STRING,
-      },
-      statusMarket: {
-        type: Sequelize.STRING,
-      },
-      numberOfMarkets: {
-        type: Sequelize.INTEGER,
-      },
-      numberOfExchanges: {
-        type: Sequelize.INTEGER,
       },
     },
     {
@@ -125,6 +134,6 @@ export default async ({ sequelize }) => {
       timestamps: true,
     },
   );
-  // await Crypto.sync({ force: false });
-  return Crypto;
+  await CryptoMarket.sync({ force: false });
+  return CryptoMarket;
 };

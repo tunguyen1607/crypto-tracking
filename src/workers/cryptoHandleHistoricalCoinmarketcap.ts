@@ -10,7 +10,7 @@ export default {
     let object = JSON.parse(message.content.toString());
     console.log('receive message ', JSON.stringify(object));
     const publishServiceInstance = Container.get(PublishService);
-    const cryptoModel = Container.get('cryptoModel');
+    const cryptoMarketModel = Container.get('cryptoMarketModel');
     const cryptoHistoricalModel = Container.get('cryptoHistoricalModel');
     try {
       let { id, sourceId, startTimestampHistorical, lastTimestampHistorical } = object;
@@ -72,7 +72,7 @@ export default {
           bodyCrypto['startTimestampHistorical'] = startTimestamp;
         }
         // @ts-ignore
-        await cryptoModel.update(bodyCrypto, { where: { id } });
+        await cryptoMarketModel.update(bodyCrypto, { where: { id } });
       }
 
       // @ts-ignore
