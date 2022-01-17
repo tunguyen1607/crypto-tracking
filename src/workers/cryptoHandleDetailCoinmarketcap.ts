@@ -5,6 +5,15 @@ import { getBeginningOfDate, getPreviousMonthOfDate } from '../helpers/date';
 import {urlSlug} from "../helpers/crawler";
 import superagent from "superagent";
 
+const blockingWait = function(seconds) {
+  return new Promise(function (resolve, reject) {
+    setTimeout(function() {
+      console.log('wait for %s seconds', seconds);
+      return resolve(true);
+    }, seconds * 1000);
+  });
+};
+
 export default {
   queueName: 'crypto_handle_detail_coinmarketcap',
   status: true,
@@ -115,7 +124,7 @@ export default {
           }
         }
       }
-
+      await blockingWait(60);
     } catch (e) {
       console.log('crypto_handle_detail_coinmarketcap');
       if (e.response && e.response.statusText) {

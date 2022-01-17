@@ -42,7 +42,7 @@ export default {
           // @ts-ignore
           cryptoMarketItem = await cryptoPairModel.create({
             symbol: cryptoItem.symbol,
-            marketPair: cryptoItem.symbol,
+            marketPair: cryptoItem.baseAsset + '/' + cryptoItem.quoteAsset,
             baseAsset: cryptoItem.baseAsset,
             quoteAsset: cryptoItem.quoteAsset,
             config: cryptoItem,
@@ -50,6 +50,10 @@ export default {
             market: 'binance',
             marketUrl: `https://www.binance.com/en/trade/${cryptoItem.baseAsset.toUpperCase()}_${cryptoItem.quoteAsset.toUpperCase()}`,
             statusMarket: cryptoItem.status,
+            priceChange: cryptoItem.priceChange,
+            priceChangePercent: cryptoItem.priceChangePercent,
+            baseVolume: cryptoItem.volume,
+            quoteVolume: cryptoItem.quoteVolume,
             exchangeId: cryptoExchangeItem.id,
             exchangeName: cryptoExchangeItem.name,
             exchangeSlug: cryptoExchangeItem.slug,
