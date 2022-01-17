@@ -85,6 +85,7 @@ export default {
                 exchangeId:  cryptoExchangeItem.id,
                 exchangeName: cryptoExchangeItem.name,
                 exchangeSlug: cryptoExchangeItem.slug,
+                market: 'ftx'
               }
             });
           }

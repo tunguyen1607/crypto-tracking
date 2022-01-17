@@ -81,6 +81,7 @@ export default {
               exchangeId:  cryptoExchangeItem.id,
               exchangeName: cryptoExchangeItem.name,
               exchangeSlug: cryptoExchangeItem.slug,
+              market: 'binance'
             }
           });
           // @ts-ignore

@@ -39,6 +39,16 @@ export default {
         let {symbol, quoteAsset, baseAsset, exchangeId, marketPairId} = data;
         console.log(data);
         if (symbol) {
+          let priceOpen = null;
+          let priceOpenTimestamp = null;
+          let priceClose = null;
+          let priceCloseTimestamp = null;
+          let currentPrice = null;
+          let now = new Date();
+          let millisTill = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 55, 59, 0).getTime() - now.getTime();
+          if (millisTill < 0) {
+            millisTill += 86400000; // it's after 10am, try 10am tomorrow.
+          }
           symbol = symbol.toLowerCase().trim();
           // get access token from base account
           const accountToken = await axios({
@@ -54,17 +64,75 @@ export default {
           console.log(linkToCall);
           const wss = new WebSocket(linkToCall);
           let objectPrice: any = await getAsync('ftx:trade:'+symbol);
+          if(objectPrice) {
+            objectPrice = JSON.parse(objectPrice);
+            if (objectPrice['openPrice'] && objectPrice['openPriceTimestamp']) {
+              let dateOpen = new Date(objectPrice['openPriceTimestamp']);
+              if (dateOpen && dateOpen.getDate() == now.getDate() && dateOpen.getMonth() == now.getMonth() && dateOpen.getFullYear() == now.getFullYear()) {
+                priceOpen = objectPrice['openPrice'];
+                priceOpenTimestamp = objectPrice['openPriceTimestamp'];
+              }
+            }
+          }else {
+            const result = await axios({
+              method: 'GET',
+              url: `https://ftx.com/api/markets/${symbol.toUpperCase()}/candles?resolution=15`,
+            });
+            const resultTicker = await axios({
+              method: 'GET',
+              url: `https://ftx.com/api/markets/${symbol.toUpperCase()}`,
+            });
+            let candles: any = result.data['result'][result.data['result'].length - 1];
+            let ticker: any = resultTicker.data['result'];
+            objectPrice = {
+              symbol,
+              price: candles.close,
+              timestamp: new Date(candles.startTime).getMilliseconds(),
+              openPrice: candles.open,
+              openPriceTimestamp: new Date(candles.startTime).getMilliseconds(),
+              highPrice: candles.high,
+              lowPrice: candles.low,
+            };
+            let objectTicker = {
+              "symbol": symbol,
+              "priceChange": ticker.change24h,
+              "priceChangePercent": (ticker.change24h/ticker.price)*100,
+              "lastPrice": ticker.last,
+              "bidPrice": ticker.bid,
+              "askPrice": ticker.ask,
+              "openPrice": candles.open,
+              "highPrice": candles.high,
+              "lowPrice": candles.low,
+              "volume": candles.volume,
+              "quoteVolume": ticker.quoteVolume24h,
+              "openTime": new Date(candles.startTime).getMilliseconds(),
+              "closeTime": new Date(candles.startTime).getMilliseconds()
+            };
+            await setAsync('ftx:trade:'+symbol, JSON.stringify(objectPrice));
+            await setAsync('ftx:ticker:'+symbol, JSON.stringify(objectTicker));
+          }
           // @ts-ignore
           let socket = io('http://localhost:32857/v1/crypto/price?token=' + accountToken['data']['token']);
           socket.on("connect", async () => {
             wss.on('open', function open() {
               console.log('connected');
               wss.send(JSON.stringify({'op': 'subscribe', 'channel': 'trades', 'market': symbol}));
-              // wss.send(JSON.stringify({'op': 'subscribe', 'channel': 'ticker', 'market': 'BTC/USD'}));
+              wss.send(JSON.stringify({'op': 'subscribe', 'channel': 'ticker', 'market': symbol}));
             });
             wss.on('message', async function incoming(message) {
               let object = JSON.parse(message);
               console.log(object);
+              let lastTrade = object.data[0];
+              if(object.channel == 'trades'){
+                if (!priceOpen) {
+                  priceOpen = lastTrade.price;
+                  priceOpenTimestamp = new Date(lastTrade.time).getMilliseconds();
+                  objectPrice['openPrice'] = lastTrade.price;
+                  objectPrice['openPriceTimestamp'] = new Date(lastTrade.time).getMilliseconds();
+                }
+                objectPrice['price'] = lastTrade.price;
+                objectPrice['timestamp'] = new Date(lastTrade.time).getMilliseconds();
+              }
             });
           });
           socket.on('connect_error', function (err) {
