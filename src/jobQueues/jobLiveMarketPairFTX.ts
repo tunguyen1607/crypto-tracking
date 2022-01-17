@@ -132,6 +132,61 @@ export default {
                 }
                 objectPrice['price'] = lastTrade.price;
                 objectPrice['timestamp'] = new Date(lastTrade.time).getMilliseconds();
+
+                let btcHighPrice = objectPrice['highPrice'];
+                if (!btcHighPrice || isNaN(btcHighPrice)) {
+                  objectPrice['highPrice'] = lastTrade.price;
+                  objectPrice['highPriceTimestamp'] = new Date(lastTrade.time).getMilliseconds();
+                } else {
+                  if (parseFloat(btcHighPrice) < parseFloat(object.p)) {
+                    objectPrice['highPrice'] = lastTrade.price;
+                    objectPrice['highPriceTimestamp'] = new Date(lastTrade.time).getMilliseconds();
+                  }
+                }
+                let btcLowPrice = objectPrice['lowPrice'];
+                if (!btcLowPrice || isNaN(btcLowPrice)) {
+                  objectPrice['lowPrice'] = lastTrade.price;
+                  objectPrice['lowPriceTimestamp'] = new Date(lastTrade.time).getMilliseconds();
+                } else {
+                  if (parseFloat(btcLowPrice) > parseFloat(object.p)) {
+                    objectPrice['lowPrice'] = lastTrade.price;
+                    objectPrice['lowPriceTimestamp'] = new Date(lastTrade.time).getMilliseconds();
+                  }
+                }
+                objectPrice['symbol'] = symbol;
+                if (parseFloat(currentPrice) != parseFloat(object.p)) {
+                  socket.emit("priceLive", {method: 'system', room: 'ftx:'+symbol, data: objectPrice});
+                  currentPrice = object.p;
+                }
+                await setAsync('ftx:trade:'+symbol, JSON.stringify(objectPrice));
+              }
+
+              if(object.channel == 'ticker' && now.getMinutes() == 0){
+                let ticker = object.data;
+                if(!objectPrice){
+                  objectPrice = {
+                    symbol,
+                    price: ticker.last,
+                    timestamp: new Date(ticker.time).getMilliseconds(),
+                  }
+                  await setAsync('binance:trade:'+symbol, JSON.stringify(objectPrice));
+                }
+                await setAsync('binance:ticker:'+symbol, JSON.stringify({
+                  "priceChange": object.p,
+                  "priceChangePercent": object.P,
+                  "lastPrice": ticker.last,
+                  "bidPrice": ticker.bid,
+                  "bidQty": ticker.bidSize,
+                  "askPrice": ticker.ask,
+                  "askQty": ticker.askSize,
+                  "openPrice": object.o,
+                  "highPrice": object.h,
+                  "lowPrice": object.l,
+                  "volume": object.v,
+                  "quoteVolume": object.q,
+                  "openTime": new Date(Math.ceil(ticker.time)).getMilliseconds(),
+                  "closeTime": new Date(Math.ceil(ticker.time)).getMilliseconds(),
+                }));
               }
             });
           });

@@ -64,25 +64,30 @@ export default class AwsService {
   public async downloadImage(uri, fileName, fileExtension?: string) {
     let that = this;
     return new Promise(async function(resolve, reject) {
-      const path = process.env.PWD;
-      let topImage = await downloadImageAxios(uri, path + '/resource/' + urlSlug(fileName), fileExtension);
-      if (topImage) {
-        var buffer = fs.readFileSync(topImage.location, 'base64');
-        let uploadedImage = await that
-          .uploadImageToAWS3('data:' + topImage.fileType + ';base64,' + buffer, urlSlug(fileName))
-          .catch(function(e) {
-            console.error(e);
-            reject(e);
-          });
-        // remove file image
-        if (fs.existsSync(topImage.location)) {
-          fs.unlinkSync(topImage.location);
+      try{
+        const path = process.env.PWD;
+        let topImage = await downloadImageAxios(uri, path + '/resource/' + urlSlug(fileName), fileExtension);
+        if (topImage) {
+          var buffer = fs.readFileSync(topImage.location, 'base64');
+          let uploadedImage = await that
+            .uploadImageToAWS3('data:' + topImage.fileType + ';base64,' + buffer, urlSlug(fileName))
+            .catch(function(e) {
+              console.error(e);
+              reject(e);
+            });
+          // remove file image
+          if (fs.existsSync(topImage.location)) {
+            fs.unlinkSync(topImage.location);
+          }
+          let image = uploadedImage ? uploadedImage.Location : null;
+          return resolve(image);
+        } else {
+          resolve(null);
         }
-        let image = uploadedImage ? uploadedImage.Location : null;
-        return resolve(image);
-      } else {
-        resolve(null);
+      }catch (e) {
+        reject(e);
       }
+
     });
   }
 

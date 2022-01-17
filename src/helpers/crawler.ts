@@ -75,7 +75,10 @@ export function downloadImageAxios(
             )
             .on('error', e => rj(e));
         }),
-    );
+    ).catch(function (e) {
+      console.log(e);
+      return rj(e);
+    });
   });
 }
 
