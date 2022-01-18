@@ -80,7 +80,7 @@ export default {
               countMinutes = 0;
             }
             priceObject = JSON.parse(priceObject);
-            if(priceObject){
+            if(priceObject && now.getMinutes() % 3 == 0){
               await sAddAsync('binance:24hPrice:'+symbol, JSON.stringify({
                 p: priceObject.price,
                 ts: priceObject.timestamp

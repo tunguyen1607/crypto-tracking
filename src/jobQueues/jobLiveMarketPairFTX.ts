@@ -45,7 +45,7 @@ export default {
           let priceCloseTimestamp = null;
           let currentPrice = null;
           let now = new Date();
-          let millisTill = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 55, 59, 0).getTime() - now.getTime();
+          let millisTill = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 58, 0, 0).getTime() - now.getTime();
           if (millisTill < 0) {
             millisTill += 86400000; // it's after 10am, try 10am tomorrow.
           }
@@ -138,7 +138,7 @@ export default {
                   objectPrice['highPrice'] = lastTrade.price;
                   objectPrice['highPriceTimestamp'] = new Date(lastTrade.time).getMilliseconds();
                 } else {
-                  if (parseFloat(btcHighPrice) < parseFloat(object.p)) {
+                  if (parseFloat(btcHighPrice) < parseFloat(lastTrade.price)) {
                     objectPrice['highPrice'] = lastTrade.price;
                     objectPrice['highPriceTimestamp'] = new Date(lastTrade.time).getMilliseconds();
                   }
@@ -148,15 +148,15 @@ export default {
                   objectPrice['lowPrice'] = lastTrade.price;
                   objectPrice['lowPriceTimestamp'] = new Date(lastTrade.time).getMilliseconds();
                 } else {
-                  if (parseFloat(btcLowPrice) > parseFloat(object.p)) {
+                  if (parseFloat(btcLowPrice) > parseFloat(lastTrade.price)) {
                     objectPrice['lowPrice'] = lastTrade.price;
                     objectPrice['lowPriceTimestamp'] = new Date(lastTrade.time).getMilliseconds();
                   }
                 }
                 objectPrice['symbol'] = symbol;
-                if (parseFloat(currentPrice) != parseFloat(object.p)) {
+                if (parseFloat(currentPrice) != parseFloat(lastTrade.price)) {
                   socket.emit("priceLive", {method: 'system', room: 'ftx:'+symbol, data: objectPrice});
-                  currentPrice = object.p;
+                  currentPrice = lastTrade.price;
                 }
                 await setAsync('ftx:trade:'+symbol, JSON.stringify(objectPrice));
               }
@@ -179,9 +179,9 @@ export default {
                   "bidQty": ticker.bidSize,
                   "askPrice": ticker.ask,
                   "askQty": ticker.askSize,
-                  "openPrice": object.o,
-                  "highPrice": object.h,
-                  "lowPrice": object.l,
+                  "openPrice": objectPrice.openPrice,
+                  "highPrice": objectPrice.highPrice,
+                  "lowPrice": objectPrice.lowPrice,
                   "volume": object.v,
                   "quoteVolume": object.q,
                   "openTime": new Date(Math.ceil(ticker.time)).getMilliseconds(),
