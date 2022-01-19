@@ -55,12 +55,14 @@ export default {
               "bundleId": "com.nynw.crypcial.ios.test"
             }
           });
+          // @ts-ignore
+          let socket = io('http://localhost:32857/v1/crypto/price?token=' + accountToken['data']['token']);
+
           let interval = setInterval(async function () {
             let priceObject = await getAsync('binance:trade:'+symbol);
             let priceTicker = await getAsync('binance:ticker:'+symbol);
             countMinutes++;
-            console.log(countMinutes);
-            await publishServiceInstance.publish('', 'binance_market_pair_historical', {
+            await publishServiceInstance.publish('', 'crypto_save_market_pair_historical', {
               symbol: symbol,
               type: '1m',
               priceObject: priceObject,
@@ -70,7 +72,8 @@ export default {
               baseAsset,
               exchangeId,
               marketPairId,
-              timestamp: Date.now()
+              timestamp: Date.now(),
+              market: 'binance'
             });
             if(countMinutes % 400 == 0){
               await publishServiceInstance.publish('', 'crypto_clean_up_market_pair_historical', {
@@ -80,7 +83,7 @@ export default {
               countMinutes = 0;
             }
             priceObject = JSON.parse(priceObject);
-            if(priceObject && now.getMinutes() % 3 == 0){
+            if(priceObject && new Date().getMinutes() % 3 == 0){
               await sAddAsync('binance:24hPrice:'+symbol, JSON.stringify({
                 p: priceObject.price,
                 ts: priceObject.timestamp
@@ -121,7 +124,7 @@ export default {
             }
             let priceSymbol = await getAsync('binance:trade:'+symbol);
             let priceTicker = await getAsync('binance:ticker:'+symbol);
-            await publishServiceInstance.publish('', 'crypto_binance_market_pair_historical', {
+            await publishServiceInstance.publish('', 'crypto_save_market_pair_historical', {
               symbol,
               type: '1day',
               priceObject: priceSymbol,
@@ -130,7 +133,8 @@ export default {
               quoteAsset,
               baseAsset,
               exchangeId,
-              marketPairId
+              marketPairId,
+              market: 'binance'
             });
             priceSymbol = JSON.parse(priceSymbol);
             if (priceSymbol['closePrice'] && priceSymbol['closePriceTimestamp']) {
@@ -154,6 +158,7 @@ export default {
 
             let rs = await setAsync('binance:trade:'+symbol, JSON.stringify(priceSymbol));
             wss.terminate();
+            socket.close();
             clearInterval(interval);
 
             return resolve(true);
@@ -186,8 +191,7 @@ export default {
             await setAsync('binance:trade:'+symbol, JSON.stringify(objectPrice));
             await setAsync('binance:ticker:'+symbol, JSON.stringify(ticker));
           }
-          // @ts-ignore
-          let socket = io('http://localhost:32857/v1/crypto/price?token=' + accountToken['data']['token']);
+
           socket.on("connect", async () => {
             wss.on('message', async function incoming(message) {
               let object = JSON.parse(message);
