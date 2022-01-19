@@ -6,7 +6,7 @@ import {checkValidDate, timeConverter} from "../helpers/date";
 import {isStringJson} from "../helpers/object";
 
 export default {
-  queueName: 'crypto_binance_market_pair_historical',
+  queueName: 'crypto_save_market_pair_historical',
   status: true,
   run: async function(message, cb) {
     let object = JSON.parse(message.content.toString());
@@ -21,7 +21,7 @@ export default {
     // @ts-ignore
     const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
     try {
-      let { symbol, quoteAsset, baseAsset, marketPairId, exchangeId, type, priceObject, ticker, jobId, timestamp } = object;
+      let { symbol, quoteAsset, baseAsset, marketPairId, exchangeId, type, priceObject, ticker, jobId, timestamp, market } = object;
       if(!symbol){
         throw new Error('not found symbol');
       }
@@ -32,13 +32,13 @@ export default {
         throw new Error('not found market pair with symbol '+symbol);
       }
       if(!priceObject){
-        priceObject = await getAsync('binance:trade:'+symbol.toLowerCase());
+        priceObject = await getAsync(market+':trade:'+symbol.toLowerCase());
       }
       if(priceObject && isStringJson(priceObject)){
         priceObject = JSON.parse(priceObject);
       }
       if(!ticker){
-        ticker = await getAsync('binance:ticker:'+symbol.toLowerCase());
+        ticker = await getAsync(market+':ticker:'+symbol.toLowerCase());
       }
       if(ticker && isStringJson(ticker)){
         ticker = JSON.parse(ticker);
@@ -78,7 +78,7 @@ export default {
           priceHigh: ticker && ticker.highPrice ? ticker.highPrice : null,
           baseVolume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
           quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
-          market: 'binance',
+          market,
         });
 
         // @ts-ignore
@@ -101,7 +101,7 @@ export default {
           price: priceObject.price,
           baseVolume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
           quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
-          market: 'binance',
+          market,
           type: '1d',
         });
 
@@ -126,7 +126,7 @@ export default {
             price: priceObject.price,
             baseVolume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
             quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
-            market: 'binance',
+            market,
             type: '1w',
           });
         }
@@ -151,7 +151,7 @@ export default {
             price: priceObject.price,
             baseVolume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
             quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
-            market: 'binance',
+            market,
             type: '1M',
           });
         }
@@ -177,7 +177,7 @@ export default {
             price: priceObject.price,
             baseVolume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
             quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
-            market: 'binance',
+            market,
             type: '3m',
           });
         }
@@ -203,7 +203,7 @@ export default {
             price: priceObject.price,
             baseVolume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
             quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
-            market: 'binance',
+            market,
             type: '5m',
           });
         }
@@ -229,7 +229,7 @@ export default {
             price: priceObject.price,
             baseVolume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
             quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
-            market: 'binance',
+            market,
             type: '15m',
           });
         }
@@ -255,7 +255,7 @@ export default {
             price: priceObject.price,
             baseVolume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
             quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
-            market: 'binance',
+            market,
             type: '30m',
           });
         }
@@ -282,7 +282,7 @@ export default {
               price: priceObject.price,
               baseVolume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
               quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
-              market: 'binance',
+              market,
               type: '4h',
             });
           }
@@ -308,7 +308,7 @@ export default {
               price: priceObject.price,
               baseVolume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
               quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
-              market: 'binance',
+              market,
               type: '6h',
             });
           }
@@ -334,7 +334,7 @@ export default {
               price: priceObject.price,
               baseVolume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
               quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
-              market: 'binance',
+              market,
               type: '8h',
             });
           }
@@ -360,7 +360,7 @@ export default {
               price: priceObject.price,
               baseVolume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
               quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
-              market: 'binance',
+              market,
               type: '12h',
             });
           }
@@ -385,7 +385,7 @@ export default {
             price: priceObject.price,
             baseVolume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
             quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
-            market: 'binance',
+            market,
             type: '1h',
           });
         }
@@ -410,7 +410,7 @@ export default {
           price: priceObject.price,
           baseVolume: ticker && ticker.volume ? parseFloat(ticker.volume) : null,
           quoteVolume: ticker && ticker.quoteVolume ? parseFloat(ticker.quoteVolume) : null,
-          market: 'binance',
+          market,
           type: type,
         });
       }
