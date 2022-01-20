@@ -50,9 +50,7 @@ export default {
             millisTill += 86400000; // it's after 10am, try 10am tomorrow.
           }
           symbol = symbol.toLowerCase().trim();
-          let linkToCall = `wss://ftx.com/ws/`;
-          console.log(linkToCall);
-          const wss = new WebSocket(linkToCall);
+
           // get access token from base account
           const accountToken = await axios({
             method: 'POST',
@@ -64,13 +62,12 @@ export default {
             }
           });
           // @ts-ignore
-          let socket = io('http://localhost:32857/v1/crypto/price?token=' + accountToken['data']['token']);
           let interval = setInterval(async function () {
             let priceObject = await getAsync('ftx:trade:'+symbol);
             let priceTicker = await getAsync('ftx:ticker:'+symbol);
             countMinutes++;
             await publishServiceInstance.publish('', 'crypto_save_market_pair_historical', {
-              symbol: symbol,
+              symbol: (baseAsset+quoteAsset).toLowerCase().trim(),
               type: '1m',
               priceObject: priceObject,
               ticker: priceTicker,
@@ -95,7 +92,7 @@ export default {
                 p: priceObject.price,
                 ts: priceObject.timestamp
               }));
-              let price24h = await sMembersAsync('ftx:24hPrice:'+symbol);
+              let price24h = await sMembersAsync('ftx:24hPrice:'+(baseAsset+quoteAsset).toLowerCase().trim());
               if (price24h.length > 480) {
                 price24h = price24h.map(function (history) {
                   history = JSON.parse(history);
@@ -105,7 +102,7 @@ export default {
                   return parseFloat(b.ts) - parseFloat(a.ts);
                 });
                 for (let i = 0; i < (price24h.length - 480); i++) {
-                  await sRemAsync('ftx:24hPrice:'+symbol, JSON.stringify(price24h[price24h.length - i - 1]));
+                  await sRemAsync('ftx:24hPrice:'+(baseAsset+quoteAsset).toLowerCase().trim(), JSON.stringify(price24h[price24h.length - i - 1]));
                 }
               }
             }
@@ -116,7 +113,7 @@ export default {
               });
               let ticker: any = resultTicker.data['result'];
               let objectTicker = {
-                "symbol": symbol,
+                "symbol": (baseAsset+quoteAsset).toLowerCase().trim(),
                 "priceChange": ticker.change24h,
                 "priceChangePercent": (ticker.change24h/ticker.price)*100,
                 "lastPrice": ticker.last,
@@ -130,6 +127,7 @@ export default {
               await setAsync('ftx:ticker:'+symbol, JSON.stringify(objectTicker));
             }
           }, 60 * 1000);
+
           setTimeout(async function () {
             if (marketPairId) {
               // @ts-ignore
@@ -139,10 +137,10 @@ export default {
               // @ts-ignore
               await cryptoMarketModel.update({jobId: job.id}, {where: {id: marketPairId}});
             }
-            let priceSymbol = await getAsync('ftx:trade:'+symbol);
-            let priceTicker = await getAsync('ftx:ticker:'+symbol);
+            let priceSymbol = await getAsync('ftx:trade:'+(baseAsset+quoteAsset).toLowerCase().trim());
+            let priceTicker = await getAsync('ftx:ticker:'+(baseAsset+quoteAsset).toLowerCase().trim());
             await publishServiceInstance.publish('', 'crypto_save_market_pair_historical', {
-              symbol,
+              symbol: (baseAsset+quoteAsset).toLowerCase().trim(),
               type: '1day',
               priceObject: priceSymbol,
               ticker: priceTicker,
@@ -175,12 +173,11 @@ export default {
 
             let rs = await setAsync('ftx:trade:'+symbol, JSON.stringify(priceSymbol));
             wss.terminate();
-            socket.close();
             clearInterval(interval);
             return resolve(true);
           }, millisTill);
 
-          let objectPrice: any = await getAsync('ftx:trade:'+symbol);
+          let objectPrice: any = await getAsync('ftx:trade:'+(baseAsset+quoteAsset).toLowerCase().trim());
           if(objectPrice) {
             objectPrice = JSON.parse(objectPrice);
             if (objectPrice['openPrice'] && objectPrice['openPriceTimestamp']) {
@@ -202,7 +199,7 @@ export default {
             let candles: any = result.data['result'][result.data['result'].length - 1];
             let ticker: any = resultTicker.data['result'];
             objectPrice = {
-              symbol,
+              symbol: (baseAsset+quoteAsset).toLowerCase().trim(),
               price: candles.close,
               timestamp: new Date(candles.startTime).getMilliseconds(),
               openPrice: candles.open,
@@ -211,7 +208,7 @@ export default {
               lowPrice: candles.low,
             };
             let objectTicker = {
-              "symbol": symbol,
+              "symbol": (baseAsset+quoteAsset).toLowerCase().trim(),
               "priceChange": ticker.change24h,
               "priceChangePercent": (ticker.change24h/ticker.price)*100,
               "lastPrice": ticker.last,
@@ -225,10 +222,13 @@ export default {
               "openTime": new Date(candles.startTime).getMilliseconds(),
               "closeTime": new Date().getMilliseconds()
             };
-            await setAsync('ftx:trade:'+symbol, JSON.stringify(objectPrice));
-            await setAsync('ftx:ticker:'+symbol, JSON.stringify(objectTicker));
+            await setAsync('ftx:trade:'+(baseAsset+quoteAsset).toLowerCase().trim(), JSON.stringify(objectPrice));
+            await setAsync('ftx:ticker:'+(baseAsset+quoteAsset).toLowerCase().trim(), JSON.stringify(objectTicker));
           }
-
+          let linkToCall = `wss://ftx.com/ws/`;
+          console.log(linkToCall);
+          const wss = new WebSocket(linkToCall);
+          let socket = io('http://localhost:32857/v1/crypto/price?token=' + accountToken['data']['token']);
           socket.on("connect", async () => {
             wss.on('open', function open() {
               console.log('connected');
@@ -237,9 +237,8 @@ export default {
             });
             wss.on('message', async function incoming(message) {
               let object = JSON.parse(message);
-              console.log(object);
-              let lastTrade = object.data[0];
-              if(object.channel == 'trades'){
+              if(object.channel == 'trades' && object.type == 'update'){
+                let lastTrade = object.data[0];
                 if (!priceOpen) {
                   priceOpen = lastTrade.price;
                   priceOpenTimestamp = new Date(lastTrade.time).getMilliseconds();
@@ -269,15 +268,15 @@ export default {
                     objectPrice['lowPriceTimestamp'] = new Date(lastTrade.time).getMilliseconds();
                   }
                 }
-                objectPrice['symbol'] = symbol;
+                objectPrice['symbol'] = (baseAsset+quoteAsset).toLowerCase().trim();
                 if (parseFloat(currentPrice) != parseFloat(lastTrade.price)) {
                   socket.emit("priceLive", {method: 'system', room: 'ftx:'+symbol, data: objectPrice});
                   currentPrice = lastTrade.price;
                 }
-                await setAsync('ftx:trade:'+symbol, JSON.stringify(objectPrice));
+                await setAsync('ftx:trade:'+(baseAsset+quoteAsset).toLowerCase().trim(), JSON.stringify(objectPrice));
               }
 
-              if(object.channel == 'ticker' && new Date().getMinutes() == 0){
+              if(object.channel == 'ticker' && new Date().getMinutes() == 0 && object.type == 'update'){
                 let ticker = object.data;
                 if(!objectPrice){
                   objectPrice = {
@@ -287,9 +286,9 @@ export default {
                     openPrice: ticker.last,
                     openPriceTimestamp: new Date(Math.ceil(ticker.time)*1000).getMilliseconds()
                   };
-                  await setAsync('ftx:trade:'+symbol, JSON.stringify(objectPrice));
+                  await setAsync('ftx:trade:'+(baseAsset+quoteAsset).toLowerCase().trim(), JSON.stringify(objectPrice));
                 }
-                await setAsync('ftx:ticker:'+symbol, JSON.stringify({
+                await setAsync('ftx:ticker:'+(baseAsset+quoteAsset).toLowerCase().trim(), JSON.stringify({
                   "priceChange": ticker.last - objectPrice.openPrice,
                   "priceChangePercent": ((ticker.last - objectPrice.openPrice)/ticker.last)*100,
                   "lastPrice": ticker.last,
@@ -306,11 +305,13 @@ export default {
               }
             });
           });
+
           socket.on('connect_error', function (err) {
             console.log("connect failed" + err);
             reject(err);
           });
           socket.on("error", (mess) => {
+            console.log(mess);
             reject(mess);
           });
           wss.on('error', function error(error) {
