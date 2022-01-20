@@ -196,6 +196,7 @@ export default {
               method: 'GET',
               url: `https://ftx.com/api/markets/${symbol.toUpperCase()}`,
             });
+            console.log(result.data);
             let candles: any = result.data['result'][result.data['result'].length - 1];
             let ticker: any = resultTicker.data['result'];
             objectPrice = {
