@@ -63,8 +63,8 @@ export default {
           });
           // @ts-ignore
           let interval = setInterval(async function () {
-            let priceObject = await getAsync('ftx:trade:'+symbol);
-            let priceTicker = await getAsync('ftx:ticker:'+symbol);
+            let priceObject = await getAsync('ftx:trade:'+(baseAsset+quoteAsset).toLowerCase().trim());
+            let priceTicker = await getAsync('ftx:ticker:'+(baseAsset+quoteAsset).toLowerCase().trim());
             countMinutes++;
             await publishServiceInstance.publish('', 'crypto_save_market_pair_historical', {
               symbol: (baseAsset+quoteAsset).toLowerCase().trim(),
