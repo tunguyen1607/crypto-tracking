@@ -127,7 +127,6 @@ export default {
                 "usdVolume": ticker.volumeUsd24h,
                 "closeTime": new Date().getMilliseconds()
               };
-              await setAsync('ftx:trade:'+symbol, JSON.stringify(objectPrice));
               await setAsync('ftx:ticker:'+symbol, JSON.stringify(objectTicker));
             }
           }, 60 * 1000);
