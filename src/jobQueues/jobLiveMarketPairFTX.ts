@@ -264,6 +264,8 @@ export default {
                     symbol,
                     price: ticker.last,
                     timestamp: new Date(ticker.time).getMilliseconds(),
+                    openPrice: ticker.last,
+                    openPriceTimestamp: new Date(Math.ceil(ticker.time)*1000).getMilliseconds()
                   };
                   await setAsync('ftx:trade:'+symbol, JSON.stringify(objectPrice));
                 }
