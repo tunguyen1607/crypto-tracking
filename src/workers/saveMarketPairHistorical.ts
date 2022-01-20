@@ -22,6 +22,7 @@ export default {
     const setAsync = promisify(RedisInstance.set).bind(RedisInstance);
     try {
       let { symbol, quoteAsset, baseAsset, marketPairId, exchangeId, type, priceObject, ticker, jobId, timestamp, market } = object;
+      console.log(object);
       if(!symbol){
         throw new Error('not found symbol');
       }
@@ -416,7 +417,7 @@ export default {
       }
     } catch (e) {
       // @ts-ignore
-      Logger.error('🔥 Error with queue crypto_handle_price_and_historical_binance: %o', e);
+      Logger.error('🔥 Error with queue crypto_save_market_pair_historical: %o', e);
     }finally {
       cb(true);
     }
