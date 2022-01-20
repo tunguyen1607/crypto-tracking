@@ -122,7 +122,7 @@ export default {
                 "volume": ticker.quoteVolume24h / ticker.last,
                 "quoteVolume": ticker.quoteVolume24h,
                 "usdVolume": ticker.volumeUsd24h,
-                "closeTime": new Date().getMilliseconds()
+                "closeTime": new Date().getTime()
               };
               await setAsync('ftx:ticker:'+(baseAsset+quoteAsset).toLowerCase().trim(), JSON.stringify(objectTicker));
             }
@@ -208,9 +208,9 @@ export default {
               objectPrice = {
                 symbol: (baseAsset+quoteAsset).toLowerCase().trim(),
                 price: parseFloat(candles.close),
-                timestamp: new Date(candles.startTime).getMilliseconds(),
+                timestamp: new Date(candles.startTime).getTime(),
                 openPrice: parseFloat(candles.open),
-                openPriceTimestamp: new Date(candles.startTime).getMilliseconds(),
+                openPriceTimestamp: new Date(candles.startTime).getTime(),
                 highPrice: parseFloat(candles.high),
                 lowPrice: parseFloat(candles.low),
               };
@@ -226,8 +226,8 @@ export default {
                 "lowPrice": parseFloat(candles.low),
                 "volume": ticker.quoteVolume24h / ticker.last,
                 "quoteVolume": ticker.quoteVolume24h,
-                "openTime": new Date(candles.startTime).getMilliseconds(),
-                "closeTime": new Date().getMilliseconds()
+                "openTime": new Date(candles.startTime).getTime(),
+                "closeTime": new Date().getTime()
               };
               await setAsync('ftx:trade:'+(baseAsset+quoteAsset).toLowerCase().trim(), JSON.stringify(objectPrice));
               await setAsync('ftx:ticker:'+(baseAsset+quoteAsset).toLowerCase().trim(), JSON.stringify(objectTicker));
@@ -250,31 +250,31 @@ export default {
                 let lastTrade = object.data[0];
                 if (!priceOpen) {
                   priceOpen = lastTrade.price;
-                  priceOpenTimestamp = new Date(lastTrade.time).getMilliseconds();
+                  priceOpenTimestamp = new Date(lastTrade.time).getTime();
                   objectPrice['openPrice'] = lastTrade.price;
-                  objectPrice['openPriceTimestamp'] = new Date(lastTrade.time).getMilliseconds();
+                  objectPrice['openPriceTimestamp'] = new Date(lastTrade.time).getTime();
                 }
                 objectPrice['price'] = lastTrade.price;
-                objectPrice['timestamp'] = new Date(lastTrade.time).getMilliseconds();
+                objectPrice['timestamp'] = new Date(lastTrade.time).getTime();
 
                 let btcHighPrice = objectPrice['highPrice'];
                 if (!btcHighPrice || isNaN(btcHighPrice)) {
                   objectPrice['highPrice'] = lastTrade.price;
-                  objectPrice['highPriceTimestamp'] = new Date(lastTrade.time).getMilliseconds();
+                  objectPrice['highPriceTimestamp'] = new Date(lastTrade.time).getTime();
                 } else {
                   if (parseFloat(btcHighPrice) < parseFloat(lastTrade.price)) {
                     objectPrice['highPrice'] = lastTrade.price;
-                    objectPrice['highPriceTimestamp'] = new Date(lastTrade.time).getMilliseconds();
+                    objectPrice['highPriceTimestamp'] = new Date(lastTrade.time).getTime();
                   }
                 }
                 let btcLowPrice = objectPrice['lowPrice'];
                 if (!btcLowPrice || isNaN(btcLowPrice)) {
                   objectPrice['lowPrice'] = lastTrade.price;
-                  objectPrice['lowPriceTimestamp'] = new Date(lastTrade.time).getMilliseconds();
+                  objectPrice['lowPriceTimestamp'] = new Date(lastTrade.time).getTime();
                 } else {
                   if (parseFloat(btcLowPrice) > parseFloat(lastTrade.price)) {
                     objectPrice['lowPrice'] = lastTrade.price;
-                    objectPrice['lowPriceTimestamp'] = new Date(lastTrade.time).getMilliseconds();
+                    objectPrice['lowPriceTimestamp'] = new Date(lastTrade.time).getTime();
                   }
                 }
                 objectPrice['symbol'] = (baseAsset+quoteAsset).toLowerCase().trim();
@@ -291,9 +291,9 @@ export default {
                   objectPrice = {
                     symbol,
                     price: ticker.last,
-                    timestamp: new Date(ticker.time).getMilliseconds(),
+                    timestamp: new Date(ticker.time).getTime(),
                     openPrice: ticker.last,
-                    openPriceTimestamp: new Date(Math.ceil(ticker.time)*1000).getMilliseconds()
+                    openPriceTimestamp: new Date(Math.ceil(ticker.time)*1000).getTime()
                   };
                   await setAsync('ftx:trade:'+(baseAsset+quoteAsset).toLowerCase().trim(), JSON.stringify(objectPrice));
                 }
@@ -309,7 +309,7 @@ export default {
                   "highPrice": objectPrice.highPrice,
                   "lowPrice": objectPrice.lowPrice,
                   "openTime": objectPrice.openPriceTimestamp,
-                  "closeTime": new Date(Math.ceil(ticker.time)*1000).getMilliseconds(),
+                  "closeTime": new Date(Math.ceil(ticker.time)*1000).getTime(),
                 }));
               }
             });
