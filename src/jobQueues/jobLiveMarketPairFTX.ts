@@ -124,7 +124,7 @@ export default {
                 "usdVolume": ticker.volumeUsd24h,
                 "closeTime": new Date().getMilliseconds()
               };
-              await setAsync('ftx:ticker:'+symbol, JSON.stringify(objectTicker));
+              await setAsync('ftx:ticker:'+(baseAsset+quoteAsset).toLowerCase().trim(), JSON.stringify(objectTicker));
             }
           }, 60 * 1000);
 
@@ -207,23 +207,23 @@ export default {
               let ticker: any = resultTicker.data['result'];
               objectPrice = {
                 symbol: (baseAsset+quoteAsset).toLowerCase().trim(),
-                price: parseFloat(candles.close).toFixed(4),
+                price: parseFloat(candles.close),
                 timestamp: new Date(candles.startTime).getMilliseconds(),
-                openPrice: parseFloat(candles.open).toFixed(4),
+                openPrice: parseFloat(candles.open),
                 openPriceTimestamp: new Date(candles.startTime).getMilliseconds(),
-                highPrice: parseFloat(candles.high).toFixed(4),
-                lowPrice: parseFloat(candles.low).toFixed(4),
+                highPrice: parseFloat(candles.high),
+                lowPrice: parseFloat(candles.low),
               };
               let objectTicker = {
                 "symbol": (baseAsset+quoteAsset).toLowerCase().trim(),
                 "priceChange": ticker.change24h,
                 "priceChangePercent": (ticker.change24h/ticker.price)*100,
-                "lastPrice": parseFloat(ticker.last).toFixed(4),
-                "bidPrice": parseFloat(ticker.bid).toFixed(4),
-                "askPrice": parseFloat(ticker.ask).toFixed(4),
-                "openPrice": parseFloat(candles.open).toFixed(4),
-                "highPrice": parseFloat(candles.high).toFixed(4),
-                "lowPrice": parseFloat(candles.low).toFixed(4),
+                "lastPrice": parseFloat(ticker.last),
+                "bidPrice": parseFloat(ticker.bid),
+                "askPrice": parseFloat(ticker.ask),
+                "openPrice": parseFloat(candles.open),
+                "highPrice": parseFloat(candles.high),
+                "lowPrice": parseFloat(candles.low),
                 "volume": ticker.quoteVolume24h / ticker.last,
                 "quoteVolume": ticker.quoteVolume24h,
                 "openTime": new Date(candles.startTime).getMilliseconds(),
@@ -246,6 +246,7 @@ export default {
             wss.on('message', async function incoming(message) {
               let object = JSON.parse(message);
               if(object.channel == 'trades' && object.type == 'update'){
+                console.log('ftx:trade:'+(baseAsset+quoteAsset).toLowerCase().trim());
                 let lastTrade = object.data[0];
                 if (!priceOpen) {
                   priceOpen = lastTrade.price;
