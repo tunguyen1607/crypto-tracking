@@ -109,6 +109,27 @@ export default {
                 }
               }
             }
+            if(new Date().getMinutes() % 5 == 0){
+              const resultTicker = await axios({
+                method: 'GET',
+                url: `https://ftx.com/api/markets/${symbol.toUpperCase()}`,
+              });
+              let ticker: any = resultTicker.data['result'];
+              let objectTicker = {
+                "symbol": symbol,
+                "priceChange": ticker.change24h,
+                "priceChangePercent": (ticker.change24h/ticker.price)*100,
+                "lastPrice": ticker.last,
+                "bidPrice": ticker.bid,
+                "askPrice": ticker.ask,
+                "volume": ticker.quoteVolume24h / ticker.last,
+                "quoteVolume": ticker.quoteVolume24h,
+                "usdVolume": ticker.volumeUsd24h,
+                "closeTime": new Date().getMilliseconds()
+              };
+              await setAsync('ftx:trade:'+symbol, JSON.stringify(objectPrice));
+              await setAsync('ftx:ticker:'+symbol, JSON.stringify(objectTicker));
+            }
           }, 60 * 1000);
           setTimeout(async function () {
             if (marketPairId) {
@@ -280,8 +301,6 @@ export default {
                   "openPrice": objectPrice.openPrice,
                   "highPrice": objectPrice.highPrice,
                   "lowPrice": objectPrice.lowPrice,
-                  "volume": object.v,
-                  "quoteVolume": object.q,
                   "openTime": objectPrice.openPriceTimestamp,
                   "closeTime": new Date(Math.ceil(ticker.time)*1000).getMilliseconds(),
                 }));
