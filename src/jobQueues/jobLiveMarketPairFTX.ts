@@ -188,7 +188,7 @@ export default {
               }
             }
           }else {
-            const result = await axios({
+            let result = await axios({
               method: 'GET',
               url: `https://ftx.com/api/markets/${symbol.toUpperCase()}/candles?resolution=15`,
             });
@@ -196,35 +196,42 @@ export default {
               method: 'GET',
               url: `https://ftx.com/api/markets/${symbol.toUpperCase()}`,
             });
-            console.log(result.data);
-            let candles: any = result.data['result'][result.data['result'].length - 1];
-            let ticker: any = resultTicker.data['result'];
-            objectPrice = {
-              symbol: (baseAsset+quoteAsset).toLowerCase().trim(),
-              price: candles.close,
-              timestamp: new Date(candles.startTime).getMilliseconds(),
-              openPrice: candles.open,
-              openPriceTimestamp: new Date(candles.startTime).getMilliseconds(),
-              highPrice: candles.high,
-              lowPrice: candles.low,
-            };
-            let objectTicker = {
-              "symbol": (baseAsset+quoteAsset).toLowerCase().trim(),
-              "priceChange": ticker.change24h,
-              "priceChangePercent": (ticker.change24h/ticker.price)*100,
-              "lastPrice": ticker.last,
-              "bidPrice": ticker.bid,
-              "askPrice": ticker.ask,
-              "openPrice": candles.open,
-              "highPrice": candles.high,
-              "lowPrice": candles.low,
-              "volume": ticker.quoteVolume24h / ticker.last,
-              "quoteVolume": ticker.quoteVolume24h,
-              "openTime": new Date(candles.startTime).getMilliseconds(),
-              "closeTime": new Date().getMilliseconds()
-            };
-            await setAsync('ftx:trade:'+(baseAsset+quoteAsset).toLowerCase().trim(), JSON.stringify(objectPrice));
-            await setAsync('ftx:ticker:'+(baseAsset+quoteAsset).toLowerCase().trim(), JSON.stringify(objectTicker));
+            if(!result || result.data['result'].length == 0){
+              result = await axios({
+                method: 'GET',
+                url: `https://ftx.com/api/markets/${symbol.toUpperCase()}/candles?resolution=86400`,
+              });
+            }
+            if(result && result.data){
+              let candles: any = result.data['result'][result.data['result'].length - 1];
+              let ticker: any = resultTicker.data['result'];
+              objectPrice = {
+                symbol: (baseAsset+quoteAsset).toLowerCase().trim(),
+                price: parseFloat(candles.close).toString(),
+                timestamp: new Date(candles.startTime).getMilliseconds(),
+                openPrice: parseFloat(candles.open).toString(),
+                openPriceTimestamp: new Date(candles.startTime).getMilliseconds(),
+                highPrice: parseFloat(candles.high).toString(),
+                lowPrice: parseFloat(candles.low).toString(),
+              };
+              let objectTicker = {
+                "symbol": (baseAsset+quoteAsset).toLowerCase().trim(),
+                "priceChange": ticker.change24h,
+                "priceChangePercent": (ticker.change24h/ticker.price)*100,
+                "lastPrice": parseFloat(ticker.last).toString(),
+                "bidPrice": parseFloat(ticker.bid).toString(),
+                "askPrice": parseFloat(ticker.ask).toString(),
+                "openPrice": parseFloat(candles.open).toString(),
+                "highPrice": parseFloat(candles.high).toString(),
+                "lowPrice": parseFloat(candles.low).toString(),
+                "volume": ticker.quoteVolume24h / ticker.last,
+                "quoteVolume": ticker.quoteVolume24h,
+                "openTime": new Date(candles.startTime).getMilliseconds(),
+                "closeTime": new Date().getMilliseconds()
+              };
+              await setAsync('ftx:trade:'+(baseAsset+quoteAsset).toLowerCase().trim(), JSON.stringify(objectPrice));
+              await setAsync('ftx:ticker:'+(baseAsset+quoteAsset).toLowerCase().trim(), JSON.stringify(objectTicker));
+            }
           }
           let linkToCall = `wss://ftx.com/ws/`;
           console.log(linkToCall);
