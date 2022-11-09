@@ -20,11 +20,11 @@ export default (app: Router) => {
     const getAsync = promisify(RedisInstance.get).bind(RedisInstance);
     // @ts-ignore
     const sMembersAsync = promisify(RedisInstance.smembers).bind(RedisInstance);
-    let priceKey = 'ftx:trade:bnbusd';
-    let priceTickerKey = 'ftx:ticker:bnbusd';
+    let priceKey = 'ftx:trade:btcusd';
+    let priceTickerKey = 'ftx:ticker:btcusd';
     let priceTicker = await getAsync(priceTickerKey);
     let priceObject = await getAsync(priceKey);
-    let price24H = await sMembersAsync('ftx:24hPrice:bnbusd');
+    let price24H = await sMembersAsync('ftx:24hPrice:btcusd');
     return res.json({ rs: priceObject, hours: price24H, ticker: priceTicker}).status(200);
   });
 

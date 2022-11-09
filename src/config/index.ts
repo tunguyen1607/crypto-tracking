@@ -84,9 +84,9 @@ export default {
     },
   ],
   aws: {
-    bucketName: 'media-all-bussiness',
-    userKey: 'AKIAJHNUMH2LHZJELZLQ',
-    userSecret: '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',
+    bucketName: process.env.S3_BUCKET,
+    userKey: process.env.S3_KEY,
+    userSecret: process.env.S3_SECRET,
   },
   redis: {
     url: process.env.REDIS_URL,
